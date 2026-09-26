@@ -1,0 +1,164 @@
+"use client";
+/**
+ * Tactile slider: spring thumb, detent ticks with sound, log scale, full keyboard support.
+ */
+import { motion } from "motion/react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { sfx } from "@/audio/engine";
+import { cx } from "./kit";
+import { spring } from "./motion";
+
+export interface SliderProps {
+  value: number;
+  onChange: (v: number) => void;
+  /** Called on release (pointer up / key up). */
+  onCommit?: (v: number) => void;
+  min: number;
+  max: number;
+  step?: number;
+  log?: boolean;
+  label: string;
+  format?: (v: number) => ReactNode;
+  /** Values to draw as labelled ticks. */
+  marks?: { value: number; label: string }[];
+  /** A highlighted band (e.g. the danger zone). */
+  zone?: { from: number; to: number; tone: "warn" | "alert" };
+  disabled?: boolean;
+  className?: string;
+  hideValue?: boolean;
+}
+
+export function Slider({ value, onChange, onCommit, min, max, step, log, label, format, marks, zone, disabled, className, hideValue }: SliderProps) {
+  const track = useRef<HTMLDivElement>(null);
+  const [dragging, setDragging] = useState(false);
+  const lastStep = useRef<number>(value);
+
+  const toFrac = useCallback(
+    (v: number) => {
+      if (log) return (Math.log(v) - Math.log(min)) / (Math.log(max) - Math.log(min));
+      return (v - min) / (max - min);
+    },
+    [log, min, max],
+  );
+  const fromFrac = useCallback(
+    (f: number) => {
+      const c = Math.min(1, Math.max(0, f));
+      let v = log ? Math.exp(Math.log(min) + c * (Math.log(max) - Math.log(min))) : min + c * (max - min);
+      if (step) v = Math.round(v / step) * step;
+      else if (log) {
+        // snap log sliders to 2 significant figures
+        const p = Math.pow(10, Math.floor(Math.log10(v)) - 1);
+        v = Math.round(v / p) * p;
+      }
+      return Math.min(max, Math.max(min, v));
+    },
+    [log, min, max, step],
+  );
+
+  const emit = useCallback(
+    (v: number) => {
+      if (v !== lastStep.current) {
+        lastStep.current = v;
+        sfx.tick();
+        onChange(v);
+      }
+    },
+    [onChange],
+  );
+
+  useEffect(() => {
+    lastStep.current = value;
+  }, [value]);
+
+  const fromPointer = (clientX: number) => {
+    const r = track.current!.getBoundingClientRect();
+    return fromFrac((clientX - r.left) / r.width);
+  };
+
+  const frac = Math.min(1, Math.max(0, toFrac(value)));
+  const keyStep = step ?? (max - min) / 100;
+
+  return (
+    <div className={cx("select-none", className)}>
+      <div className="mb-1.5 flex items-baseline justify-between gap-2">
+        <span className="font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">{label}</span>
+        {!hideValue && <span className="font-mono text-sm tabular text-amber">{format ? format(value) : value}</span>}
+      </div>
+      <div
+        ref={track}
+        role="slider"
+        tabIndex={disabled ? -1 : 0}
+        aria-label={label}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={value}
+        aria-valuetext={typeof format?.(value) === "string" ? (format(value) as string) : String(value)}
+        aria-disabled={disabled}
+        className={cx("relative h-9 touch-none", disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer")}
+        onPointerDown={(e) => {
+          if (disabled) return;
+          sfx.unlock();
+          (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+          setDragging(true);
+          emit(fromPointer(e.clientX));
+        }}
+        onPointerMove={(e) => {
+          if (!dragging) return;
+          emit(fromPointer(e.clientX));
+        }}
+        onPointerUp={() => {
+          if (!dragging) return;
+          setDragging(false);
+          onCommit?.(lastStep.current);
+        }}
+        onPointerCancel={() => setDragging(false)}
+        onKeyDown={(e) => {
+          if (disabled) return;
+          let v = value;
+          const big = e.shiftKey ? 10 : 1;
+          if (e.key === "ArrowRight" || e.key === "ArrowUp") v = log ? fromFrac(frac + 0.02 * big) : value + keyStep * big;
+          else if (e.key === "ArrowLeft" || e.key === "ArrowDown") v = log ? fromFrac(frac - 0.02 * big) : value - keyStep * big;
+          else if (e.key === "Home") v = min;
+          else if (e.key === "End") v = max;
+          else return;
+          e.preventDefault();
+          emit(Math.min(max, Math.max(min, step ? Math.round(v / step) * step : v)));
+        }}
+        onKeyUp={() => onCommit?.(lastStep.current)}
+      >
+        {/* track */}
+        <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-line" />
+        {zone && (
+          <div
+            className={cx("absolute top-1/2 h-1.5 -translate-y-1/2", zone.tone === "alert" ? "bg-alert/35" : "bg-amber/30")}
+            style={{ left: `${toFrac(zone.from) * 100}%`, width: `${(toFrac(zone.to) - toFrac(zone.from)) * 100}%` }}
+          />
+        )}
+        <motion.div className="absolute left-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-amber/80" animate={{ width: `${frac * 100}%` }} transition={spring.snap} />
+        {marks?.map((m) => (
+          <div key={m.value} className="absolute top-1/2 h-3 w-px -translate-y-1/2 bg-line-3" style={{ left: `${toFrac(m.value) * 100}%` }} />
+        ))}
+        {/* thumb */}
+        <motion.div
+          className={cx(
+            "absolute top-1/2 h-6 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-[2px] border bg-bg-3",
+            dragging ? "border-amber shadow-[0_0_16px_rgb(255_181_71/0.6)]" : "border-line-3",
+          )}
+          animate={{ left: `${frac * 100}%`, scale: dragging ? 1.15 : 1 }}
+          transition={spring.snap}
+        >
+          <span className="absolute inset-x-[4px] top-1/2 h-2.5 -translate-y-1/2 border-x border-ink-3" />
+        </motion.div>
+      </div>
+      {marks && (
+        <div className="relative mt-0.5 h-4">
+          {marks.map((m) => (
+            <span key={m.value} className="absolute -translate-x-1/2 font-mono text-[10px] text-ink-3" style={{ left: `${toFrac(m.value) * 100}%` }}>
+              {m.label}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

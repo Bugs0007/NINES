@@ -1,0 +1,57 @@
+# Decisions
+
+Architecture decision log. Newest at the bottom. Each entry: context, decision, why, consequences.
+
+---
+
+### D-001 · Next.js 16 App Router + React 19 + TypeScript 5.9 (strict)
+- **Context:** The brief asks for Next.js App Router + strict TS. npm's `latest` TypeScript is 7.x (the native Go port).
+- **Decision:** Pin `typescript@5.9`. Next 16 with Turbopack.
+- **Why:** TS 7 is new; Next's type-checking integration and several libraries still assume the 5.x API. 5.9 is stable and strict mode is identical for our purposes.
+- **Consequence:** Revisit when Next officially documents TS 7 support.
+
+### D-002 · Canvas 2D instead of PixiJS for particles and the flow view
+- **Decision:** Hand-rolled Canvas 2D renderer (`src/ui/flow`), batched by colour, with `devicePixelRatio` scaling.
+- **Why:** 2,000 particles is ~2,000 `arc`/`fillRect` calls per frame, well inside Canvas 2D's budget on a mid-range laptop and phone when batched into a handful of paths per colour bucket. PixiJS v8 adds ~450KB and a second scene graph to keep in sync with React for no visual gain at this scale.
+- **Consequence:** If the Sandbox ever needs >10k particles or shaders, swap the renderer behind the same `FlowRenderer` interface.
+
+### D-003 · Raw Web Audio API instead of Tone.js
+- **Decision:** A small custom audio engine (`src/audio`) on the Web Audio API.
+- **Why:** Everything we need (oscillators, envelopes, filters, noise bursts, scheduling on `AudioContext.currentTime`) is native. Tone.js is ~350KB, brings its own transport and timing model, and we'd use a fraction of it. A custom engine also makes the latency->pitch sonification and voice-limiting explicit.
+- **Consequence:** Generative music is written by hand (drone + scheduler). Fine for ambient beds.
+
+### D-004 · Deterministic discrete-event simulation (not fluid/analytic models)
+- **Decision:** Event-driven sim with seeded RNG; every request is an entity (up to ~20k rps of sim traffic, sampled above that).
+- **Why:** The brief requires behaviour that *emerges* (saturation blowup, retry storms, hit ratios, tail amplification). Analytic formulas would hard-code the lesson. Determinism gives us slow-motion replays and testable content claims.
+- **Consequence:** Heavy scenarios need the sampling mode described in GAME_DESIGN 7.6, disclosed in Honest physics.
+
+### D-005 · The sim runs in a Web Worker, with a synchronous fallback
+- **Decision:** `src/engine/worker.ts` hosts a `SimHost`; UI talks to it via a typed message protocol. Tests and tiny widgets can run the engine synchronously on the main thread.
+- **Why:** Keeps 60fps rendering independent of sim load. The sync path keeps unit tests simple and lets small widgets avoid worker startup latency.
+
+### D-006 · Local-first persistence with Dexie; Zustand for UI state
+- **Decision:** Dexie (IndexedDB) is the source of truth for progress; Zustand holds the hydrated in-memory view and writes through.
+- **Why:** Works offline and on phone, no backend needed for the single-player game. Sync to Postgres (Neon) is a later optional phase.
+
+### D-007 · FSRS card = concept, not review item
+- **Decision:** One `ts-fsrs` card per concept. Each review picks a review item from that concept's pool (varying formats, avoiding the last one shown).
+- **Why:** The brief schedules *concepts*. Item-level cards would let you memorise individual questions; concept-level cards with rotating formats test the idea.
+
+### D-008 · The planned curriculum lives in code (`src/content/graph.ts`)
+- **Decision:** The full prerequisite graph is a typed array; `CONTENT_PLAN.md` tables are generated from it (`npm run content:plan`).
+- **Why:** The HQ map needs every planned concept (to draw blueprints), the lint needs to validate prerequisites, and a hand-maintained markdown table would drift.
+
+### D-009 · Content claims are verified against the engine
+- **Decision:** Concept packs may contain `verify` blocks (scenario + expected metric range). A Vitest suite runs them.
+- **Why:** "Numbers must be realistic" is easy to write and hard to keep. If a mechanism caption says p99 triples, the sim must agree.
+
+### D-010 · Offline tokenizer proxy: `gpt-tokenizer` (o200k_base)
+- **Decision:** Tokenizer Slicer splits text with a real BPE (o200k_base) offline, labelled as a proxy. With an API key, it also shows Claude's exact count from the token-counting endpoint.
+- **Why:** Claude's tokenizer isn't published. A real BPE teaches the true mechanics (subwords, whitespace, digits, non-Latin scripts inflating counts); the honest-physics note covers the difference.
+
+### D-011 · Fonts: Big Shoulders Display + IBM Plex Sans + IBM Plex Mono via `next/font`
+- **Why:** Condensed industrial display face reads as control-room signage and is distinct from the usual AI-product look; Plex Sans/Mono are engineered, highly legible at small sizes, and have tabular figures for metrics. `next/font` self-hosts at build time (works offline in the PWA).
+
+### D-012 · Claude usage ledger on the server filesystem (local), Postgres later
+- **Decision:** `.nines/usage.json` (gitignored) records cost per call; the hard monthly cap is enforced server-side before each call.
+- **Why:** The key and the budget must be enforced where the key lives. A file is enough for local single-user use; the Vercel phase will move it to Postgres.
