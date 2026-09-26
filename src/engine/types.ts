@@ -124,6 +124,8 @@ export interface SimSpec {
   hopS?: number;
   /** Probability a request is tracked as a visible particle. Default 0 (host adjusts). */
   vizRate?: number;
+  /** Scripted events (part of the scenario, so replays reproduce them without logging). */
+  script?: { t: number; patch: SimPatch; note?: string }[];
 }
 
 export type SimPatch =

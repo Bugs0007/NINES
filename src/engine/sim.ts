@@ -13,8 +13,8 @@ import { Rng } from "./rng";
 import { sample, scaleDist, Zipf, type Dist } from "./dist";
 import { Deque, EventHeap, LatencyHistogram, LruCache } from "./structures";
 import { maxRateOver, rateAt } from "./traffic";
+import { aggregateWindows } from "./metrics";
 import {
-  FAIL_REASONS,
   VizState,
   type Aggregate,
   type CacheSpec,
@@ -948,6 +948,12 @@ export class Simulation {
     for (const n of spec.nodes) this.addNode(structuredClone(n));
     for (const id of this.order) this.nodes.get(id)!.start();
     this.at(this.windowS, () => this.closeWindow());
+    for (const s of spec.script ?? []) {
+      this.at(s.t, () => {
+        this.applyPatch(s.patch);
+        if (s.note) this.notable("patch", s.note, "node" in s.patch ? s.patch.node : undefined);
+      });
+    }
   }
 
   private static freshAcc(): ClientAcc {
@@ -1093,8 +1099,13 @@ export class Simulation {
 
   // ---- patches
 
+  /** Apply a live change (recorded in the patch log for replays). */
   apply(p: SimPatch): void {
     this.patchLog.push({ t: this.now, patch: structuredClone(p) });
+    this.applyPatch(p);
+  }
+
+  private applyPatch(p: SimPatch): void {
     switch (p.op) {
       case "vizRate":
         this.vizRate = p.value;
@@ -1223,55 +1234,7 @@ export class Simulation {
 
   /** Aggregate complete windows in [from, to). With `sloS`, also the fraction of requests that were good (ok and fast enough). */
   aggregate(from = 0, to = Infinity, sloS?: number): Aggregate {
-    const h = new LatencyHistogram();
-    const reasons = zeroReasons();
-    let arrivals = 0,
-      attempts = 0,
-      ok = 0,
-      failed = 0,
-      costSum = 0,
-      span = 0,
-      count = 0;
-    const utilAcc: Record<string, number> = {};
-    for (const w of this.windows) {
-      if (w.t < from - 1e-9 || w.t + w.dt > to + 1e-9) continue;
-      count++;
-      arrivals += w.arrivals;
-      attempts += w.attempts;
-      ok += w.ok;
-      failed += w.failed;
-      for (const r of FAIL_REASONS) reasons[r] += w.failReasons[r];
-      for (const [b, c] of w.hist) h.counts[b]! += c;
-      h.n += w.ok;
-      h.sum += w.mean * w.ok;
-      if (w.max > h.max) h.max = w.max;
-      costSum += w.costPerMonth * w.dt;
-      span += w.dt;
-      for (const [id, nw] of Object.entries(w.nodes)) utilAcc[id] = (utilAcc[id] ?? 0) + Math.max(nw.util, nw.workerUtil) * w.dt;
-    }
-    const util: Record<string, number> = {};
-    for (const [id, v] of Object.entries(utilAcc)) util[id] = span > 0 ? v / span : 0;
-    const total = ok + failed;
-    return {
-      from,
-      to: count ? Math.min(to, from + span) : from,
-      arrivals,
-      attempts,
-      ok,
-      failed,
-      failReasons: reasons,
-      p50: h.quantile(0.5),
-      p95: h.quantile(0.95),
-      p99: h.quantile(0.99),
-      mean: h.mean,
-      throughput: span > 0 ? ok / span : 0,
-      errorRate: total > 0 ? failed / total : 0,
-      availability: total > 0 ? ok / total : 1,
-      sloGood: sloS === undefined ? (total > 0 ? ok / total : 1) : total > 0 ? h.countUnder(sloS) / total : 1,
-      sloS,
-      costPerMonth: span > 0 ? costSum / span : 0,
-      util,
-    };
+    return aggregateWindows(this.windows, from, to, sloS);
   }
 
   // ---- particles

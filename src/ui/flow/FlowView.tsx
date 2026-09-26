@@ -151,12 +151,34 @@ export function FlowView({
     };
     const tf = () => {
       const p = portrait();
-      const ww = p ? H : W;
-      const wh = p ? W : H;
-      const pad = 12;
-      const s = Math.min((cssW - pad * 2) / ww, (cssH - pad * 2) / wh);
-      const ox = (cssW - ww * s) / 2;
-      const oy = (cssH - wh * s) / 2;
+      // Fit the nodes' bounding box (plus room for queue lanes) instead of a fixed world frame.
+      let minX = Infinity,
+        maxX = -Infinity,
+        minY = Infinity,
+        maxY = -Infinity;
+      for (const n of props.current.nodes) {
+        minX = Math.min(minX, n.x);
+        maxX = Math.max(maxX, n.x);
+        minY = Math.min(minY, n.y);
+        maxY = Math.max(maxY, n.y);
+      }
+      if (!Number.isFinite(minX)) {
+        minX = 0;
+        maxX = W;
+        minY = 0;
+        maxY = H;
+      }
+      const laneRoom = 150; // world units in front of the leftmost/topmost node
+      const bx0 = minX - NODE_W / 2 - laneRoom;
+      const bx1 = maxX + NODE_W / 2 + 30;
+      const by0 = minY - NODE_H / 2 - 40;
+      const by1 = maxY + NODE_H / 2 + 30;
+      const ww = p ? by1 - by0 : bx1 - bx0;
+      const wh = p ? bx1 - bx0 : by1 - by0;
+      const pad = 10;
+      const s = Math.min(1.7, (cssW - pad * 2) / ww, (cssH - pad * 2) / wh);
+      const ox = (cssW - ww * s) / 2 - (p ? by0 : bx0) * s;
+      const oy = (cssH - wh * s) / 2 - (p ? bx0 : by0) * s;
       return { p, s, ox, oy };
     };
     const toScreen = (x: number, y: number, t: ReturnType<typeof tf>) => {
@@ -192,7 +214,10 @@ export function FlowView({
 
     const draw = (now: number) => {
       raf = requestAnimationFrame(draw);
-      const dt = Math.min(0.05, (now - last) / 1000);
+      const gap = (now - last) / 1000;
+      const dt = Math.min(0.05, gap);
+      // After a long pause (hidden tab), snap instead of crawling from stale positions.
+      const snap = gap > 0.25;
       last = now;
       const { nodes: ns, edges: es, highlight: hl, selected: sel, reducedMotion: rm } = props.current;
       const nm = nodeMap();
@@ -291,9 +316,10 @@ export function FlowView({
         q.state = p.state;
         q.retry = p.retry;
         q.seen = seen;
-        if (rm) {
+        if (rm || snap) {
           q.x = tg[0];
           q.y = tg[1];
+          q.vx = q.vy = 0;
         } else {
           // critically damped spring toward the target
           const k = 90;
@@ -305,6 +331,7 @@ export function FlowView({
         }
       }
       for (const [id, q] of parts) if (q.seen !== seen) parts.delete(id);
+      if (process.env.NODE_ENV !== "production") (window as unknown as { __flow?: unknown }).__flow = { parts, target, live: f.live, t };
 
       // finished -> bursts at the client
       const fin = consumeFinished();

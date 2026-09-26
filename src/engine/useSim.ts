@@ -53,6 +53,9 @@ export function useSim(opts: UseSimOptions) {
   const port = useRef<Port | null>(null);
   const frame = useRef<FrameData>({ t: 0, live: [], finished: [], instant: {}, seq: 0 });
   const [windows, setWindows] = useState<WindowMetrics[]>([]);
+  /** Every window of the current run (not truncated), for end-of-run evaluation. */
+  const allWindows = useRef<WindowMetrics[]>([]);
+  const allNotables = useRef<NotableEvent[]>([]);
   const [notables, setNotables] = useState<NotableEvent[]>([]);
   const [t, setT] = useState(0);
   const [done, setDone] = useState(false);
@@ -71,6 +74,7 @@ export function useSim(opts: UseSimOptions) {
           return;
         }
         case "window":
+          allWindows.current.push(m.w);
           setWindows((ws) => {
             const next = ws.length >= keepWindows ? ws.slice(ws.length - keepWindows + 1) : ws.slice();
             next.push(m.w);
@@ -80,6 +84,7 @@ export function useSim(opts: UseSimOptions) {
           cbs.current.onWindow?.(m.w);
           return;
         case "notable":
+          allNotables.current.push(m.e);
           setNotables((ns) => [...ns.slice(-50), m.e]);
           cbs.current.onNotable?.(m.e);
           return;
@@ -102,6 +107,8 @@ export function useSim(opts: UseSimOptions) {
   const specKey = spec ? JSON.stringify(spec) : "";
   useEffect(() => {
     if (!spec || !port.current) return;
+    allWindows.current = [];
+    allNotables.current = [];
     setWindows([]);
     setNotables([]);
     setT(0);
@@ -125,6 +132,8 @@ export function useSim(opts: UseSimOptions) {
   const replay = useCallback(
     (log: TimedPatch[], replaySpeed: number, replayUntil: number) => {
       if (!spec) return;
+      allWindows.current = [];
+      allNotables.current = [];
       setWindows([]);
       setNotables([]);
       setT(0);
@@ -141,7 +150,7 @@ export function useSim(opts: UseSimOptions) {
     return f;
   }, []);
 
-  return { windows, notables, t, done, frame, patch, restart, replay, fastForward, consumeFinished };
+  return { windows, notables, t, done, frame, patch, restart, replay, fastForward, consumeFinished, allWindows, allNotables };
 }
 
 export type SimHandle = ReturnType<typeof useSim>;

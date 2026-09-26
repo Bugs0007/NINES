@@ -49,8 +49,9 @@ Architecture decision log. Newest at the bottom. Each entry: context, decision, 
 - **Decision:** Tokenizer Slicer splits text with a real BPE (o200k_base) offline, labelled as a proxy. With an API key, it also shows Claude's exact count from the token-counting endpoint.
 - **Why:** Claude's tokenizer isn't published. A real BPE teaches the true mechanics (subwords, whitespace, digits, non-Latin scripts inflating counts); the honest-physics note covers the difference.
 
-### D-011 · Fonts: Big Shoulders Display + IBM Plex Sans + IBM Plex Mono via `next/font`
-- **Why:** Condensed industrial display face reads as control-room signage and is distinct from the usual AI-product look; Plex Sans/Mono are engineered, highly legible at small sizes, and have tabular figures for metrics. `next/font` self-hosts at build time (works offline in the PWA).
+### D-011 · Fonts: Big Shoulders Display (+ Stencil) + IBM Plex Sans + IBM Plex Mono, self-hosted
+- **Why:** Condensed industrial display face reads as control-room signage and is distinct from the usual AI-product look; Plex Sans/Mono are engineered, highly legible at small sizes, and have tabular figures for metrics.
+- **How:** Latin-subset woff2 files from Fontsource are committed in `src/fonts/` and loaded with `next/font/local`. `next/font/google` fetches at build time and failed on a slow network; self-hosting also makes the PWA work offline. All four families are SIL Open Font License.
 
 ### D-012 · Claude usage ledger on the server filesystem (local), Postgres later
 - **Decision:** `.nines/usage.json` (gitignored) records cost per call; the hard monthly cap is enforced server-side before each call.

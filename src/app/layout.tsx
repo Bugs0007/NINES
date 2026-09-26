@@ -1,31 +1,42 @@
 import type { Metadata, Viewport } from "next";
-import { Big_Shoulders, Big_Shoulders_Stencil, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import { Shell } from "@/ui/Shell";
 import "./globals.css";
 
-const display = Big_Shoulders({
-  subsets: ["latin"],
-  axes: ["opsz"],
+// Self-hosted (OFL) so builds and the PWA work offline. See DECISIONS D-011.
+const display = localFont({
+  src: [
+    { path: "../fonts/big-shoulders-display-latin-700-normal.woff2", weight: "700" },
+    { path: "../fonts/big-shoulders-display-latin-800-normal.woff2", weight: "800" },
+    { path: "../fonts/big-shoulders-display-latin-900-normal.woff2", weight: "900" },
+  ],
   variable: "--font-display-face",
   display: "swap",
 });
 
-const stencil = Big_Shoulders_Stencil({
-  subsets: ["latin"],
-  weight: "800",
+const stencil = localFont({
+  src: [{ path: "../fonts/big-shoulders-stencil-display-latin-800-normal.woff2", weight: "800" }],
   variable: "--font-stencil-face",
   display: "swap",
 });
 
-const sans = IBM_Plex_Sans({
-  subsets: ["latin"],
+const sans = localFont({
+  src: [
+    { path: "../fonts/ibm-plex-sans-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/ibm-plex-sans-latin-400-italic.woff2", weight: "400", style: "italic" },
+    { path: "../fonts/ibm-plex-sans-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/ibm-plex-sans-latin-600-normal.woff2", weight: "600", style: "normal" },
+  ],
   variable: "--font-sans-face",
   display: "swap",
 });
 
-const mono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+const mono = localFont({
+  src: [
+    { path: "../fonts/ibm-plex-mono-latin-400-normal.woff2", weight: "400" },
+    { path: "../fonts/ibm-plex-mono-latin-500-normal.woff2", weight: "500" },
+    { path: "../fonts/ibm-plex-mono-latin-600-normal.woff2", weight: "600" },
+  ],
   variable: "--font-mono-face",
   display: "swap",
 });
