@@ -393,7 +393,9 @@ const chapterRows: Record<string, Row[]> = {
  * Per-node build status. Anything not listed is "planned".
  * Update this when a pack lands; the content lint checks it against the pack registry.
  */
-const STATUS: Partial<Record<string, BuildStatus>> = {};
+const STATUS: Partial<Record<string, BuildStatus>> = {
+  "littles-law": "drafted",
+};
 
 function chapterTrack(chapterId: string): Track {
   const ch = CHAPTERS.find((c) => c.id === chapterId);
