@@ -4,6 +4,7 @@
  */
 import { useEffect, type ReactNode } from "react";
 import { sfx } from "@/audio/engine";
+import { setTimeWarp } from "@/game/clock";
 import { useGame } from "@/game/store";
 import { useReducedMotion } from "./motion";
 
@@ -11,6 +12,8 @@ export function Shell({ children }: { children: ReactNode }) {
   const hydrate = useGame((s) => s.hydrate);
   const audio = useGame((s) => s.profile.settings.audio);
   const rmPref = useGame((s) => s.profile.settings.reducedMotion);
+  const warp = useGame((s) => s.profile.settings.timeWarpDays ?? 0);
+  setTimeWarp(warp);
   const reduced = useReducedMotion();
 
   useEffect(() => {

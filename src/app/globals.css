@@ -208,3 +208,48 @@ body {
     animation: none !important;
   }
 }
+
+/* ---------- infrastructure map ---------- */
+.trace-flow {
+  animation: trace-flow 1.6s linear infinite;
+}
+@keyframes trace-flow {
+  to {
+    stroke-dashoffset: -32;
+  }
+}
+.repair-ping {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: repair-ping 1.4s ease-out 3;
+}
+@keyframes repair-ping {
+  from {
+    opacity: 0.9;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+.sparks {
+  animation: sparks 0.9s steps(2, start) infinite;
+}
+@keyframes sparks {
+  50% {
+    opacity: 0;
+  }
+}
+[data-reduced-motion="true"] .trace-flow,
+[data-reduced-motion="true"] .repair-ping,
+[data-reduced-motion="true"] .sparks {
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reduced-motion="system"] .trace-flow,
+  [data-reduced-motion="system"] .repair-ping,
+  [data-reduced-motion="system"] .sparks {
+    animation: none !important;
+  }
+}

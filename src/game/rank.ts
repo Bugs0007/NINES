@@ -97,13 +97,14 @@ export function debtFor(retrievability: number): number {
   return retrievability >= 0.9 ? 0 : Math.min(0.12, (0.9 - retrievability) * 0.5);
 }
 
-export function liveNines(earned: number, retrievabilities: number[]): { nines: number; debt: number; degraded: number } {
+/** Only concepts that are due for review count as degraded (one definition everywhere). */
+export function liveNines(earned: number, health: { r: number; due: boolean }[]): { nines: number; debt: number; degraded: number } {
   let debt = 0;
   let degraded = 0;
-  for (const r of retrievabilities) {
-    const d = debtFor(r);
-    if (d > 0) degraded++;
-    debt += d;
+  for (const h of health) {
+    if (!h.due) continue;
+    degraded++;
+    debt += Math.max(0.01, debtFor(h.r));
   }
   debt = Math.min(MAX_DEBT, debt);
   const floor = Math.floor(earned);

@@ -22,6 +22,8 @@ export interface Settings {
   skipSeenCinematics: boolean;
   /** Show the "Honest physics" chip on sims. */
   showHonestPhysics: boolean;
+  /** Playtest only: pretend this many days have passed (to see knowledge decay). */
+  timeWarpDays: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -29,6 +31,7 @@ export const DEFAULT_SETTINGS: Settings = {
   reducedMotion: "system",
   skipSeenCinematics: false,
   showHonestPhysics: true,
+  timeWarpDays: 0,
 };
 
 export interface Streak {

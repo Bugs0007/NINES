@@ -9,7 +9,7 @@ import { sfx } from "@/audio/engine";
 import { CodexReveal } from "@/codex/CodexCard";
 import type { ConceptPack } from "@/content/schema";
 import { formatUptime } from "@/game/rank";
-import { selectRank, useGame } from "@/game/store";
+import { useRank } from "@/game/store";
 import { Button, cx } from "@/ui/kit";
 import { spring, Ticker } from "@/ui/motion";
 
@@ -20,7 +20,7 @@ export interface XpLine {
 
 export function Debrief({ pack, lines, firstBuild, stars, nextHref, nextLabel }: { pack: ConceptPack; lines: XpLine[]; firstBuild: boolean; stars: number; nextHref?: string; nextLabel?: string }) {
   const total = lines.reduce((s, l) => s + l.xp, 0);
-  const rank = useGame(selectRank);
+  const rank = useRank();
   useEffect(() => {
     sfx.recovery();
   }, []);

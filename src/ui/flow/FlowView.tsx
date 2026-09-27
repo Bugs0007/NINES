@@ -176,7 +176,7 @@ export function FlowView({
       const ww = p ? by1 - by0 : bx1 - bx0;
       const wh = p ? bx1 - bx0 : by1 - by0;
       const pad = 10;
-      const s = Math.min(1.7, (cssW - pad * 2) / ww, (cssH - pad * 2) / wh);
+      const s = Math.min(2.2, (cssW - pad * 2) / ww, (cssH - pad * 2) / wh);
       const ox = (cssW - ww * s) / 2 - (p ? by0 : bx0) * s;
       const oy = (cssH - wh * s) / 2 - (p ? bx0 : by0) * s;
       return { p, s, ox, oy };
@@ -269,14 +269,17 @@ export function FlowView({
         const hw = (NODE_W / 2) * s;
         const hh = (NODE_H / 2) * s;
         // service slots inside the node (grid)
-        const cols = Math.max(2, Math.floor((hw * 2 - 16 * s) / cell));
-        g.svc.forEach((p, i) => {
-          const c = i % cols;
-          const r = Math.floor(i / cols);
-          const x = cx0 - hw + 8 * s + c * cell + cell / 2;
-          const y = cy0 + hh - 7 * s - r * cell;
-          target.set(p.id, [x, Math.max(cy0 - hh + 4, y)]);
-        });
+        if (n.workers && n.workers <= 96) {
+          const sg = slotGeom(n, cx0, cy0, s);
+          g.svc.forEach((p, i) => target.set(p.id, [...sg.at(i % Math.max(1, sg.count))] as [number, number]));
+        } else {
+          const cols = Math.max(2, Math.floor((hw * 2 - 16 * s) / cell));
+          g.svc.forEach((p, i) => {
+            const x = cx0 - hw + 8 * s + (i % cols) * cell + cell / 2;
+            const y = cy0 + hh - 7 * s - Math.floor(i / cols) * cell;
+            target.set(p.id, [x, Math.max(cy0 - hh + 4, y)]);
+          });
+        }
         // queue lane in front of the node (left in landscape, above in portrait)
         g.queued.sort((a, b) => a.since - b.since);
         const laneRows = 4;
@@ -375,6 +378,28 @@ export function FlowView({
           ctx.font = `${Math.max(7, 9.5 * s)}px ${fontMono}`;
           ctx.fillStyle = "#6f857c";
           ctx.fillText(n.sub, x - hw + 8 * s, y - hh + 5 * s + fs + 2 * s, hw * 2 - 12 * s);
+        }
+        // worker slots: filled = busy (exact count from the sim, not just sampled particles)
+        if (n.workers && n.workers <= 96 && up) {
+          const sg = slotGeom(n, x, y, s);
+          const busy = inst ? Math.min(sg.count, inst.busyWorkers) : 0;
+          for (let i = 0; i < sg.count; i++) {
+            const [sx, sy] = sg.at(i);
+            const r = sg.cell / 2 - 0.8;
+            if (i < busy) {
+              ctx.fillStyle = busy >= sg.count ? "rgba(255,90,78,0.35)" : "rgba(92,242,154,0.22)";
+              ctx.fillRect(sx - r, sy - r, r * 2, r * 2);
+            }
+            ctx.strokeStyle = busy >= sg.count ? "rgba(255,90,78,0.55)" : "rgba(54,90,102,0.8)";
+            ctx.lineWidth = 0.8;
+            ctx.strokeRect(sx - r, sy - r, r * 2, r * 2);
+          }
+          ctx.font = `${Math.max(7, 9 * s)}px ${fontMono}`;
+          ctx.fillStyle = busy >= sg.count ? "#ff5a4e" : "#6f857c";
+          ctx.textBaseline = "bottom";
+          ctx.textAlign = "right";
+          ctx.fillText(`${busy}/${sg.count}`, x + hw - 5 * s, sg.y0 - 1);
+          ctx.textAlign = "left";
         }
         // utilization bar along the top edge
         if (n.workers || n.cores) {
@@ -484,6 +509,20 @@ export function FlowView({
       <canvas ref={canvas} className="block h-full w-full touch-manipulation" />
     </div>
   );
+}
+
+/** Worker-slot grid inside a node: up to 12 per row, bottom-aligned. */
+function slotGeom(n: FlowNode, x: number, y: number, s: number) {
+  const hw = (NODE_W / 2) * s;
+  const hh = (NODE_H / 2) * s;
+  const count = Math.min(n.workers ?? 0, 96);
+  const cols = Math.max(1, Math.min(count, 12));
+  const rows = Math.max(1, Math.ceil(count / cols));
+  const avail = hw * 2 - 14 * s;
+  const cell = Math.max(2, Math.min(8 * s, avail / cols, (hh * 2 - 26 * s) / rows));
+  const x0 = x - hw + 7 * s;
+  const y0 = y + hh - 5 * s - rows * cell;
+  return { count, cols, rows, cell, x0, y0, at: (i: number) => [x0 + (i % cols) * cell + cell / 2, y0 + Math.floor(i / cols) * cell + cell / 2] as const };
 }
 
 function kindColor(k: FlowKind, up: boolean): string {

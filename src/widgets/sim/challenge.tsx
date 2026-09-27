@@ -143,7 +143,7 @@ export function ChallengeControls({
           </>
         )}
       </div>
-      {(phase === "done" || inReplay) && ch.cause?.firstBad && cause && (
+      {((phase === "done" && verdict && !verdict.won) || inReplay) && ch.cause?.firstBad && cause && (
         <div className={cx("rounded-sm border px-2.5 py-2 text-sm", highlightNow || phase === "done" ? "border-amber-3 bg-amber-dim/40" : "border-line")}>
           <div className="font-mono text-2xs uppercase tracking-[0.14em] text-amber">First domino · t+{cause.t.toFixed(0)}s</div>
           <div className="text-ink-0">{cause.detail}</div>

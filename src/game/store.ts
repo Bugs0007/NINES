@@ -2,9 +2,11 @@
 /**
  * Game state: Zustand store hydrated from Dexie, writing through on every action.
  */
+import { useMemo } from "react";
 import { create } from "zustand";
 import {
   db,
+  DEFAULT_SETTINGS,
   freshConcept,
   freshProfile,
   type ConceptProgress,
@@ -14,6 +16,7 @@ import {
   type Profile,
   type Settings,
 } from "./db";
+import { gameNow } from "./clock";
 import { newCard, rateCard, Rating, retrievability, type Grade } from "./fsrs";
 import { liveNines, rankFromXp, type RankState } from "./rank";
 import type { Confidence } from "./scoring";
@@ -97,6 +100,8 @@ export const useGame = create<GameState>()((set, get) => ({
         profile = freshProfile();
         await d.profile.put(profile);
       }
+      // Older saves may predate newer settings fields.
+      profile = { ...profile, settings: { ...DEFAULT_SETTINGS, ...profile.settings, audio: { ...DEFAULT_SETTINGS.audio, ...profile.settings?.audio } } };
       const list = await d.concepts.toArray();
       const concepts: Record<string, ConceptProgress> = {};
       for (const c of list) concepts[c.id] = c;
@@ -126,7 +131,7 @@ export const useGame = create<GameState>()((set, get) => ({
   },
 
   completeMission: async ({ conceptId, stars, xp, cleanRun }) => {
-    const now = Date.now();
+    const now = gameNow().getTime();
     const prev = get().concepts[conceptId] ?? freshConcept(conceptId);
     const firstBuild = !prev.builtAt;
     let card = prev.card;
@@ -153,7 +158,7 @@ export const useGame = create<GameState>()((set, get) => ({
   },
 
   recordReview: async ({ conceptId, reviewId, format, grade, xp, seconds, whyCorrect, interleaved }) => {
-    const now = Date.now();
+    const now = gameNow().getTime();
     const prev = get().concepts[conceptId] ?? freshConcept(conceptId);
     const card = rateCard(prev.card ?? newCard(new Date(now)), grade, new Date(now));
     const success = grade !== Rating.Again;
@@ -285,7 +290,7 @@ export interface ConceptHealth {
   due: boolean;
 }
 
-export function conceptHealth(concepts: Record<string, ConceptProgress>, now = new Date()): ConceptHealth[] {
+export function conceptHealth(concepts: Record<string, ConceptProgress>, now = gameNow()): ConceptHealth[] {
   const out: ConceptHealth[] = [];
   for (const c of Object.values(concepts)) {
     if (!c.builtAt || !c.card) continue;
@@ -295,15 +300,34 @@ export function conceptHealth(concepts: Record<string, ConceptProgress>, now = n
   return out;
 }
 
-export function selectLive(s: Pick<GameState, "profile" | "concepts">, now = new Date()) {
+export function selectLive(s: Pick<GameState, "profile" | "concepts">, now = gameNow()) {
   const rank = selectRank(s);
   const health = conceptHealth(s.concepts, now);
-  const live = liveNines(rank.nines, health.map((h) => h.r));
+  const live = liveNines(rank.nines, health);
   return { rank, health, ...live };
 }
 
-export function dueConcepts(concepts: Record<string, ConceptProgress>, now = new Date()): ConceptHealth[] {
+export function dueConcepts(concepts: Record<string, ConceptProgress>, now = gameNow()): ConceptHealth[] {
   return conceptHealth(concepts, now)
     .filter((h) => h.due)
     .sort((a, b) => a.r - b.r);
+}
+
+// ---------------------------------------------------------------- hooks
+// Selectors above build new objects; subscribing to them directly would loop (zustand v5 compares by
+// reference). These hooks subscribe to primitives and memoize the derived value.
+
+export function useRank(): RankState {
+  const xp = useGame((s) => s.profile.xp);
+  const beaten = useGame((s) => s.profile.bossesBeaten);
+  return useMemo(() => rankFromXp(xp, new Set(beaten)), [xp, beaten]);
+}
+
+export function useLive(now?: Date) {
+  const profile = useGame((s) => s.profile);
+  const concepts = useGame((s) => s.concepts);
+  const tick = useGame((s) => s.tick);
+  const t = now?.getTime();
+  const warp = profile.settings.timeWarpDays;
+  return useMemo(() => selectLive({ profile, concepts }, t ? new Date(t) : gameNow()), [profile, concepts, tick, t, warp]); // eslint-disable-line react-hooks/exhaustive-deps
 }
