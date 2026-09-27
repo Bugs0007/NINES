@@ -183,12 +183,12 @@ function ShiftCard({ due, built, streak, tokens, lastDay }: { due: number; built
       <div>
         <div className="font-mono text-2xs uppercase tracking-[0.18em] text-ink-2">Daily shift</div>
         <div className="mt-1 font-display text-3xl font-extrabold uppercase leading-none text-ink-0">
-          {built === 0 ? "No services in rotation yet" : due > 0 ? `${due} service${due === 1 ? "" : "s"} need attention` : doneToday ? "Shift complete" : "All systems nominal"}
+          {built === 0 ? "No services in rotation yet" : due > 0 ? `${due} service${due === 1 ? " needs" : "s need"} attention` : doneToday ? "Shift complete" : "All systems nominal"}
         </div>
         <p className="mt-2 text-sm text-ink-1">
           {built === 0
             ? "Today's shift is an estimation drill. Then go build your first service."
-            : `${due > 0 ? `${Math.min(8, due)} repairs, ` : ""}one micro-challenge, one estimation drill. About ${Math.round(minutes)} minutes.`}
+            : `${due > 0 ? `${Math.min(8, due)} repair${Math.min(8, due) === 1 ? "" : "s"}, ` : ""}one micro-challenge, one estimation drill. About ${Math.round(minutes)} minutes.`}
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-2">

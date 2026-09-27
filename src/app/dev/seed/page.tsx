@@ -30,7 +30,7 @@ export default function Seed() {
         kind === "chapter1"
           ? ["latency-numbers", "littles-law", "queueing-utilization", "scale-up-vs-out", "load-balancing", "stateless-services"].map((id) => built(id, 1, 0, 1))
           : kind === "decay"
-          ? [built("latency-numbers", 30, 2, 2), built("littles-law", 9, 1, 1), built("queueing-utilization", 5, 0, 1), built("scale-up-vs-out", 2, 0, 1), built("tokens", 60, 0, 1), built("processes-signals", 40, 3, 3)]
+          ? [built("latency-numbers", 40, 2, 2), built("littles-law", 12, 1, 1), built("queueing-utilization", 6, 0, 1), built("scale-up-vs-out", 2, 0, 1), built("load-balancing", 25, 3, 3)]
           : [built("latency-numbers", 1, 0, 1), built("littles-law", 1, 0, 1), built("tokens", 0, 0, 1)];
       await d.concepts.bulkPut(list);
     }
