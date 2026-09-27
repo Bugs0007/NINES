@@ -299,6 +299,38 @@ describe("load balancing", () => {
   });
 });
 
+describe("black holes", () => {
+  function crash(algorithm: "round-robin" | "least-outstanding", outlier: boolean): number {
+    const servers = ["a", "b", "c", "d"];
+    const spec: SimSpec = {
+      nodes: [
+        { kind: "client", id: "c0", target: "lb", rate: { kind: "const", rps: 160 }, timeoutS: 10 },
+        {
+          kind: "lb",
+          id: "lb",
+          targets: servers,
+          algorithm,
+          healthCheck: { intervalS: 10, timeoutS: 2, unhealthyThreshold: 3, healthyThreshold: 2, deep: false },
+          outlier: outlier ? { consecutiveErrors: 5, ejectS: 30 } : undefined,
+        },
+        ...servers.map((id): ServerSpec => ({ kind: "server", id, cores: 2, workers: 8, steps: [{ kind: "cpu", dist: { kind: "exp", mean: 0.02 } }] })),
+      ],
+      script: [{ t: 30, patch: { op: "set", node: "c", changes: { failure: { down: true } } } }],
+    };
+    const sim = new Simulation(spec, "blackhole");
+    sim.runUntil(90);
+    return sim.aggregate(30, 60).errorRate;
+  }
+
+  it("least-outstanding pours traffic into a fast-failing dead box", () => {
+    expect(crash("least-outstanding", false)).toBeGreaterThan(crash("round-robin", false) * 1.5);
+  });
+
+  it("passive outlier ejection stops the bleeding within a few requests", () => {
+    expect(crash("least-outstanding", true)).toBeLessThan(0.01);
+  });
+});
+
 describe("sessions", () => {
   function sessions(mode: "local" | "external", algorithm: "round-robin" | "sticky"): number {
     const servers = ["a", "b"];

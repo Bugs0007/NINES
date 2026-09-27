@@ -5,10 +5,48 @@
 import { Simulation } from "@/engine/sim";
 import { challengeSpec, playSpec, QueueLabConfig } from "@/widgets/queue-lab/spec";
 import { BudgetConfig, computeWaterfall } from "@/widgets/latency-budget/spec";
+import { buildFleet } from "@/widgets/fleet/spec";
+import { compareSpecs, hugOptions, ScaleConfig } from "@/widgets/scale-lab/spec";
+import { LbConfig, noisyOptions, type LbChoice } from "@/widgets/lb-lab/spec";
+import { deployOptions, SessionConfig } from "@/widgets/session-lab/spec";
+import type { Aggregate, SimSpec } from "@/engine/types";
+
+function runAgg(spec: SimSpec, seed: string, until: number, from: number): Aggregate {
+  const sim = new Simulation(spec, seed);
+  sim.runUntil(until);
+  return sim.aggregate(from, until);
+}
+
+function pick(a: Aggregate, metric: string): number {
+  if (metric === "sessionLoss") return a.failReasons.session / Math.max(1, a.ok + a.failed);
+  return Number((a as unknown as Record<string, number>)[metric]);
+}
 
 type Params = Record<string, unknown>;
 
 export const VERIFIERS: Record<string, (p: Params) => number> = {
+  /** Scale Lab compare: one side's aggregate metric at a given utilization. */
+  "scale-compare": (p) => {
+    const c = ScaleConfig.parse(p.config);
+    const specs = compareSpecs(c, Number(p.load));
+    const side = p.side === "big" ? specs.big : specs.small;
+    return pick(runAgg(side, `${c.seed}-${p.side}`, 300, 30), String(p.metric));
+  },
+  /** Scale Lab hug challenge, exactly as the widget runs it. */
+  "scale-hug": (p) => {
+    const c = ScaleConfig.parse(p.config);
+    return pick(runAgg(buildFleet(hugOptions(c, String(p.instance), Number(p.count))), c.seed, c.durationS, c.fromS), String(p.metric));
+  },
+  /** LB Lab noisy-neighbour challenge. */
+  "lb-noisy": (p) => {
+    const c = LbConfig.parse(p.config);
+    return pick(runAgg(buildFleet(noisyOptions(c, p.choice as LbChoice)), c.seed, c.durationS, c.fromS), String(p.metric));
+  },
+  /** Session Lab rolling-deploy challenge. */
+  "session-deploy": (p) => {
+    const c = SessionConfig.parse(p.config);
+    return pick(runAgg(buildFleet(deployOptions(c, p.mode as "local" | "sticky" | "redis" | "cookie")), c.seed, c.durationS, c.fromS), String(p.metric));
+  },
   /** Total critical-path ms of the latency-budget puzzle with a set of fixes applied. */
   "budget-total": (p) => computeWaterfall(BudgetConfig.parse(p.config), p.fixes as string[]).total,
   /** Server-side completion rate of the Queue Lab play box at a given offered rate (its capacity when overloaded). */

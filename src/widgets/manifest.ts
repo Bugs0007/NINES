@@ -16,6 +16,9 @@ export const MANIFEST: Record<string, WidgetManifest> = {
   },
   "latency-ladder": { metrics: [], observes: ["raced"], scenes: ["race", "human-scale", "physics"] },
   "latency-budget": { metrics: ["latency", "days"], observes: [], scenes: [] },
+  "scale-lab": { metrics: ["p99", "errorRate", "costPerMonth", "count", "vcpu"], observes: ["compared", "killed-both"], scenes: ["pooling", "spof"] },
+  "lb-lab": { metrics: ["p99", "errorRate"], observes: ["slow-rr", "lor-recovers", "ejected"], scenes: ["rr", "lor", "blackhole"] },
+  "session-lab": { metrics: ["sessionLoss", "errorRate", "p99", "costPerMonth", "revocable"], observes: ["session-loss", "sticky-reshuffle", "fixed"], scenes: ["state", "store"] },
 };
 
 export function widgetMetrics(id: string): string[] | undefined {

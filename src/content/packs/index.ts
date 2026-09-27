@@ -4,9 +4,12 @@
 import type { BossPack, ConceptPack } from "../schema";
 import latencyNumbers from "./latency-numbers";
 import littlesLaw from "./littles-law";
+import loadBalancing from "./load-balancing";
 import queueingUtilization from "./queueing-utilization";
+import scaleUpVsOut from "./scale-up-vs-out";
+import statelessServices from "./stateless-services";
 
-export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization];
+export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices];
 export const BOSSES: BossPack[] = [];
 
 export const PACK_BY_ID: ReadonlyMap<string, ConceptPack> = new Map(PACKS.map((p) => [p.id, p]));

@@ -397,6 +397,9 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "latency-numbers": "drafted",
   "littles-law": "drafted",
   "queueing-utilization": "drafted",
+  "scale-up-vs-out": "drafted",
+  "load-balancing": "drafted",
+  "stateless-services": "drafted",
 };
 
 function chapterTrack(chapterId: string): Track {

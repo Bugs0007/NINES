@@ -61,7 +61,7 @@ export function badWindows(windows: WindowMetrics[], slo: { p99?: number; errorR
   return windows.filter((w) => (slo.p99 !== undefined && w.ok > 0 && w.p99 > slo.p99) || (slo.errorRate !== undefined && w.errorRate > slo.errorRate));
 }
 
-const CAUSAL: NotableEvent["kind"][] = ["node-down", "health-eject", "saturated", "queue-overflow", "session-loss", "retry-amplification", "timeouts"];
+const CAUSAL: NotableEvent["kind"][] = ["node-down", "health-eject", "outlier-eject", "saturated", "queue-overflow", "session-loss", "retry-amplification", "timeouts"];
 
 /**
  * The first notable event that plausibly started the trouble: the earliest causal event at or

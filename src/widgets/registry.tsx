@@ -18,6 +18,9 @@ export const WIDGETS: Record<string, AnyWidget> = {
   "queue-lab": dynamic(() => import("./queue-lab/QueueLab"), { ssr: false, loading: Loading }),
   "latency-ladder": dynamic(() => import("./latency-ladder/LatencyLadder"), { ssr: false, loading: Loading }),
   "latency-budget": dynamic(() => import("./latency-budget/LatencyBudget"), { ssr: false, loading: Loading }),
+  "scale-lab": dynamic(() => import("./scale-lab/ScaleLab"), { ssr: false, loading: Loading }),
+  "lb-lab": dynamic(() => import("./lb-lab/LbLab"), { ssr: false, loading: Loading }),
+  "session-lab": dynamic(() => import("./session-lab/SessionLab"), { ssr: false, loading: Loading }),
 };
 
 export function Widget({ id, ...props }: WidgetProps & { id: string }) {

@@ -1,16 +1,10 @@
-import { Simulation } from "../src/engine/sim";
-import type { SimSpec } from "../src/engine/types";
-
-function capacity(c: number, peak: number) {
-  const spec: SimSpec = {
-    nodes: [
-      { kind: "client", id: "c", target: "api", rate: { kind: "keyframes", points: [[0, 40], [30, peak], [90, peak], [100, 60]] }, timeoutS: 10 },
-      { kind: "server", id: "api", cores: c, workers: c, steps: [{ kind: "cpu", dist: { kind: "lognormal", median: 0.02, p99: 0.12 } }] },
-    ],
-  };
-  const s = new Simulation(spec, "capacity");
-  s.runUntil(100);
-  const a = s.aggregate(35, 90);
-  return `c=${c} p99=${a.p99.toFixed(3)} p50=${a.p50.toFixed(3)} err=${a.errorRate.toFixed(4)} util=${a.util["api"]?.toFixed(2)}`;
+import { VERIFIERS } from "../src/content/verifiers";
+const CPU = { kind: "lognormal", median: 0.016, p99: 0.06 };
+for (const load of [0.7, 0.8, 0.85, 0.9]) {
+  const cfg = { variant: "compare", cpu: CPU, bigInstance: "m7i.2xlarge", smallInstance: "m7i.large", smallCount: 4, seed: "scale" };
+  const big = VERIFIERS["scale-compare"]!({ config: cfg, load, side: "big", metric: "p99" });
+  const small = VERIFIERS["scale-compare"]!({ config: cfg, load, side: "small", metric: "p99" });
+  const bigm = VERIFIERS["scale-compare"]!({ config: cfg, load, side: "big", metric: "mean" });
+  const smallm = VERIFIERS["scale-compare"]!({ config: cfg, load, side: "small", metric: "mean" });
+  console.log(`load ${load}: big p99 ${big.toFixed(3)} small p99 ${small.toFixed(3)} | mean ${bigm.toFixed(3)} vs ${smallm.toFixed(3)}`);
 }
-for (const peak of [140]) for (const c of [4, 5, 6, 7, 8]) console.log(capacity(c, peak));

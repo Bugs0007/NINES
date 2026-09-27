@@ -60,6 +60,8 @@ export interface LbSpec extends BaseSpec {
   algorithm: LbAlgorithm;
   overhead?: Dist;
   healthCheck?: HealthCheckSpec;
+  /** Passive health checking (nginx max_fails, Envoy outlier detection): eject a target after N consecutive errors. */
+  outlier?: { consecutiveErrors: number; ejectS: number };
 }
 
 export type Step =
@@ -94,7 +96,8 @@ export interface ServerSpec extends BaseSpec {
   /** Program for write requests; defaults to `steps`. */
   writeSteps?: Step[];
   failure?: FailureSpec;
-  session?: { mode: "local" } | { mode: "external"; store: string };
+  /** local: in-process memory · external: a shared store (Redis) · cookie: signed cookie, nothing stored server-side. */
+  session?: { mode: "local" } | { mode: "external"; store: string } | { mode: "cookie" };
   /** Seconds to come back after a restart. Default 20. */
   bootS?: number;
   /** Informational: instance type name from the catalog. */
@@ -201,6 +204,7 @@ export type NotableKind =
   | "session-loss"
   | "health-eject"
   | "health-restore"
+  | "outlier-eject"
   | "node-down"
   | "node-up"
   | "patch";

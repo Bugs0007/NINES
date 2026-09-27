@@ -151,6 +151,7 @@ function toneOf(k: NotableEvent["kind"]): "ok" | "warn" | "alert" | "info" {
     case "queue-overflow":
     case "timeouts":
     case "health-eject":
+    case "outlier-eject":
     case "node-down":
     case "session-loss":
       return "alert";

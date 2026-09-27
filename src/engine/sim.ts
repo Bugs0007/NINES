@@ -458,6 +458,11 @@ class ServerRt extends NodeRt {
       this.next(f);
       return;
     }
+    if (s.mode === "cookie") {
+      // Signed cookie: the client carries the session; any box can verify it.
+      this.next(f);
+      return;
+    }
     if (s.mode === "external") {
       sim.call(s.store, f.req, f.att, (ok) => {
         if (f.dead) return;
@@ -602,6 +607,9 @@ class LbRt extends NodeRt {
   outstanding = new Map<string, number>();
   hc = new Map<string, HcState>();
   private hcTokens = new Map<string, number>();
+  /** Passive outlier detection: consecutive errors and ejection deadline per target. */
+  private consecErr = new Map<string, number>();
+  private ejectedUntil = new Map<string, number>();
 
   constructor(sim: Simulation, spec: LbSpec) {
     super(sim, spec);
@@ -628,7 +636,24 @@ class LbRt extends NodeRt {
   }
 
   healthyTargets(): string[] {
-    return this.targetsAlive().filter((t) => this.hc.get(t)?.healthy ?? true);
+    const now = this.sim.now;
+    return this.targetsAlive().filter((t) => (this.hc.get(t)?.healthy ?? true) && (this.ejectedUntil.get(t) ?? -1) <= now);
+  }
+
+  private passive(target: string, ok: boolean): void {
+    const o = this.spec.outlier;
+    if (!o) return;
+    if (ok) {
+      this.consecErr.set(target, 0);
+      return;
+    }
+    const n = (this.consecErr.get(target) ?? 0) + 1;
+    this.consecErr.set(target, n);
+    if (n >= o.consecutiveErrors && (this.ejectedUntil.get(target) ?? -1) <= this.sim.now) {
+      this.ejectedUntil.set(target, this.sim.now + o.ejectS);
+      this.consecErr.set(target, 0);
+      this.sim.notable("outlier-eject", `${this.sim.labelOf(target)} ejected after ${o.consecutiveErrors} straight errors (passive check)`, target);
+    }
   }
 
   private choose(pool: string[], f: Frame): string {
@@ -694,6 +719,7 @@ class LbRt extends NodeRt {
         this.inflight--;
         this.completed++;
         if (!ok) this.errors++;
+        this.passive(target, ok);
         this.recordLatency(this.sim.now - start);
         this.mark(f, VizState.Service);
         this.sim.reply(f, ok, reason === "down" ? "error" : reason);

@@ -282,7 +282,11 @@ const OBSERVE_HINTS: Record<string, string> = {
   raced: "run the race",
   "slow-server-rr": "make one server slow under round-robin",
   "session-loss": "send logged-in users through the load balancer",
-  "big-box-wins": "compare both setups at the same load",
+  compared: "push both sides to 80%+ busy and hold it",
+  "killed-both": "kill a box on each side",
+  "slow-rr": "make one server slow while on round robin",
+  "lor-recovers": "switch to least outstanding while a server is slow",
+  "sticky-reshuffle": "use sticky routing, then change the number of boxes",
   "sliced": "slice some text",
   "overflow": "overfill the window",
 };
