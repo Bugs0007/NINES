@@ -1,0 +1,35 @@
+import { expect, test } from "@playwright/test";
+import { explainAndFinish, passHook, passMechanism } from "./helpers";
+
+test("latency-numbers mission: race + budget", async ({ page }, info) => {
+  test.setTimeout(180_000);
+  const shot = (n: string) => page.screenshot({ path: `e2e/__shots__/latency-${n}-${info.project.name}.png` });
+  await page.goto("/mission/latency-numbers");
+  await page.waitForTimeout(2000);
+  await shot("1-hook");
+  await passHook(page);
+  await shot("2-predict");
+  await page.getByRole("radio", { name: /50%/ }).click();
+  await page.getByRole("button", { name: /lock it in/i }).click();
+  await page.getByRole("button", { name: /race them/i }).click();
+  await page.waitForTimeout(4000);
+  await shot("3-racing");
+  await expect(page.getByRole("dialog", { name: /prediction result/i })).toBeVisible({ timeout: 20_000 });
+  await shot("4-reveal");
+  await page.getByRole("button", { name: /why\?/i }).click();
+  await page.getByRole("button", { name: /^next$/i }).click();
+  await page.waitForTimeout(800);
+  await shot("5-human-scale");
+  await passMechanism(page);
+  await expect(page.getByRole("heading", { name: /one-second profile/i })).toBeVisible();
+  await page.getByRole("button", { name: /take recs off the critical path/i }).click();
+  await page.getByRole("button", { name: /serve avatars/i }).click();
+  await page.waitForTimeout(700);
+  await shot("6-budget");
+  await page.getByRole("button", { name: /ship it/i }).click();
+  await expect(page.getByRole("button", { name: /collect/i })).toBeVisible();
+  await page.getByRole("button", { name: /collect/i }).click();
+  await explainAndFinish(page);
+  await page.waitForTimeout(1500);
+  await shot("7-debrief");
+});

@@ -394,7 +394,9 @@ const chapterRows: Record<string, Row[]> = {
  * Update this when a pack lands; the content lint checks it against the pack registry.
  */
 const STATUS: Partial<Record<string, BuildStatus>> = {
+  "latency-numbers": "drafted",
   "littles-law": "drafted",
+  "queueing-utilization": "drafted",
 };
 
 function chapterTrack(chapterId: string): Track {

@@ -160,14 +160,16 @@ export function MissionRunner({ pack, next }: { pack: ConceptPack; next?: { href
   }
 
   const inChallenge = beat === "challenge" || beat === "explain";
+  // On phones the rail stacks under the stage; text-led beats put it first.
+  const textFirst = beat === "predict" || beat === "mechanism" || beat === "explain";
   const widgetRef = inChallenge ? challenge.widget : pack.widget;
   const mode = inChallenge ? "challenge" : beat === "predict" ? "preview" : "play";
 
   return (
     <Frame pack={pack} beatIdx={beatIdx} chapter={node.chapter}>
-      <div className="grid min-h-0 flex-1 grid-rows-[minmax(420px,62dvh)_auto] gap-3 p-3 lg:grid-cols-[minmax(0,1fr)_380px] lg:grid-rows-1 lg:p-4">
-        {/* stage */}
-        <div className="relative min-h-0 overflow-hidden rounded-sm lg:h-[calc(100dvh-88px)]">
+      <div className="grid min-h-0 flex-1 gap-3 p-3 lg:grid-cols-[minmax(0,1fr)_380px] lg:grid-rows-1 lg:p-4">
+        {/* stage: grows with its content on phones, fixed to the viewport on desktop */}
+        <div className={cx("relative min-h-[440px] rounded-sm lg:h-[calc(100dvh-88px)] lg:min-h-0 lg:overflow-hidden", textFirst && "order-2 lg:order-none")}>
           <div className={cx("h-full transition-[filter,opacity] duration-300", beat === "predict" && "pointer-events-none opacity-60 blur-[1px]")}>
             <Widget
               key={`${inChallenge ? "ch" : "play"}-${runKey}`}
@@ -200,7 +202,7 @@ export function MissionRunner({ pack, next }: { pack: ConceptPack; next?: { href
         </div>
 
         {/* rail */}
-        <aside className="min-h-0 overflow-y-auto rounded-sm border border-line bg-bg-1/80 p-4 lg:h-[calc(100dvh-88px)]">
+        <aside className={cx("min-h-0 rounded-sm border border-line bg-bg-1/80 p-4 lg:h-[calc(100dvh-88px)] lg:overflow-y-auto", textFirst && "order-1 lg:order-none")}>
           <AnimatePresence mode="wait">
             <motion.div key={beat + predIdx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={spring.soft}>
               {beat === "predict" && <PredictPanel p={pack.predictions[predIdx]!} index={predIdx} total={pack.predictions.length} onLock={(c) => lock(pack.predictions[predIdx]!, c)} />}

@@ -4,10 +4,13 @@
  */
 import { Simulation } from "@/engine/sim";
 import { challengeSpec, playSpec, QueueLabConfig } from "@/widgets/queue-lab/spec";
+import { BudgetConfig, computeWaterfall } from "@/widgets/latency-budget/spec";
 
 type Params = Record<string, unknown>;
 
 export const VERIFIERS: Record<string, (p: Params) => number> = {
+  /** Total critical-path ms of the latency-budget puzzle with a set of fixes applied. */
+  "budget-total": (p) => computeWaterfall(BudgetConfig.parse(p.config), p.fixes as string[]).total,
   /** Server-side completion rate of the Queue Lab play box at a given offered rate (its capacity when overloaded). */
   "queue-play-throughput": (p) => {
     const c = QueueLabConfig.parse(p.config);

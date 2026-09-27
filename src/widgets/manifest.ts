@@ -14,6 +14,8 @@ export const MANIFEST: Record<string, WidgetManifest> = {
     observes: ["over-capacity", "slow-dependency-queue", "little-holds", "rho-high"],
     scenes: ["focus-L", "focus-lambda", "focus-W", "focus-capacity", "focus-queue", "curve"],
   },
+  "latency-ladder": { metrics: [], observes: ["raced"], scenes: ["race", "human-scale", "physics"] },
+  "latency-budget": { metrics: ["latency", "days"], observes: [], scenes: [] },
 };
 
 export function widgetMetrics(id: string): string[] | undefined {

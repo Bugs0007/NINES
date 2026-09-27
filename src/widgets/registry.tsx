@@ -16,6 +16,8 @@ type AnyWidget = ComponentType<WidgetProps<any>>;
 
 export const WIDGETS: Record<string, AnyWidget> = {
   "queue-lab": dynamic(() => import("./queue-lab/QueueLab"), { ssr: false, loading: Loading }),
+  "latency-ladder": dynamic(() => import("./latency-ladder/LatencyLadder"), { ssr: false, loading: Loading }),
+  "latency-budget": dynamic(() => import("./latency-budget/LatencyBudget"), { ssr: false, loading: Loading }),
 };
 
 export function Widget({ id, ...props }: WidgetProps & { id: string }) {

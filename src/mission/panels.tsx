@@ -61,7 +61,7 @@ export function MechanismPanel({
               ))}
             </div>
           )}
-          {c.derived && <div className="mt-2 font-mono text-[10px] text-ink-3">numbers from the simulation you just ran</div>}
+          {c.derived && <div className="mt-2 font-mono text-[10px] text-ink-3">numbers computed from the figures above</div>}
         </motion.div>
       </AnimatePresence>
       <div className="flex items-center justify-between gap-2">
