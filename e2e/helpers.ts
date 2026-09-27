@@ -29,6 +29,7 @@ export async function explainAndFinish(page: Page) {
     await box.fill("Network round trips dominate, so count and remove them before adding CPU; the waterfall shows where the time goes.");
     await page.getByRole("button", { name: /^submit$/i }).click();
     const met = page.getByRole("button", { name: /^met$/i });
+    await expect(met.first()).toBeVisible({ timeout: 15_000 });
     const n = await met.count();
     for (let i = 0; i < n; i++) await met.nth(i).click();
     await page.getByRole("button", { name: /continue/i }).click();

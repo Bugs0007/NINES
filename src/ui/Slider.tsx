@@ -71,7 +71,8 @@ export function Slider({ value, onChange, onCommit, min, max, step, log, label, 
   }, [value]);
 
   const fromPointer = (clientX: number) => {
-    const r = track.current!.getBoundingClientRect();
+    if (!track.current) return value;
+    const r = track.current.getBoundingClientRect();
     return fromFrac((clientX - r.left) / r.width);
   };
 

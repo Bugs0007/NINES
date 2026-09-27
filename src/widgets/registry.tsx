@@ -21,6 +21,7 @@ export const WIDGETS: Record<string, AnyWidget> = {
   "scale-lab": dynamic(() => import("./scale-lab/ScaleLab"), { ssr: false, loading: Loading }),
   "lb-lab": dynamic(() => import("./lb-lab/LbLab"), { ssr: false, loading: Loading }),
   "session-lab": dynamic(() => import("./session-lab/SessionLab"), { ssr: false, loading: Loading }),
+  "launch-builder": dynamic(() => import("./launch/LaunchBuilder"), { ssr: false, loading: Loading }),
 };
 
 export function Widget({ id, ...props }: WidgetProps & { id: string }) {

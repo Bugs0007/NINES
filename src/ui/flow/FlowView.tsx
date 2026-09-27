@@ -130,8 +130,10 @@ export function FlowView({
     const fam = getComputedStyle(document.documentElement).getPropertyValue("--font-mono-face").trim();
     if (fam) fontMono = fam;
 
+    const host = wrap.current!;
     const resize = () => {
-      const r = wrap.current!.getBoundingClientRect();
+      if (!host.isConnected) return;
+      const r = host.getBoundingClientRect();
       dpr = Math.min(2, window.devicePixelRatio || 1);
       cssW = Math.max(10, r.width);
       cssH = Math.max(10, r.height);
@@ -142,7 +144,7 @@ export function FlowView({
     };
     resize();
     const ro = new ResizeObserver(resize);
-    ro.observe(wrap.current!);
+    ro.observe(host);
 
     // world -> screen transform
     const portrait = () => {

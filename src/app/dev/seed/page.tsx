@@ -18,15 +18,18 @@ function built(id: string, daysAgo: number, reviews: number, mastery: 1 | 2 | 3)
 
 export default function Seed() {
   const [msg, setMsg] = useState("");
-  const seed = async (kind: "fresh" | "decay" | "healthy") => {
+  const seed = async (kind: "fresh" | "decay" | "healthy" | "chapter1") => {
     const d = db();
     await Promise.all([d.profile.clear(), d.concepts.clear(), d.events.clear()]);
     const p = freshProfile();
     if (kind !== "fresh") {
       p.xp = 1180;
       p.streak = { count: 6, best: 9, freezeTokens: 1, frozenDays: [], lastDay: undefined };
+      if (kind === "chapter1") p.xp = 1350;
       const list: ConceptProgress[] =
-        kind === "decay"
+        kind === "chapter1"
+          ? ["latency-numbers", "littles-law", "queueing-utilization", "scale-up-vs-out", "load-balancing", "stateless-services"].map((id) => built(id, 1, 0, 1))
+          : kind === "decay"
           ? [built("latency-numbers", 30, 2, 2), built("littles-law", 9, 1, 1), built("queueing-utilization", 5, 0, 1), built("scale-up-vs-out", 2, 0, 1), built("tokens", 60, 0, 1), built("processes-signals", 40, 3, 3)]
           : [built("latency-numbers", 1, 0, 1), built("littles-law", 1, 0, 1), built("tokens", 0, 0, 1)];
       await d.concepts.bulkPut(list);
@@ -41,6 +44,7 @@ export default function Seed() {
         <Button onClick={() => seed("fresh")}>Fresh player</Button>
         <Button onClick={() => seed("healthy")}>A few built, healthy</Button>
         <Button onClick={() => seed("decay")}>Mixed decay</Button>
+        <Button onClick={() => seed("chapter1")}>Chapter 1 done</Button>
       </div>
       <p className="font-mono text-xs text-phos">{msg}</p>
     </main>

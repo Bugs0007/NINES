@@ -9,6 +9,7 @@ import { buildFleet } from "@/widgets/fleet/spec";
 import { compareSpecs, hugOptions, ScaleConfig } from "@/widgets/scale-lab/spec";
 import { LbConfig, noisyOptions, type LbChoice } from "@/widgets/lb-lab/spec";
 import { deployOptions, SessionConfig } from "@/widgets/session-lab/spec";
+import { LaunchConfig, launchSpec, type LaunchDesign } from "@/widgets/launch/spec";
 import type { Aggregate, SimSpec } from "@/engine/types";
 
 function runAgg(spec: SimSpec, seed: string, until: number, from: number): Aggregate {
@@ -25,6 +26,11 @@ function pick(a: Aggregate, metric: string): number {
 type Params = Record<string, unknown>;
 
 export const VERIFIERS: Record<string, (p: Params) => number> = {
+  /** Launch Day boss: run a design through the whole launch. */
+  launch: (p) => {
+    const c = LaunchConfig.parse(p.config);
+    return pick(runAgg(launchSpec(c, p.design as LaunchDesign), c.seed, c.durationS, c.fromS), String(p.metric));
+  },
   /** Scale Lab compare: one side's aggregate metric at a given utilization. */
   "scale-compare": (p) => {
     const c = ScaleConfig.parse(p.config);

@@ -1,10 +1,26 @@
-import { VERIFIERS } from "../src/content/verifiers";
-const CPU = { kind: "lognormal", median: 0.016, p99: 0.06 };
-for (const load of [0.7, 0.8, 0.85, 0.9]) {
-  const cfg = { variant: "compare", cpu: CPU, bigInstance: "m7i.2xlarge", smallInstance: "m7i.large", smallCount: 4, seed: "scale" };
-  const big = VERIFIERS["scale-compare"]!({ config: cfg, load, side: "big", metric: "p99" });
-  const small = VERIFIERS["scale-compare"]!({ config: cfg, load, side: "small", metric: "p99" });
-  const bigm = VERIFIERS["scale-compare"]!({ config: cfg, load, side: "big", metric: "mean" });
-  const smallm = VERIFIERS["scale-compare"]!({ config: cfg, load, side: "small", metric: "mean" });
-  console.log(`load ${load}: big p99 ${big.toFixed(3)} small p99 ${small.toFixed(3)} | mean ${bigm.toFixed(3)} vs ${smallm.toFixed(3)}`);
+import { Simulation } from "../src/engine/sim";
+import { designCost, LaunchConfig, launchSpec, memPerBox, type LaunchDesign } from "../src/widgets/launch/spec";
+
+const c = LaunchConfig.parse({ cpu: { kind: "lognormal", median: 0.012, p99: 0.05 }, io: { kind: "lognormal", median: 0.05, p99: 0.2 } });
+const designs: [string, LaunchDesign][] = [
+  ["naive 1×2xl", { instance: "m7i.2xlarge", count: 1, workers: 17, algorithm: "round-robin", outlier: false, hc: "shallow", session: "local" }],
+  ["5×L default workers", { instance: "m7i.large", count: 5, workers: 5, algorithm: "round-robin", outlier: false, hc: "shallow", session: "redis" }],
+  ["6×L w16 RR redis", { instance: "m7i.large", count: 6, workers: 16, algorithm: "round-robin", outlier: false, hc: "shallow", session: "redis" }],
+  ["6×L w16 LOR+out redis", { instance: "m7i.large", count: 6, workers: 16, algorithm: "least-outstanding", outlier: true, hc: "shallow", session: "redis" }],
+  ["7×L w16 LOR+out redis", { instance: "m7i.large", count: 7, workers: 16, algorithm: "least-outstanding", outlier: true, hc: "shallow", session: "redis" }],
+  ["7×L w16 LOR+out local", { instance: "m7i.large", count: 7, workers: 16, algorithm: "least-outstanding", outlier: true, hc: "shallow", session: "local" }],
+  ["7×L w16 LOR+out cookie", { instance: "m7i.large", count: 7, workers: 16, algorithm: "least-outstanding", outlier: true, hc: "shallow", session: "cookie" }],
+  ["7×L w16 LOR noout redis", { instance: "m7i.large", count: 7, workers: 16, algorithm: "least-outstanding", outlier: false, hc: "shallow", session: "redis" }],
+  ["3×XL w32 LOR+out redis", { instance: "m7i.xlarge", count: 3, workers: 32, algorithm: "least-outstanding", outlier: true, hc: "shallow", session: "redis" }],
+  ["3×XL w32 P2C+out cookie", { instance: "m7i.xlarge", count: 3, workers: 32, algorithm: "p2c", outlier: true, hc: "shallow", session: "cookie" }],
+  ["7×L w8 LOR+out redis", { instance: "m7i.large", count: 7, workers: 8, algorithm: "least-outstanding", outlier: true, hc: "shallow", session: "redis" }],
+  ["8×L w12 LOR+out cookie", { instance: "m7i.large", count: 8, workers: 12, algorithm: "least-outstanding", outlier: true, hc: "shallow", session: "cookie" }],
+];
+for (const [name, d] of designs) {
+  const sim = new Simulation(launchSpec(c, d), c.seed);
+  sim.runUntil(c.durationS);
+  const a = sim.aggregate(c.fromS, c.durationS);
+  const tot = a.ok + a.failed;
+  const m = memPerBox(c, d);
+  console.log(`${name.padEnd(26)} p99=${a.p99.toFixed(3)} err=${(a.errorRate * 100).toFixed(2)}% loss=${((a.failReasons.session / tot) * 100).toFixed(2)}% cost=$${designCost(d).toFixed(0)} mem=${m.used.toFixed(1)}/${m.total}`);
 }

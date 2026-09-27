@@ -97,6 +97,7 @@ async function explain(page: Page) {
   await page.getByRole("button", { name: /^submit$/i }).click();
   for (const name of [/^met$/i]) {
     const buttons = page.getByRole("button", { name });
+    await expect(buttons.first()).toBeVisible({ timeout: 15_000 });
     const n = await buttons.count();
     for (let i = 0; i < n; i++) await buttons.nth(i).click();
   }

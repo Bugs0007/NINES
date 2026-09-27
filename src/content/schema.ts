@@ -271,11 +271,25 @@ export const BossPackSchema = z.object({
   hook: HookSchema,
   /** Short cinematic lines before the fight. */
   intro: z.array(CastLineSchema).min(1).max(4),
-  predictions: z.array(PredictionSchema).min(1),
+  /** The player forecasts a metric of their own design before running it (calibration on your own work). */
+  forecast: z.object({
+    metric: z.string(),
+    prompt: z.string(),
+    unit: z.string(),
+    /** Multiply the metric by this for display (e.g. 1000 for seconds -> ms). */
+    scale: z.number().default(1),
+    min: z.number(),
+    max: z.number(),
+    tolerance: z.number().min(1),
+  }),
+  /** Concepts this boss exercises (transfer credit on a win). */
+  exercises: z.array(z.string()).min(1),
   challenge: ChallengeSchema,
-  debrief: z.array(CaptionSchema).min(1).max(5),
+  debrief: z.array(CaptionSchema).min(1).max(6),
+  outro: CastLineSchema.optional(),
   explainBack: ExplainBackSchema,
   sources: z.array(SourceSchema).default([]),
+  verify: z.array(VerifySchema).default([]),
 });
 export type BossPack = z.infer<typeof BossPackSchema>;
 export type BossPackInput = z.input<typeof BossPackSchema>;
@@ -326,7 +340,8 @@ export function lintPack(pack: ConceptPack | BossPack, knownWidgetMetrics?: (wid
   };
 
   pack.hook.lines.forEach((l, i) => castLine(`hook.lines[${i}]`, l));
-  pack.predictions.forEach((p, i) => {
+  const predictions = pack.kind === "concept" ? pack.predictions : [];
+  predictions.forEach((p, i) => {
     cap(`predictions[${i}].prompt`, p.prompt, LIMITS.promptWords);
     cap(`predictions[${i}].reveal`, p.reveal.text, LIMITS.revealWords);
     claim(`predictions[${i}].reveal`, p.reveal.text, p.reveal.sourceIds, p.reveal.derived);
@@ -381,6 +396,7 @@ export function lintPack(pack: ConceptPack | BossPack, knownWidgetMetrics?: (wid
     if (pack.explainBack.rubric.length < 2) add("explainBack", "rubric needs at least 2 criteria");
   } else {
     pack.intro.forEach((l, i) => castLine(`intro[${i}]`, l));
+    cap("forecast.prompt", pack.forecast.prompt, LIMITS.promptWords);
     checkChallenge("challenge", pack.challenge);
     pack.debrief.forEach((c, i) => {
       cap(`debrief[${i}]`, c.text, LIMITS.captionWords);

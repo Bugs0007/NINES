@@ -18,6 +18,7 @@ export const MANIFEST: Record<string, WidgetManifest> = {
   "latency-budget": { metrics: ["latency", "days"], observes: [], scenes: [] },
   "scale-lab": { metrics: ["p99", "errorRate", "costPerMonth", "count", "vcpu"], observes: ["compared", "killed-both"], scenes: ["pooling", "spof"] },
   "lb-lab": { metrics: ["p99", "errorRate"], observes: ["slow-rr", "lor-recovers", "ejected"], scenes: ["rr", "lor", "blackhole"] },
+  "launch-builder": { metrics: ["p99", "errorRate", "sessionLoss", "costPerMonth", "memFits", "launches"], observes: [], scenes: [] },
   "session-lab": { metrics: ["sessionLoss", "errorRate", "p99", "costPerMonth", "revocable"], observes: ["session-loss", "sticky-reshuffle", "fixed"], scenes: ["state", "store"] },
 };
 

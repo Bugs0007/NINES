@@ -299,6 +299,27 @@ describe("load balancing", () => {
   });
 });
 
+describe("launching servers", () => {
+  it("a launched box boots, joins the balancer, and takes load", () => {
+    const spec: SimSpec = {
+      nodes: [
+        { kind: "client", id: "c", target: "lb", rate: { kind: "const", rps: 150 } },
+        { kind: "lb", id: "lb", targets: ["a"], algorithm: "round-robin" },
+        { kind: "server", id: "a", cores: 2, workers: 8, steps: [{ kind: "cpu", dist: { kind: "exp", mean: 0.02 } }] },
+      ],
+    };
+    const sim = new Simulation(spec, "launch");
+    sim.runUntil(20);
+    sim.apply({ op: "launch", spec: { kind: "server", id: "b", cores: 2, workers: 8, steps: [{ kind: "cpu", dist: { kind: "exp", mean: 0.02 } }] }, lb: "lb", bootS: 30 });
+    sim.runUntil(40);
+    expect(sim.windows[sim.windows.length - 1]!.nodes["b"]?.arrivals ?? 0).toBe(0);
+    sim.runUntil(90);
+    expect(sim.windows[sim.windows.length - 1]!.nodes["b"]!.arrivals).toBeGreaterThan(30);
+    // Before: one box at 150% (everything times out). After: the new box serves its half cleanly.
+    expect(sim.aggregate(70, 90).errorRate).toBeLessThan(sim.aggregate(40, 50).errorRate - 0.3);
+  });
+});
+
 describe("black holes", () => {
   function crash(algorithm: "round-robin" | "least-outstanding", outlier: boolean): number {
     const servers = ["a", "b", "c", "d"];

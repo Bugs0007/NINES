@@ -44,4 +44,14 @@ describe.each(BOSSES.map((b) => [b.id, b] as const))("boss %s", (_id, boss) => {
   it("passes the lint", () => {
     expect(lintPack(boss, widgetMetrics)).toEqual([]);
   });
+
+  it("exercises concepts that exist", () => {
+    for (const id of boss.exercises) expect(NODE_BY_ID.has(id), id).toBe(true);
+  });
+
+  it.each(boss.verify.map((v) => [v.id, v] as const))("design behaves as claimed: %s", (_vid, v) => {
+    const got = VERIFIERS[v.run]!(v.params);
+    if (v.expect.min !== undefined) expect(got, v.claim).toBeGreaterThanOrEqual(v.expect.min);
+    if (v.expect.max !== undefined) expect(got, v.claim).toBeLessThanOrEqual(v.expect.max);
+  });
 });

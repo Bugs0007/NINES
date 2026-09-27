@@ -25,4 +25,8 @@ export interface WidgetProps<C = Record<string, unknown>> {
   conditions?: Condition[];
   /** Disable interaction (e.g. before predictions are locked). */
   locked?: boolean;
+  /** Allow configuring but not running (e.g. a boss forecast isn't locked yet). */
+  runLocked?: boolean;
+  /** Boss mode: report the design before the run so the runner can show it. */
+  onDesign?: (summary: Record<string, unknown>) => void;
 }

@@ -1164,6 +1164,24 @@ export class Simulation {
         else n?.crash();
         return;
       }
+      case "launch": {
+        const rt = this.addNode(structuredClone({ ...p.spec, failure: { ...p.spec.failure, down: true } }));
+        rt.up = false;
+        this.notable("patch", `${p.spec.label ?? p.spec.id} launching (${p.bootS}s to boot)`, p.spec.id);
+        this.after(p.bootS, () => {
+          if (rt.removed) return;
+          rt.spec = { ...rt.spec, failure: { ...(rt.spec as ServerSpec).failure, down: false } } as NodeSpec;
+          rt.up = true;
+          const lb = this.nodes.get(p.lb);
+          if (lb && lb.spec.kind === "lb" && !lb.spec.targets.includes(p.spec.id)) {
+            const prev = structuredClone(lb.spec);
+            lb.spec = { ...lb.spec, targets: [...lb.spec.targets, p.spec.id] };
+            lb.onSpecChange(prev);
+          }
+          this.notable("node-up", `${p.spec.label ?? p.spec.id} booted and joined the load balancer`, p.spec.id);
+        });
+        return;
+      }
     }
   }
 
