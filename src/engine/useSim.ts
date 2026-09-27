@@ -144,13 +144,14 @@ export function useSim(opts: UseSimOptions) {
     [specKey, seed, vizTarget],
   );
   const fastForward = useCallback((to: number) => port.current?.send({ type: "fast", until: to }), []);
+  const seek = useCallback((to: number) => port.current?.send({ type: "seek", t: to }), []);
   const consumeFinished = useCallback(() => {
     const f = frame.current.finished;
     frame.current = { ...frame.current, finished: [] };
     return f;
   }, []);
 
-  return { windows, notables, t, done, frame, patch, restart, replay, fastForward, consumeFinished, allWindows, allNotables };
+  return { windows, notables, t, done, frame, patch, restart, replay, fastForward, seek, consumeFinished, allWindows, allNotables };
 }
 
 export type SimHandle = ReturnType<typeof useSim>;

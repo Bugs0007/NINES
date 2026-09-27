@@ -138,6 +138,8 @@ export type SimPatch =
   /** Crash + reboot: down for bootS, local state (sessions, cache) wiped. */
   | { op: "restart"; node: string }
   | { op: "vizRate"; value: number }
+  /** Apply `patch` after `delay` sim-seconds (actions that take time). Deterministic and replayable. */
+  | { op: "after"; delay: number; patch: SimPatch }
   /** Launch a new server: it boots for bootS, then registers with the load balancer (like an ASG + ALB). */
   | { op: "launch"; spec: ServerSpec; lb: string; bootS: number };
 

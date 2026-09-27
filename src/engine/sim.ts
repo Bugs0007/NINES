@@ -1133,6 +1133,11 @@ export class Simulation {
 
   private applyPatch(p: SimPatch): void {
     switch (p.op) {
+      case "after": {
+        const inner = structuredClone(p.patch);
+        this.after(p.delay, () => this.applyPatch(inner));
+        return;
+      }
       case "vizRate":
         this.vizRate = p.value;
         return;

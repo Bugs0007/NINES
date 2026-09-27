@@ -14,6 +14,8 @@ export type HostIn =
   | { type: "replay"; spec: SimSpec; seed: string; log: TimedPatch[]; speed: number; vizTarget: number; until: number }
   /** Run as fast as possible to `until`, streaming windows (no particles). */
   | { type: "fast"; until: number }
+  /** Jump ahead to sim time `t` as fast as possible, then keep running at the current speed. */
+  | { type: "seek"; t: number }
   | { type: "dispose" };
 
 export interface InstantNode {
@@ -68,6 +70,12 @@ export class SimHost {
         return;
       case "fast":
         this.fast(m.until);
+        return;
+      case "seek":
+        if (this.sim) {
+          this.sim.runUntil(Math.max(this.sim.now, m.t));
+          this.lastReal = now();
+        }
         return;
       case "dispose":
         this.stop();
