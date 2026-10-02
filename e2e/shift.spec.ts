@@ -11,7 +11,8 @@ async function answerCurrent(page: Page, shot: (n: string) => Promise<unknown>, 
   }
   if (chip.includes("pick the fix")) await page.getByRole("radio").first().click();
   else if (chip.includes("predict the graph")) await page.locator("main button[aria-pressed]").first().click();
-  else if (chip.includes("spot the flaw")) await page.locator("main svg [role=button]").first().click();
+  // Nodes, not edges: a horizontal edge's SVG box has zero height, which Playwright treats as invisible.
+  else if (chip.includes("spot the flaw")) await page.locator("main svg g[role=button]").first().click();
   else if (chip.includes("estimate")) await page.getByRole("textbox", { name: /your estimate/i }).fill("50");
   else if (chip.includes("tune it")) {
     await page.getByRole("button", { name: /run 60s/i }).click();

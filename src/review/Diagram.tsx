@@ -49,8 +49,9 @@ export function MiniDiagram({ d, picked, answer, reveal, onPick }: { d: DiagramT
               y2={b.y}
               stroke="transparent"
               strokeWidth={18}
-              className="cursor-pointer"
+              className="cursor-pointer outline-none focus-visible:stroke-amber/40"
               onClick={() => !reveal && onPick(id)}
+              {...keyPick(reveal ? null : () => onPick(id))}
               role="button"
               aria-label={`Connection ${e.from} to ${e.to}${e.label ? `, ${e.label}` : ""}`}
             />
@@ -66,7 +67,14 @@ export function MiniDiagram({ d, picked, answer, reveal, onPick }: { d: DiagramT
         const p = pos.get(n.id)!;
         const t = tone(n.id);
         return (
-          <g key={n.id} className="cursor-pointer" onClick={() => !reveal && onPick(n.id)} role="button" aria-label={`${n.label}${n.note ? `: ${n.note}` : ""}`}>
+          <g
+            key={n.id}
+            className="cursor-pointer outline-none [&:focus-visible>rect]:stroke-amber"
+            onClick={() => !reveal && onPick(n.id)}
+            {...keyPick(reveal ? null : () => onPick(n.id))}
+            role="button"
+            aria-label={`${n.label}${n.note ? `: ${n.note}` : ""}`}
+          >
             <rect
               x={p.x - NODE_W / 2}
               y={p.y - NODE_H / 2}
@@ -111,4 +119,17 @@ export function GraphOption({ points, selected, state, label, onClick }: { point
       <span className="text-xs text-ink-1">{label}</span>
     </button>
   );
+}
+
+/** Keyboard access for SVG "buttons": focusable, and Enter or Space picks. */
+function keyPick(pick: (() => void) | null) {
+  return {
+    tabIndex: pick ? 0 : -1,
+    onKeyDown: (e: React.KeyboardEvent) => {
+      if (pick && (e.key === "Enter" || e.key === " ")) {
+        e.preventDefault();
+        pick();
+      }
+    },
+  };
 }
