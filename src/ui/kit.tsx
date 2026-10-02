@@ -243,6 +243,7 @@ export function Segmented<T extends string | number>({
   className,
   size = "md",
   label,
+  wrap = false,
 }: {
   value: T;
   options: { value: T; label: ReactNode; hint?: string }[];
@@ -250,10 +251,12 @@ export function Segmented<T extends string | number>({
   className?: string;
   size?: "sm" | "md";
   label?: string;
+  /** Two columns on phones, one row from sm up (for 4+ long options). */
+  wrap?: boolean;
 }) {
   const layout = useId();
   return (
-    <div role="radiogroup" aria-label={label} className={cx("inline-flex rounded-sm border border-line-2 bg-bg-1 p-0.5", className)}>
+    <div role="radiogroup" aria-label={label} className={cx(wrap ? "grid grid-cols-2 sm:flex" : "inline-flex", "rounded-sm border border-line-2 bg-bg-1 p-0.5", className)}>
       {options.map((o) => {
         const active = o.value === value;
         return (

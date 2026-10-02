@@ -36,3 +36,9 @@ export async function explainAndFinish(page: Page) {
   }
   await expect(page.getByText(/service built|service re-run/i)).toBeVisible({ timeout: 15_000 });
 }
+
+/** The page must never scroll sideways (390px phones included). */
+export async function noSideScroll(page: Page) {
+  const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(over, "horizontal overflow in px").toBeLessThanOrEqual(1);
+}

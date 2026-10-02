@@ -18,7 +18,7 @@ function built(id: string, daysAgo: number, reviews: number, mastery: 1 | 2 | 3)
 
 export default function Seed() {
   const [msg, setMsg] = useState("");
-  const seed = async (kind: "fresh" | "decay" | "healthy" | "chapter1") => {
+  const seed = async (kind: "fresh" | "decay" | "healthy" | "chapter1" | "foundry") => {
     const d = db();
     await Promise.all([d.profile.clear(), d.concepts.clear(), d.events.clear()]);
     const p = freshProfile();
@@ -27,7 +27,9 @@ export default function Seed() {
       p.streak = { count: 6, best: 9, freezeTokens: 1, frozenDays: [], lastDay: undefined };
       if (kind === "chapter1") p.xp = 1350;
       const list: ConceptProgress[] =
-        kind === "chapter1"
+        kind === "foundry"
+          ? ["tokens", "context-windows"].map((id) => built(id, 1, 0, 1))
+          : kind === "chapter1"
           ? ["latency-numbers", "littles-law", "queueing-utilization", "scale-up-vs-out", "load-balancing", "stateless-services"].map((id) => built(id, 1, 0, 1))
           : kind === "decay"
           ? [built("latency-numbers", 40, 2, 2), built("littles-law", 12, 1, 1), built("queueing-utilization", 6, 0, 1), built("scale-up-vs-out", 2, 0, 1), built("load-balancing", 25, 3, 3)]
@@ -40,11 +42,12 @@ export default function Seed() {
   return (
     <main className="flex min-h-dvh flex-col items-start gap-3 p-6">
       <h1 className="font-mono text-2xs uppercase tracking-[0.2em] text-ink-2">dev · seed progress</h1>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button onClick={() => seed("fresh")}>Fresh player</Button>
         <Button onClick={() => seed("healthy")}>A few built, healthy</Button>
         <Button onClick={() => seed("decay")}>Mixed decay</Button>
         <Button onClick={() => seed("chapter1")}>Chapter 1 done</Button>
+        <Button onClick={() => seed("foundry")}>Foundry B1 missions done</Button>
       </div>
       <p className="font-mono text-xs text-phos">{msg}</p>
     </main>

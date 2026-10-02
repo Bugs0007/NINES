@@ -401,6 +401,9 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "load-balancing": "drafted",
   "stateless-services": "drafted",
   "boss-launch-day": "drafted",
+  tokens: "drafted",
+  "context-windows": "drafted",
+  "boss-the-bill": "drafted",
 };
 
 function chapterTrack(chapterId: string): Track {

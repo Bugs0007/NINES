@@ -9,9 +9,12 @@ import loadBalancing from "./load-balancing";
 import queueingUtilization from "./queueing-utilization";
 import scaleUpVsOut from "./scale-up-vs-out";
 import statelessServices from "./stateless-services";
+import tokens from "./tokens";
+import contextWindows from "./context-windows";
+import bossTheBill from "./boss-the-bill";
 
-export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices];
-export const BOSSES: BossPack[] = [bossLaunchDay];
+export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows];
+export const BOSSES: BossPack[] = [bossLaunchDay, bossTheBill];
 
 export const PACK_BY_ID: ReadonlyMap<string, ConceptPack> = new Map(PACKS.map((p) => [p.id, p]));
 export const BOSS_BY_ID: ReadonlyMap<string, BossPack> = new Map(BOSSES.map((b) => [b.id, b]));

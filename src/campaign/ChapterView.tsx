@@ -72,7 +72,7 @@ export function ChapterView({ chapterId }: { chapterId: string }) {
         </div>
       </section>
 
-      <section className="mx-auto grid w-full max-w-5xl gap-2 px-4 pb-6">
+      <section className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-2 px-4 pb-6">
         {missions.map((n, i) => (
           <MissionRow key={n.id} n={n} index={i + 1} state={stateOf(n)} mastery={concepts[n.id]?.mastery ?? 0} />
         ))}
@@ -160,7 +160,7 @@ function BossRow({ n, state }: { n: PlannedNode; state: State }) {
       {open && boss && (
         <Link href={hrefFor(n)} className="mt-3 inline-block">
           <Button variant={state === "built" ? "secondary" : "danger"} size="lg">
-            {state === "built" ? "Fight it again" : "Start the launch"}
+            {state === "built" ? "Fight it again" : boss.challenge.title}
           </Button>
         </Link>
       )}

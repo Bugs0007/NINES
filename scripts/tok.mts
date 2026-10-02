@@ -1,0 +1,13 @@
+import { encode } from "gpt-tokenizer/encoding/o200k_base";
+import { buildDietPrompt, DIET_EDITS, DIET_REQUIRED } from "../src/widgets/tokens/diet";
+const count = (f: string[]) => encode(buildDietPrompt(f)).length;
+const facts = (f: string[]) => DIET_REQUIRED.map((r) => buildDietPrompt(f).includes(r.mustContain) ? 1 : 0).join("");
+console.log("base", count([]), facts([]));
+for (const e of DIET_EDITS) console.log(e.id.padEnd(10), count([e.id]) - count([]), facts([e.id]));
+const good = ["preamble", "examples", "fields", "keys", "minify", "history"];
+console.log("good", count(good), facts(good));
+console.log("good-no-minify", count(good.filter((x) => x !== "minify")));
+console.log("good-no-examples", count(good.filter((x) => x !== "examples")));
+console.log("good-no-history", count(good.filter((x) => x !== "history")));
+console.log("good+profile", count([...good, "profile"]), facts([...good, "profile"]));
+console.log("good+hindi", count([...good, "hindi"]));

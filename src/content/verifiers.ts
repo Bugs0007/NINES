@@ -11,6 +11,10 @@ import { LbConfig, noisyOptions, type LbChoice } from "@/widgets/lb-lab/spec";
 import { deployOptions, SessionConfig } from "@/widgets/session-lab/spec";
 import { LaunchConfig, launchSpec, type LaunchDesign } from "@/widgets/launch/spec";
 import type { Aggregate, SimSpec } from "@/engine/types";
+import { encode } from "gpt-tokenizer/encoding/o200k_base";
+import { SAMPLES } from "@/widgets/tokens/spec";
+import { buildDietPrompt } from "@/widgets/tokens/diet";
+import { ContextConfig, evaluate, type Policy } from "@/widgets/context/model";
 
 function runAgg(spec: SimSpec, seed: string, until: number, from: number): Aggregate {
   const sim = new Simulation(spec, seed);
@@ -26,6 +30,36 @@ function pick(a: Aggregate, metric: string): number {
 type Params = Record<string, unknown>;
 
 export const VERIFIERS: Record<string, (p: Params) => number> = {
+  /** o200k token count of a Tokenizer Slicer sample. */
+  "token-count": (p) => encode(SAMPLES.find((s) => s.id === p.sample)!.text).length,
+  /** Rank (1 = densest) of a sample by tokens per character among prose, code, and JSON. */
+  "token-density-rank": (p) => {
+    const ids = ["en", "code", "json"];
+    const dens = ids.map((id) => {
+      const t = SAMPLES.find((s) => s.id === id)!.text;
+      return { id, d: encode(t).length / [...t].length };
+    });
+    dens.sort((a, b) => b.d - a.d);
+    return dens.findIndex((x) => x.id === p.sample) + 1;
+  },
+  /** Context Tetris: evaluate a policy over the whole chat and read one metric. */
+  "ctx-eval": (p) => {
+    const c = ContextConfig.parse({ variant: "challenge", ...(p.config as object) });
+    const e = evaluate(c, p.policy as Policy);
+    const m = p.metric as string;
+    if (m === "overflowTurn") return e.overflowTurn ?? Infinity;
+    if (m === "fact") return e.facts.find((f) => f.fact.id === p.fact)?.ok ? 1 : 0;
+    return Number((e as unknown as Record<string, number>)[m]);
+  },
+  /** Context Tetris: total input tokens over the first n turns with full history. */
+  "ctx-sum": (p) => {
+    const c = ContextConfig.parse({ variant: "lab" });
+    return evaluate(c, { mode: "full", lastN: c.turns, docs: 3 })
+      .perTurn.slice(0, p.turns as number)
+      .reduce((s, t) => s + t.input, 0);
+  },
+  /** Token Diet prompt size for a set of edit flags. */
+  "diet-tokens": (p) => encode(buildDietPrompt(p.flags as string[])).length,
   /** Launch Day boss: run a design through the whole launch. */
   launch: (p) => {
     const c = LaunchConfig.parse(p.config);

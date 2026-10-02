@@ -17,7 +17,7 @@ export interface Call {
 }
 
 export function formatNumeric(v: number, unit: string): string {
-  const s = v >= 100 ? v.toFixed(0) : v >= 10 ? v.toFixed(1).replace(/\.0$/, "") : v.toFixed(2).replace(/\.?0+$/, "");
+  const s = v >= 10000 ? v.toLocaleString("en-US", { maximumSignificantDigits: 3 }) : v >= 100 ? v.toFixed(0) : v >= 10 ? v.toFixed(1).replace(/\.0$/, "") : v.toFixed(2).replace(/\.?0+$/, "");
   return `${s}${unit ? ` ${unit}` : ""}`;
 }
 

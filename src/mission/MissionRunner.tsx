@@ -167,7 +167,7 @@ export function MissionRunner({ pack, next }: { pack: ConceptPack; next?: { href
 
   return (
     <Frame pack={pack} beatIdx={beatIdx} chapter={node.chapter}>
-      <div className="grid min-h-0 flex-1 gap-3 p-3 lg:grid-cols-[minmax(0,1fr)_380px] lg:grid-rows-1 lg:p-4">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 p-3 lg:grid-cols-[minmax(0,1fr)_380px] lg:grid-rows-1 lg:p-4">
         {/* stage: grows with its content on phones, fixed to the viewport on desktop */}
         <div className={cx("relative min-h-[440px] rounded-sm lg:h-[calc(100dvh-88px)] lg:min-h-0 lg:overflow-hidden", textFirst && "order-2 lg:order-none")}>
           <div className={cx("h-full transition-[filter,opacity] duration-300", beat === "predict" && "pointer-events-none opacity-60 blur-[1px]")}>
@@ -287,8 +287,13 @@ const OBSERVE_HINTS: Record<string, string> = {
   "slow-rr": "make one server slow while on round robin",
   "lor-recovers": "switch to least outstanding while a server is slow",
   "sticky-reshuffle": "use sticky routing, then change the number of boxes",
-  "sliced": "slice some text",
-  "overflow": "overfill the window",
+  sliced: "slice some text",
+  "script-gap": "slice the Telugu or Hindi sample",
+  "json-dense": "slice the JSON sample",
+  strawberry: "slice 'strawberry'",
+  "history-cost": "play the chat with full history past turn 20",
+  forgot: "keep only the last 10 turns, then drag the chat past turn 30",
+  overflow: "play full history until the window overflows",
 };
 function observeHint(e: string) {
   return OBSERVE_HINTS[e] ?? e.replace(/-/g, " ");

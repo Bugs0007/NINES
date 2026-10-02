@@ -9,9 +9,9 @@ import type { GradeResult } from "@/claude/schemas";
 import type { Caption, Challenge, Deeper, ExplainBack, Source } from "@/content/schema";
 import { sfx } from "@/audio/engine";
 import { CastLine } from "@/ui/Cast";
-import { Button, Chip, cx, Panel } from "@/ui/kit";
+import { Button, Chip, cx } from "@/ui/kit";
 import { spring } from "@/ui/motion";
-import { formatMetric } from "@/widgets/shared";
+import { evalCond, formatMetric } from "@/widgets/shared";
 import type { ChallengeVerdict } from "@/widgets/types";
 
 // ---------------------------------------------------------------- mechanism
@@ -208,6 +208,8 @@ export function ChallengePanel({
 }) {
   const [hints, setHints] = useState<string[]>([]);
   const [asking, setAsking] = useState(false);
+  // Live-traffic challenges hold (or break) an SLO; design-and-ship ones (prompts, policies) just pass or don't.
+  const live = challenge.conditions.some((c) => ["p99", "errorRate", "sessionLoss"].includes(c.metric));
   const ask = async () => {
     setAsking(true);
     const level = Math.min(3, hints.length + 1);
@@ -256,11 +258,15 @@ export function ChallengePanel({
         </ul>
         {challenge.stars.length > 0 && (
           <div className="mt-2 space-y-1">
-            {challenge.stars.map((s, i) => (
-              <div key={i} className="flex items-center gap-2 text-xs text-ink-2">
-                <span className="text-amber">★</span> {s.label}
-              </div>
-            ))}
+            {challenge.stars.map((s, i) => {
+              const v = verdict?.metrics[s.metric];
+              const got = verdict?.won && v !== undefined && evalCond(v, s.op, s.value);
+              return (
+                <div key={i} className={cx("flex items-center gap-2 text-xs", got ? "text-amber" : "text-ink-2")}>
+                  <span className={got ? "text-amber" : "text-ink-3"}>{got ? "★" : "☆"}</span> {s.label}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -271,8 +277,8 @@ export function ChallengePanel({
             animate={{ opacity: 1, y: 0 }}
             className={cx("rounded-sm border p-3", verdict.won ? "border-phos-3 bg-phos-dim/40" : "border-alert-3 bg-alert-dim/40")}
           >
-            <div className={cx("font-display text-2xl font-extrabold uppercase", verdict.won ? "text-phos" : "text-alert")}>{verdict.won ? "SLO held." : "Outage."}</div>
-            <div className="text-sm text-ink-1">{verdict.won ? "That's the win. Collect it." : "Replay it slowly and find the first domino, then change one thing."}</div>
+            <div className={cx("font-display text-2xl font-extrabold uppercase", verdict.won ? "text-phos" : "text-alert")}>{verdict.won ? (live ? "SLO held." : "Shipped.") : live ? "Outage." : "Not yet."}</div>
+            <div className="text-sm text-ink-1">{verdict.won ? "That's the win. Collect it." : live ? "Replay it slowly and find the first domino, then change one thing." : "Find the condition that failed, then change one thing."}</div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -325,7 +331,7 @@ export function ExplainPanel({ concept, eb, required, onDone }: { concept: strin
       <div>
         <div className="font-mono text-2xs uppercase tracking-[0.16em] text-amber">Explain it back</div>
         <p className="mt-1 text-[17px] leading-snug text-ink-0">{eb.prompt}</p>
-        <p className="mt-1 text-xs text-ink-2">Two or three sentences, your own words. Pretend it's the interview.</p>
+        <p className="mt-1 text-xs text-ink-2">Two or three sentences, your own words. Pretend it&apos;s the interview.</p>
       </div>
       {phase === "write" || phase === "grading" ? (
         <>
