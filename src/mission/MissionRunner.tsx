@@ -251,7 +251,7 @@ export function MissionRunner({ pack, next }: { pack: ConceptPack; next?: { href
 function PlayPanel({ pack, calls, revealed }: { pack: ConceptPack; calls: Record<string, Call>; revealed: string[] }) {
   return (
     <div className="flex flex-col gap-4">
-      <div className="font-mono text-2xs uppercase tracking-[0.16em] text-amber">Play</div>
+      <div className="eyebrow text-2xs text-amber">Play</div>
       <p className="text-[15px] leading-snug text-ink-1">Your calls are locked. Now make it happen in the sim and see who was right.</p>
       <ul className="space-y-2">
         {pack.predictions.map((p) => {
@@ -265,7 +265,7 @@ function PlayPanel({ pack, calls, revealed }: { pack: ConceptPack; calls: Record
                   your call: <span className="text-amber">{describeCall(p, c.value)}</span> · {c.confidence}% sure
                 </div>
               )}
-              <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">{done ? "revealed" : `waiting for: ${observeHint(p.observe)}`}</div>
+              <div className="mt-1 eyebrow text-[11px] text-ink-3">{done ? "revealed" : `waiting for: ${observeHint(p.observe)}`}</div>
             </li>
           );
         })}
@@ -303,22 +303,22 @@ function Frame({ pack, beatIdx, chapter, children }: { pack: ConceptPack; beatId
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-40 flex h-12 items-center gap-3 border-b border-line bg-bg-0/90 px-3 backdrop-blur lg:px-4">
-        <Link href="/" className="font-mono text-2xs uppercase tracking-[0.16em] text-ink-2 hover:text-amber" aria-label="Back to HQ">
+        <Link href="/" className="eyebrow text-2xs text-ink-2 hover:text-amber" aria-label="Back to HQ">
           ← HQ
         </Link>
         <span className="h-4 w-px bg-line-2" />
-        <Link href={`/campaign/${chapter}`} className="hidden font-mono text-2xs uppercase tracking-[0.16em] text-ink-2 hover:text-amber sm:inline">
+        <Link href={`/campaign/${chapter}`} className="hidden eyebrow text-2xs text-ink-2 hover:text-amber sm:inline">
           {chapter.toUpperCase()}
         </Link>
-        <span className="truncate font-display text-lg font-extrabold uppercase tracking-tight text-ink-0">{pack.title}</span>
+        <span className="truncate font-display text-lg font-semibold tracking-tight text-ink-0">{pack.title}</span>
         <ol className="ml-auto hidden items-center gap-1 md:flex" aria-label="Mission progress">
           {BEATS.map((b, i) => (
-            <li key={b.id} className={cx("rounded-[2px] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em]", i === beatIdx ? "bg-amber text-bg-0" : i < beatIdx ? "text-phos" : "text-ink-3")}>
+            <li key={b.id} className={cx("rounded-xs px-1.5 py-0.5 eyebrow text-[11px]", i === beatIdx ? "bg-amber text-bg-0" : i < beatIdx ? "text-phos" : "text-ink-3")}>
               {b.label}
             </li>
           ))}
         </ol>
-        <span className="ml-auto font-mono text-[10px] uppercase tracking-[0.12em] text-ink-2 md:hidden">
+        <span className="ml-auto eyebrow text-[11px] text-ink-2 md:hidden">
           {BEATS[beatIdx]?.label} · {beatIdx + 1}/{BEATS.length}
         </span>
       </header>

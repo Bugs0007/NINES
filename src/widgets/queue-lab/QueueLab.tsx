@@ -182,7 +182,7 @@ function LittlePanel({ L, lam, W, focus }: { L: number; lam: number; W: number; 
   const holds = L > 0.05 && Math.abs(L - predicted) / Math.max(0.1, L) < 0.1;
   const cell = (label: string, v: string, hot: boolean) => (
     <motion.div animate={{ scale: hot ? 1.06 : 1 }} transition={spring.snap} className={cx("rounded-sm border px-1.5 py-1.5 text-center", hot ? "border-amber shadow-glow-amber" : "border-line-2")}>
-      <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-2">{label}</div>
+      <div className="eyebrow text-[11px] text-ink-2">{label}</div>
       <div className="font-mono text-lg tabular text-ink-0">{v}</div>
     </motion.div>
   );
@@ -226,28 +226,28 @@ function HockeyChart({ points, S, rho, W, focus }: { points: WindowMetrics[]; S:
       <svg viewBox={`0 0 ${w} ${h}`} className="w-full" role="img" aria-label="Average latency against utilization, measured points over the theoretical curve">
         {[0.5, 0.7, 0.9].map((r) => (
           <g key={r}>
-            <line x1={x(r)} x2={x(r)} y1={pad.t} y2={h - pad.b} stroke="#1a2a31" />
-            <text x={x(r)} y={h - 8} fill="#6f857c" fontSize="9" textAnchor="middle" fontFamily="var(--font-mono)">
+            <line x1={x(r)} x2={x(r)} y1={pad.t} y2={h - pad.b} stroke="#243139" />
+            <text x={x(r)} y={h - 8} fill="#8f9790" fontSize="9" textAnchor="middle" fontFamily="var(--font-mono)">
               {r * 100}%
             </text>
           </g>
         ))}
         {[1, 5, 10, 20].map((m) => (
           <g key={m}>
-            <line x1={pad.l} x2={w - pad.r} y1={y(m)} y2={y(m)} stroke="#1a2a31" />
-            <text x={pad.l - 4} y={y(m) + 3} fill="#6f857c" fontSize="9" textAnchor="end" fontFamily="var(--font-mono)">
+            <line x1={pad.l} x2={w - pad.r} y1={y(m)} y2={y(m)} stroke="#243139" />
+            <text x={pad.l - 4} y={y(m) + 3} fill="#8f9790" fontSize="9" textAnchor="end" fontFamily="var(--font-mono)">
               {m}×
             </text>
           </g>
         ))}
-        <rect x={x(0.8)} y={pad.t} width={x(0.98) - x(0.8)} height={h - pad.t - pad.b} fill="rgb(255 90 78 / 0.07)" />
-        <path d={theory} fill="none" stroke={focus === "curve" ? "#ffb547" : "#465851"} strokeWidth={focus === "curve" ? 2 : 1.5} strokeDasharray={focus === "curve" ? "0" : "4 3"} />
+        <rect x={x(0.8)} y={pad.t} width={x(0.98) - x(0.8)} height={h - pad.t - pad.b} fill="rgb(236 143 128 / 0.07)" />
+        <path d={theory} fill="none" stroke={focus === "curve" ? "#e8b77d" : "#657069"} strokeWidth={focus === "curve" ? 2 : 1.5} strokeDasharray={focus === "curve" ? "0" : "4 3"} />
         {trail.map(([r, m], i) => (
-          <circle key={i} cx={x(r)} cy={y(m)} r={1.8} fill="#5cf29a" opacity={0.25 + (0.6 * i) / Math.max(1, trail.length)} />
+          <circle key={i} cx={x(r)} cy={y(m)} r={1.8} fill="#8fd4b2" opacity={0.25 + (0.6 * i) / Math.max(1, trail.length)} />
         ))}
-        {rho > 0 && <circle cx={x(rho)} cy={y(W / S)} r={4.5} fill="#5cf29a" stroke="#04070a" strokeWidth={1.5} />}
+        {rho > 0 && <circle cx={x(rho)} cy={y(W / S)} r={4.5} fill="#8fd4b2" stroke="#0f1519" strokeWidth={1.5} />}
       </svg>
-      <div className="mt-1 flex justify-between font-mono text-[10px] text-ink-3">
+      <div className="mt-1 flex justify-between font-mono text-[11px] text-ink-3">
         <span>x: busy %</span>
         <span>y: latency ÷ service time</span>
         <span>dashed: M/M/1</span>
@@ -323,7 +323,7 @@ function QueueChallenge({ config: c, onResult, verdict, locked, conditions }: Wi
                     </span>
                   </div>
                   <Meter value={built.memGiB / (c.ramGiB ?? 8)} warnAt={0.75} alertAt={0.9} label="memory used" />
-                  <div className="mt-1 font-mono text-[10px] text-ink-3">
+                  <div className="mt-1 font-mono text-[11px] text-ink-3">
                     {c.workerMb} MB per worker + {c.reservedGiB} GiB for OS, nginx, page cache
                   </div>
                 </div>

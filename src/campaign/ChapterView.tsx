@@ -45,20 +45,20 @@ export function ChapterView({ chapterId }: { chapterId: string }) {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="flex h-12 items-center gap-3 border-b border-line px-3 lg:px-5">
-        <Link href="/" className="font-mono text-2xs uppercase tracking-[0.16em] text-ink-2 hover:text-amber">
+        <Link href="/" className="eyebrow text-2xs text-ink-2 hover:text-amber">
           ← HQ
         </Link>
         <span className="h-4 w-px bg-line-2" />
-        <span className="font-mono text-2xs uppercase tracking-[0.16em] text-ink-2">{TRACKS[ch.track].district}</span>
-        <button onClick={() => setShowIntro(true)} className="ml-auto font-mono text-2xs uppercase tracking-[0.16em] text-ink-3 hover:text-amber">
+        <span className="eyebrow text-2xs text-ink-2">{TRACKS[ch.track].district}</span>
+        <button onClick={() => setShowIntro(true)} className="ml-auto eyebrow text-2xs text-ink-3 hover:text-amber">
           replay intro
         </button>
       </header>
       <section className="mx-auto w-full max-w-5xl px-4 pb-4 pt-8">
-        <div className="font-mono text-2xs uppercase tracking-[0.3em] text-amber">
+        <div className="eyebrow text-2xs text-amber">
           Chapter {ch.id.toUpperCase()} · {ch.stage}
         </div>
-        <h1 className="mt-1 font-display text-6xl font-extrabold uppercase leading-none text-ink-0 sm:text-7xl">{ch.title}</h1>
+        <h1 className="mt-1 font-display text-6xl font-semibold leading-none text-ink-0 sm:text-7xl">{ch.title}</h1>
         <p className="mt-2 max-w-xl text-ink-1">{ch.blurb}</p>
         <div className="mt-4 flex flex-wrap items-center gap-3 font-mono text-2xs text-ink-2">
           <span>
@@ -81,7 +81,7 @@ export function ChapterView({ chapterId }: { chapterId: string }) {
         ))}
         {side.length > 0 && (
           <div className="mt-4">
-            <div className="mb-2 font-mono text-2xs uppercase tracking-[0.18em] text-ink-2">On call this chapter</div>
+            <div className="mb-2 eyebrow text-2xs text-ink-2">On call this chapter</div>
             {side.map((n) => (
               <MissionRow key={n.id} n={n} index={0} state={stateOf(n)} mastery={0} />
             ))}
@@ -120,7 +120,7 @@ function MissionRow({ n, index, state, mastery }: { n: PlannedNode; index: numbe
         {n.kind === "incident" ? "INC" : String(index).padStart(2, "0")}
       </div>
       <div className="min-w-0 flex-1">
-        <div className={cx("font-display text-2xl font-extrabold uppercase leading-none", state === "locked" || state === "blueprint" ? "text-ink-2" : "text-ink-0")}>{n.title}</div>
+        <div className={cx("font-display text-2xl font-semibold leading-none", state === "locked" || state === "blueprint" ? "text-ink-2" : "text-ink-0")}>{n.title}</div>
         <div className="mt-1 truncate font-mono text-2xs text-ink-2">
           {n.interaction}
           {pack ? ` · ~${pack.estimatedMinutes} min` : ""}
@@ -136,7 +136,7 @@ function MissionRow({ n, index, state, mastery }: { n: PlannedNode; index: numbe
           </span>
         )}
         {state === "available" && <Led tone="warn" blink />}
-        <span className="font-mono text-2xs uppercase tracking-[0.12em] text-ink-2">{state === "built" ? "online" : state === "available" ? "build" : state === "blueprint" ? "blueprint" : "locked"}</span>
+        <span className="eyebrow text-2xs text-ink-2">{state === "built" ? "online" : state === "available" ? "build" : state === "blueprint" ? "blueprint" : "locked"}</span>
       </div>
     </motion.div>
   );
@@ -154,8 +154,8 @@ function BossRow({ n, state }: { n: PlannedNode; state: State }) {
   const open = state === "available" || state === "built";
   return (
     <div className={cx("mt-3 overflow-hidden rounded-sm border p-4 sm:p-5", state === "available" ? "border-alert-3 bg-alert-dim/30 shadow-glow-alert" : state === "built" ? "border-phos-3 bg-phos-dim/20" : "border-line bg-bg-1/50")}>
-      <div className="font-mono text-2xs uppercase tracking-[0.3em] text-alert">Boss incident</div>
-      <div className="mt-1 font-display text-4xl font-extrabold uppercase leading-none text-ink-0">{n.title.replace(/^Boss: /, "")}</div>
+      <div className="eyebrow text-2xs text-alert">Boss incident</div>
+      <div className="mt-1 font-display text-4xl font-semibold leading-none text-ink-0">{n.title.replace(/^Boss: /, "")}</div>
       <p className="mt-2 text-sm text-ink-1">{state === "locked" ? `Needs every service in this chapter online. ${n.prereqs.length} prerequisites.` : state === "built" ? "Survived. The gate is open." : boss ? `~${boss.estimatedMinutes} minutes. Everything from this chapter, at once, under a budget.` : "Blueprint: not yet constructed in this build."}</p>
       {open && boss && (
         <Link href={hrefFor(n)} className="mt-3 inline-block">

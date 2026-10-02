@@ -28,8 +28,8 @@ export function Debrief({ pack, lines, firstBuild, stars, nextHref, nextLabel }:
     <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-6 px-4 py-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
       <div className="flex flex-col gap-5">
         <div>
-          <div className="font-mono text-2xs uppercase tracking-[0.3em] text-phos">{firstBuild ? "Service built" : "Service re-run"}</div>
-          <h1 className="font-display text-5xl font-extrabold uppercase leading-none text-ink-0 sm:text-6xl">{pack.title}</h1>
+          <div className="eyebrow text-2xs text-phos">{firstBuild ? "Service built" : "Service re-run"}</div>
+          <h1 className="font-display text-5xl font-semibold leading-none text-ink-0 sm:text-6xl">{pack.title}</h1>
           <div className="mt-2 flex gap-1 text-2xl" aria-label={`${stars} of 2 bonus stars`}>
             {[0, 1].map((i) => (
               <motion.span key={i} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ ...spring.bounce, delay: 0.6 + i * 0.2 }} className={i < stars ? "text-amber glow-amber" : "text-ink-3"}>
@@ -51,7 +51,7 @@ export function Debrief({ pack, lines, firstBuild, stars, nextHref, nextLabel }:
           </li>
         </ul>
         <div className="rounded-sm border border-line p-3">
-          <div className="flex items-baseline justify-between font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">
+          <div className="flex items-baseline justify-between eyebrow text-2xs text-ink-2">
             <span>
               {rank.tierName} {rank.sub}
             </span>

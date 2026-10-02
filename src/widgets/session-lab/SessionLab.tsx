@@ -46,7 +46,7 @@ function LossStrip({ windows }: { windows: WindowMetrics[] }) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-sm border border-line bg-bg-1 px-3 py-2">
       <div>
-        <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-2">users logged out</div>
+        <div className="eyebrow text-[11px] text-ink-2">users logged out</div>
         <div className={cx("font-mono text-2xl tabular", last > 0.01 ? "text-alert glow-alert" : "text-phos")}>{fmtPct(last, 1)}</div>
       </div>
       <Sparkline values={series} width={200} height={34} max={1} tone={last > 0.01 ? "alert" : "phos"} />
@@ -109,7 +109,7 @@ function Lab({ config: c, onObserve, locked, mode: wmode, scene }: WidgetProps<S
                 onClick={() => changeMode(m)}
                 className={cx("rounded-sm border px-2.5 py-2 text-left", mode === m ? "border-amber bg-amber-dim/40" : "border-line-2 hover:border-line-3")}
               >
-                <div className="font-mono text-2xs uppercase tracking-[0.1em] text-ink-0">{MODE_LABEL[m]}</div>
+                <div className="eyebrow text-2xs text-ink-0">{MODE_LABEL[m]}</div>
                 <div className="text-xs text-ink-2">{MODE_HINT[m]}</div>
               </button>
             ))}
@@ -167,7 +167,7 @@ function Deploy({ config: c, onResult, verdict, locked, conditions }: WidgetProp
           <div className={cx("flex flex-col gap-2", (running || locked) && "pointer-events-none opacity-50")}>
             {MODES.map((m) => (
               <button key={m} onClick={() => setMode(m)} className={cx("rounded-sm border px-2.5 py-2 text-left", mode === m ? "border-amber bg-amber-dim/40" : "border-line-2 hover:border-line-3")}>
-                <div className="flex items-center justify-between font-mono text-2xs uppercase tracking-[0.1em] text-ink-0">
+                <div className="flex items-center justify-between eyebrow text-2xs text-ink-0">
                   {MODE_LABEL[m]}
                   <span className="text-ink-2">{m === "redis" ? `+${fmtUsd(redisCost)}/mo` : "+$0"}</span>
                 </div>

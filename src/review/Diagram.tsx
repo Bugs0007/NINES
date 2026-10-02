@@ -41,7 +41,7 @@ export function MiniDiagram({ d, picked, answer, reveal, onPick }: { d: DiagramT
         const my = (a.y + b.y) / 2;
         return (
           <g key={id}>
-            <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={t === "ok" ? "#5cf29a" : t === "bad" ? "#ff5a4e" : t === "picked" ? "#ffb547" : "#365a66"} strokeWidth={t === "none" ? 1.5 : 3} />
+            <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={t === "ok" ? "#8fd4b2" : t === "bad" ? "#ec8f80" : t === "picked" ? "#e8b77d" : "#42545e"} strokeWidth={t === "none" ? 1.5 : 3} />
             <line
               x1={a.x}
               y1={a.y}
@@ -81,11 +81,11 @@ export function MiniDiagram({ d, picked, answer, reveal, onPick }: { d: DiagramT
               width={NODE_W}
               height={NODE_H}
               rx={3}
-              fill={t === "ok" ? "rgb(15 51 34 / 0.9)" : t === "bad" ? "rgb(46 15 13 / 0.9)" : "rgb(13 23 28 / 0.95)"}
-              stroke={t === "ok" ? "#5cf29a" : t === "bad" ? "#ff5a4e" : t === "picked" ? "#ffb547" : "#365a66"}
+              fill={t === "ok" ? "rgb(28 56 48 / 0.9)" : t === "bad" ? "rgb(58 35 32 / 0.9)" : "rgb(27 37 43 / 0.95)"}
+              stroke={t === "ok" ? "#8fd4b2" : t === "bad" ? "#ec8f80" : t === "picked" ? "#e8b77d" : "#42545e"}
               strokeWidth={t === "none" ? 1 : 2}
             />
-            <text x={p.x - NODE_W / 2 + 7} y={p.y - 6} fontSize={8.5} className={cx("fill-ink-3 font-mono uppercase")} letterSpacing="0.1em">
+            <text x={p.x - NODE_W / 2 + 7} y={p.y - 6} fontSize={8.5} className={cx("fill-ink-3 eyebrow")} letterSpacing="0.1em">
               {KIND_TAG[n.kind] ?? n.kind}
             </text>
             <foreignObject x={p.x - NODE_W / 2 + 5} y={p.y - 3} width={NODE_W - 10} height={NODE_H / 2 + 2}>
@@ -114,7 +114,7 @@ export function GraphOption({ points, selected, state, label, onClick }: { point
       )}
     >
       <svg viewBox={`0 0 ${w} ${h}`} className="h-11 w-full" aria-hidden>
-        <path d={d} fill="none" stroke={state === "ok" ? "#5cf29a" : state === "bad" ? "#ff5a4e" : selected ? "#ffb547" : "#a6bab1"} strokeWidth={2} />
+        <path d={d} fill="none" stroke={state === "ok" ? "#8fd4b2" : state === "bad" ? "#ec8f80" : selected ? "#e8b77d" : "#c5c4bc"} strokeWidth={2} />
       </svg>
       <span className="text-xs text-ink-1">{label}</span>
     </button>

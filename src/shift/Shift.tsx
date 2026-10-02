@@ -125,7 +125,7 @@ export function Shift() {
     }
   }, [i, tasks]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!hydrated || !tasks) return <div className="grid min-h-dvh place-items-center font-mono text-2xs uppercase tracking-[0.2em] text-ink-3">clocking in…</div>;
+  if (!hydrated || !tasks) return <div className="grid min-h-dvh place-items-center eyebrow text-2xs text-ink-3">clocking in…</div>;
 
   const reviews = tasks.filter((t) => t.kind === "review").length;
   const task = tasks[i];
@@ -133,10 +133,10 @@ export function Shift() {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-40 flex h-12 items-center gap-3 border-b border-line bg-bg-0/90 px-3 backdrop-blur lg:px-5">
-        <Link href="/" className="font-mono text-2xs uppercase tracking-[0.16em] text-ink-2 hover:text-amber">
+        <Link href="/" className="eyebrow text-2xs text-ink-2 hover:text-amber">
           ← HQ
         </Link>
-        <span className="font-display text-lg font-extrabold uppercase text-ink-0">Daily shift</span>
+        <span className="font-display text-lg font-semibold text-ink-0">Daily shift</span>
         <div className="ml-auto flex items-center gap-1" aria-label={`Task ${Math.max(0, i) + 1} of ${tasks.length}`}>
           {tasks.map((t, k) => (
             <span key={k} className={cx("h-1.5 w-5 rounded-full", k < i ? (done[k]?.ok ? "bg-phos" : "bg-amber") : k === i ? "bg-ink-0" : t.kind === "estimate" ? "bg-amber-3" : "bg-line-2")} />
@@ -149,8 +149,8 @@ export function Shift() {
             {i === -1 && (
               <div className="flex flex-col gap-5">
                 <div>
-                  <div className="font-mono text-2xs uppercase tracking-[0.3em] text-amber">{new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" })}</div>
-                  <h1 className="font-display text-5xl font-extrabold uppercase leading-none text-ink-0">Clocking in</h1>
+                  <div className="eyebrow text-2xs text-amber">{new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" })}</div>
+                  <h1 className="font-display text-5xl font-semibold leading-none text-ink-0">Clocking in</h1>
                 </div>
                 <CastLine
                   line={{
@@ -243,7 +243,7 @@ function Estimathon({ task, onDone }: { task: Extract<Task, { kind: "estimate" }
       ) : (
         <div className="flex flex-col gap-3">
           <div className={cx("rounded-sm border p-3", res.grade === "exact" || res.grade === "close" ? "border-phos-3 bg-phos-dim/30" : res.grade === "ballpark" ? "border-amber-3 bg-amber-dim/30" : "border-alert-3 bg-alert-dim/30")}>
-            <div className="font-display text-2xl font-extrabold uppercase text-ink-0">{res.grade === "exact" ? "Dead on" : res.grade === "close" ? "Right order of magnitude" : res.grade === "ballpark" ? "Ballpark" : "Off by 10× or more"}</div>
+            <div className="font-display text-2xl font-semibold text-ink-0">{res.grade === "exact" ? "Dead on" : res.grade === "close" ? "Right order of magnitude" : res.grade === "ballpark" ? "Ballpark" : "Off by 10× or more"}</div>
             <div className="font-mono text-xs text-ink-1">answer ≈ {+p.answer.toPrecision(3)} {p.unit}</div>
             <ol className="mt-2 space-y-0.5 font-mono text-xs text-ink-2">
               {p.steps.map((s, k) => (
@@ -269,14 +269,14 @@ function ShiftReport({ done, report }: { done: Done[]; report: { streak: number;
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <div className="font-mono text-2xs uppercase tracking-[0.3em] text-phos">Shift complete</div>
-        <h1 className="font-display text-5xl font-extrabold uppercase leading-none text-ink-0">
+        <div className="eyebrow text-2xs text-phos">Shift complete</div>
+        <h1 className="font-display text-5xl font-semibold leading-none text-ink-0">
           <Ticker value={total} format={(v) => `+${Math.round(v)} XP`} />
         </h1>
       </div>
       {repairs.length > 0 && (
         <div>
-          <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.16em] text-ink-2">
+          <div className="mb-1.5 eyebrow text-2xs text-ink-2">
             Repairs · {fixed}/{repairs.length} clean
           </div>
           <ul className="space-y-1">

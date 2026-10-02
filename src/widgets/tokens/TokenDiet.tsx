@@ -81,7 +81,7 @@ export default function TokenDiet({ config, onResult, conditions, locked, verdic
             {c.requestsPerDay.toLocaleString()} requests/day × ${c.usdPerMTok}/M input tokens
           </div>
           <div className={cx("mt-1 font-mono text-3xl tabular", tokens <= c.budgetTokens ? "text-phos" : "text-amber")}>{fmtUsd(cost)}/mo</div>
-          <div className="mt-1 font-mono text-[10px] text-ink-3">started at {fmtUsd(monthlyUsd(base, c.requestsPerDay, c.usdPerMTok))}/mo ({base} tokens)</div>
+          <div className="mt-1 font-mono text-[11px] text-ink-3">started at {fmtUsd(monthlyUsd(base, c.requestsPerDay, c.usdPerMTok))}/mo ({base} tokens)</div>
           <Meter value={tokens / Math.max(1, base)} warnAt={0.7} alertAt={0.95} className="mt-2" label="tokens vs original" />
         </Panel>
         <Panel label="facts the model needs">

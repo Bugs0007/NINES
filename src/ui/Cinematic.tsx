@@ -54,7 +54,7 @@ export function Cinematic({ frames, onDone, sound = "whoosh", tone = "default" }
   const f = frames[i];
   return (
     <motion.div
-      className={cx("fixed inset-0 z-[70] flex items-center justify-center p-6", tone === "alert" ? "bg-[#0d0303]/95" : "bg-bg-0/95")}
+      className={cx("fixed inset-0 z-[70] flex items-center justify-center p-6", tone === "alert" ? "bg-[#1f1614]/95" : "bg-bg-0/95")}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -70,11 +70,11 @@ export function Cinematic({ frames, onDone, sound = "whoosh", tone = "default" }
             <motion.div key={i} initial={{ opacity: 0, y: reduced ? 0 : 14, scale: reduced ? 1 : 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: reduced ? 0 : -10 }} transition={spring.soft}>
               {f.kind === "title" && (
                 <div className="text-center">
-                  <div className={cx("font-mono text-2xs uppercase tracking-[0.36em]", f.tone === "alert" ? "text-alert" : f.tone === "amber" ? "text-amber" : "text-phos")}>{f.kicker}</div>
+                  <div className={cx("eyebrow text-2xs", f.tone === "alert" ? "text-alert" : f.tone === "amber" ? "text-amber" : "text-phos")}>{f.kicker}</div>
                   <h1
                     className={cx(
-                      "mt-3 text-[clamp(3rem,12vw,7rem)] font-extrabold uppercase leading-[0.9] tracking-tight",
-                      f.stencil ? "font-[family-name:var(--font-stencil-face)]" : "font-display",
+                      "mt-3 text-[clamp(3rem,12vw,7rem)] font-extrabold leading-[0.9] tracking-tight",
+                      "font-display",
                       f.tone === "alert" ? "text-alert glow-alert" : f.tone === "amber" ? "text-amber glow-amber" : f.tone === "phos" ? "text-phos glow-phos" : "text-ink-0",
                     )}
                   >
@@ -94,7 +94,7 @@ export function Cinematic({ frames, onDone, sound = "whoosh", tone = "default" }
           e.stopPropagation();
           finish();
         }}
-        className="absolute bottom-5 right-5 font-mono text-2xs uppercase tracking-[0.16em] text-ink-2 hover:text-amber"
+        className="absolute bottom-5 right-5 eyebrow text-2xs text-ink-2 hover:text-amber"
       >
         Skip ⟶
       </button>

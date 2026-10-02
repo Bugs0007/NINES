@@ -161,11 +161,11 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className={cx("sticky top-0 z-40 flex h-12 items-center gap-3 border-b px-3 backdrop-blur lg:px-4", burning ? "border-alert-3 bg-alert-dim/80" : "border-line bg-bg-0/90")}>
-        <Link href="/incident" className="font-mono text-2xs uppercase tracking-[0.16em] text-ink-2 hover:text-amber">
+        <Link href="/incident" className="eyebrow text-2xs text-ink-2 hover:text-amber">
           ←
         </Link>
         <Chip tone={recovered !== null ? "ok" : "alert"} className="shrink-0 whitespace-nowrap">{inc.severity}</Chip>
-        <span className="truncate font-display text-lg font-extrabold uppercase text-ink-0">
+        <span className="truncate font-display text-lg font-semibold text-ink-0">
           {inc.code} · {inc.title}
         </span>
         <span className="ml-auto hidden font-mono text-2xs text-ink-1 sm:inline">
@@ -186,7 +186,7 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
                 ["timeline", "Timeline"],
               ] as [Tab, string][]
             ).map(([id, label]) => (
-              <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={cx("h-9 shrink-0 rounded-[2px] border px-3 font-mono text-2xs uppercase tracking-[0.1em]", tab === id ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1 hover:border-line-3")}>
+              <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={cx("h-9 shrink-0 rounded-xs border px-3 eyebrow text-2xs", tab === id ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1 hover:border-line-3")}>
                 {label}
               </button>
             ))}
@@ -203,7 +203,7 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
         <aside className="flex min-h-0 flex-col gap-3 rounded-sm border border-line bg-bg-1/80 p-3 lg:h-[calc(100dvh-88px)] lg:overflow-y-auto">
           <Status last={last} failed={failedSincePage} recovered={recovered} inc={inc} />
           <section>
-            <div className="mb-1 flex items-center justify-between font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">
+            <div className="mb-1 flex items-center justify-between eyebrow text-2xs text-ink-2">
               <span>Evidence board</span>
               <span>{pins.length}</span>
             </div>
@@ -214,19 +214,19 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
                 {pins.map((p) => (
                   <li key={p.key} className="group rounded-sm border border-line-2 bg-bg-2 p-1.5">
                     <div className="flex items-start justify-between gap-2">
-                      <pre className="whitespace-pre-wrap break-all font-mono text-[10px] text-ink-1">{p.text.length > 160 ? `${p.text.slice(0, 160)}…` : p.text}</pre>
-                      <button onClick={() => pin(p)} className="font-mono text-[10px] text-ink-3 hover:text-alert" aria-label="Unpin">
+                      <pre className="whitespace-pre-wrap break-all font-mono text-[11px] text-ink-1">{p.text.length > 160 ? `${p.text.slice(0, 160)}…` : p.text}</pre>
+                      <button onClick={() => pin(p)} className="font-mono text-[11px] text-ink-3 hover:text-alert" aria-label="Unpin">
                         ✕
                       </button>
                     </div>
-                    <div className="font-mono text-[9px] text-ink-3">{p.where}</div>
+                    <div className="font-mono text-[11px] text-ink-3">{p.where}</div>
                   </li>
                 ))}
               </ul>
             )}
           </section>
           <section>
-            <div className="mb-1 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">Hypothesis</div>
+            <div className="mb-1 eyebrow text-2xs text-ink-2">Hypothesis</div>
             <div className="flex flex-col gap-1">
               {inc.hypotheses.map((h) => (
                 <button key={h.id} onClick={() => setHyp(h.id)} aria-pressed={hyp === h.id} className={cx("rounded-sm border px-2 py-1.5 text-left text-xs", hyp === h.id ? "border-amber bg-amber-dim/50 text-ink-0" : "border-line-2 text-ink-1 hover:border-line-3")}>
@@ -236,7 +236,7 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
             </div>
           </section>
           <section>
-            <div className="mb-1 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">Actions</div>
+            <div className="mb-1 eyebrow text-2xs text-ink-2">Actions</div>
             <div className="flex flex-col gap-1">
               {inc.mitigations.map((m) => {
                 const done = applied.some((a) => a.id === m.id);
@@ -249,7 +249,7 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span>{m.label}</span>
-                        <span className="shrink-0 font-mono text-[10px] text-ink-3">{done ? "done" : confirm === m.id ? "tap to confirm" : `~${m.takesS}s`}</span>
+                        <span className="shrink-0 font-mono text-[11px] text-ink-3">{done ? "done" : confirm === m.id ? "tap to confirm" : `~${m.takesS}s`}</span>
                       </div>
                       {confirm === m.id && <div className="mt-0.5 text-[11px] text-ink-2">{m.detail}</div>}
                     </button>
@@ -260,7 +260,7 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
           </section>
           <section className="rounded-sm border border-line p-2">
             <div className="flex items-center justify-between">
-              <span className="font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">Ask the SRE</span>
+              <span className="eyebrow text-2xs text-ink-2">Ask the SRE</span>
               <Button size="sm" variant="ghost" onClick={ask} disabled={hints.length >= 3}>
                 {hints.length ? "Narrower" : "Nudge me"}
               </Button>
@@ -281,7 +281,7 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
 function Status({ last, failed, recovered, inc }: { last?: WindowMetrics; failed: number; recovered: number | null; inc: Incident }) {
   return (
     <section className={cx("rounded-sm border p-2.5", recovered !== null ? "border-phos-3 bg-phos-dim/30" : "border-alert-3 bg-alert-dim/40")}>
-      <div className="flex items-center gap-2 font-mono text-2xs uppercase tracking-[0.14em]">
+      <div className="flex items-center gap-2 eyebrow text-2xs">
         <Led tone={recovered !== null ? "ok" : "alert"} blink={recovered === null} />
         <span className={recovered !== null ? "text-phos" : "text-alert"}>{recovered !== null ? `recovered at ${clockAt(recovered, inc.clock0)}` : "burning"}</span>
       </div>
@@ -356,8 +356,8 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
   if (score) {
     return (
       <div className="mx-auto w-full max-w-3xl px-4 py-8">
-        <div className="font-mono text-2xs uppercase tracking-[0.3em] text-phos">{inc.code} resolved</div>
-        <h1 className="font-display text-6xl font-extrabold uppercase leading-none text-ink-0">{inc.title}</h1>
+        <div className="eyebrow text-2xs text-phos">{inc.code} resolved</div>
+        <h1 className="font-display text-6xl font-semibold leading-none text-ink-0">{inc.title}</h1>
         <ul className="mt-6 space-y-1.5">
           {score.parts.map(([label, v], i) => (
             <motion.li key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ ...spring.soft, delay: i * 0.1 }} className="flex justify-between border-b border-line pb-1.5 font-mono text-sm">
@@ -372,12 +372,12 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
         </ul>
         {score.gap && (
           <div className="mt-4 rounded-sm border border-amber-3 bg-amber-dim/30 p-3 text-sm">
-            <span className="font-mono text-2xs uppercase tracking-[0.14em] text-amber">Postmortem gap</span>
+            <span className="eyebrow text-2xs text-amber">Postmortem gap</span>
             <div className="text-ink-0">{score.gap}</div>
           </div>
         )}
         <div className="mt-4 rounded-sm border border-line p-3">
-          <div className="font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">What actually happened</div>
+          <div className="eyebrow text-2xs text-ink-2">What actually happened</div>
           <p className="mt-1 text-sm text-ink-0">{inc.postmortem.exemplar}</p>
         </div>
         <HonestNotes className="mt-4" notes={inc.honestPhysics ?? []} />
@@ -400,8 +400,8 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8">
-      <div className="font-mono text-2xs uppercase tracking-[0.3em] text-amber">{inc.code} · postmortem</div>
-      <h1 className="font-display text-5xl font-extrabold uppercase leading-none text-ink-0">Three lines</h1>
+      <div className="eyebrow text-2xs text-amber">{inc.code} · postmortem</div>
+      <h1 className="font-display text-5xl font-semibold leading-none text-ink-0">Three lines</h1>
       <p className="mt-2 text-sm text-ink-1">Blameless, specific, short. What someone reading this in six months needs.</p>
       <div className="mt-5 flex flex-col gap-3">
         {(
@@ -412,7 +412,7 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
           ] as const
         ).map(([k, label]) => (
           <label key={k} className="flex flex-col gap-1">
-            <span className="font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">{label}</span>
+            <span className="eyebrow text-2xs text-ink-2">{label}</span>
             <textarea value={lines[k]} onChange={(e) => setLines((l) => ({ ...l, [k]: e.target.value }))} rows={2} className="rounded-sm border border-line-2 bg-bg-0 p-2.5 text-sm text-ink-0 outline-none focus:border-amber" />
           </label>
         ))}
@@ -430,7 +430,7 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
                   <div className="text-sm text-ink-0">{r.criterion}</div>
                   <div className="mt-1 flex gap-1">
                     {(["met", "partial", "missed"] as const).map((v) => (
-                      <button key={v} onClick={() => setSelf((s) => ({ ...s, [r.id]: v }))} className={cx("h-8 flex-1 rounded-[2px] border font-mono text-2xs uppercase", self[r.id] === v ? "border-amber text-amber" : "border-line-2 text-ink-2")}>
+                      <button key={v} onClick={() => setSelf((s) => ({ ...s, [r.id]: v }))} className={cx("h-8 flex-1 rounded-xs border eyebrow text-2xs", self[r.id] === v ? "border-amber text-amber" : "border-line-2 text-ink-2")}>
                         {v}
                       </button>
                     ))}
@@ -450,7 +450,7 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
         )}
       </div>
       <AnimatePresence />
-      <div className="mt-6 font-mono text-[10px] text-ink-3">
+      <div className="mt-6 font-mono text-[11px] text-ink-3">
         failed checkouts during the incident: {failed.toLocaleString()} · time to mitigate: {recovered === null ? "—" : `${Math.round(recovered - inc.pageAt)}s`}
       </div>
     </div>

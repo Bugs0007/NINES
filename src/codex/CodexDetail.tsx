@@ -18,15 +18,15 @@ export function CodexDetail({ id }: { id: string }) {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="flex h-12 items-center gap-3 border-b border-line px-3 lg:px-5">
-        <Link href="/codex" className="font-mono text-2xs uppercase tracking-[0.16em] text-ink-2 hover:text-amber">
+        <Link href="/codex" className="eyebrow text-2xs text-ink-2 hover:text-amber">
           ← Codex
         </Link>
-        <span className="truncate font-display text-lg font-extrabold uppercase text-ink-0">{pack.title}</span>
+        <span className="truncate font-display text-lg font-semibold text-ink-0">{pack.title}</span>
       </header>
       <div className="mx-auto grid w-full max-w-6xl gap-4 px-4 py-6">
         {!owned ? (
           <div className="rounded-sm border border-dashed border-line-2 p-6">
-            <div className="font-display text-3xl font-extrabold uppercase text-ink-2">Locked</div>
+            <div className="font-display text-3xl font-semibold text-ink-2">Locked</div>
             <p className="mt-2 text-ink-1">This card is earned by building {pack.title} in the campaign.</p>
             <Link href={`/mission/${id}`} className="mt-4 inline-block">
               <Button variant="primary">Go build it</Button>

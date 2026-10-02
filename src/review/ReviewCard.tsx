@@ -171,7 +171,7 @@ export function ReviewCard({ item, conceptTitle, askWhy, onDone }: { item: Revie
                   st === "ok" ? "border-phos bg-phos-dim/40 text-ink-0" : st === "bad" ? "border-alert bg-alert-dim/40 text-ink-0" : st === "picked" ? "border-amber bg-amber-dim/50 text-ink-0" : "border-line-2 bg-bg-2 text-ink-1 hover:border-line-3",
                 )}
               >
-                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[2px] border border-line-3 font-mono text-2xs text-ink-2">{String.fromCharCode(65 + i)}</span>
+                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-xs border border-line-3 font-mono text-2xs text-ink-2">{String.fromCharCode(65 + i)}</span>
                 {o.label}
               </button>
             );
@@ -180,7 +180,7 @@ export function ReviewCard({ item, conceptTitle, askWhy, onDone }: { item: Revie
       )}
       {item.format === "predict-graph" && (
         <div>
-          <div className="mb-1 flex justify-between font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+          <div className="mb-1 flex justify-between eyebrow text-[11px] text-ink-3">
             <span>y: {item.yLabel}</span>
             <span>x: {item.xLabel}</span>
           </div>
@@ -210,7 +210,7 @@ export function ReviewCard({ item, conceptTitle, askWhy, onDone }: { item: Revie
               setChoice(id);
             }}
           />
-          <div className="mt-1 font-mono text-[10px] text-ink-3">{choice ? `selected: ${choice.replace("->", " → ")}` : "tap a box or a connection"}</div>
+          <div className="mt-1 font-mono text-[11px] text-ink-3">{choice ? `selected: ${choice.replace("->", " → ")}` : "tap a box or a connection"}</div>
         </div>
       )}
       {item.format === "estimate" && (
@@ -246,7 +246,7 @@ export function ReviewCard({ item, conceptTitle, askWhy, onDone }: { item: Revie
                     </button>
                   </span>
                 )}
-                {phase !== "answer" && !right && <span className="font-mono text-[10px] text-ink-2">→ #{item.answer.indexOf(id) + 1}</span>}
+                {phase !== "answer" && !right && <span className="font-mono text-[11px] text-ink-2">→ #{item.answer.indexOf(id) + 1}</span>}
               </Reorder.Item>
             );
           })}
@@ -286,7 +286,7 @@ export function ReviewCard({ item, conceptTitle, askWhy, onDone }: { item: Revie
               })}
             </ul>
           )}
-          <div className="mt-1 font-mono text-[10px] text-ink-3">Your last run is your answer. Hit the target without overbuying.</div>
+          <div className="mt-1 font-mono text-[11px] text-ink-3">Your last run is your answer. Hit the target without overbuying.</div>
         </div>
       )}
       {item.format === "explain" && phase === "answer" && (
@@ -316,7 +316,7 @@ export function ReviewCard({ item, conceptTitle, askWhy, onDone }: { item: Revie
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={spring.soft} className="flex flex-col gap-3">
             {result ? (
               <div className={cx("rounded-sm border p-3", result.correct ? "border-phos-3 bg-phos-dim/30" : result.partial ? "border-amber-3 bg-amber-dim/30" : "border-alert-3 bg-alert-dim/30")}>
-                <div className={cx("font-display text-2xl font-extrabold uppercase", result.correct ? "text-phos" : result.partial ? "text-amber" : "text-alert")}>{result.correct ? "Correct" : result.partial ? "Close" : "Not this time"}</div>
+                <div className={cx("font-display text-2xl font-semibold", result.correct ? "text-phos" : result.partial ? "text-amber" : "text-alert")}>{result.correct ? "Correct" : result.partial ? "Close" : "Not this time"}</div>
                 {result.note && <div className="font-mono text-xs text-ink-1">{result.note}</div>}
                 {item.format === "estimate" && (
                   <div className="mt-2 font-mono text-xs text-ink-1">
@@ -343,7 +343,7 @@ export function ReviewCard({ item, conceptTitle, askWhy, onDone }: { item: Revie
                         <div className="text-sm text-ink-0">{r.criterion}</div>
                         <div className="mt-1 flex gap-1">
                           {(["met", "partial", "missed"] as const).map((v) => (
-                            <button key={v} onClick={() => setSelfGrade((s) => ({ ...s, [r.id]: v }))} className={cx("h-8 flex-1 rounded-[2px] border font-mono text-2xs uppercase", selfGrade[r.id] === v ? "border-amber text-amber" : "border-line-2 text-ink-2")}>
+                            <button key={v} onClick={() => setSelfGrade((s) => ({ ...s, [r.id]: v }))} className={cx("h-8 flex-1 rounded-xs border eyebrow text-2xs", selfGrade[r.id] === v ? "border-amber text-amber" : "border-line-2 text-ink-2")}>
                               {v}
                             </button>
                           ))}
@@ -379,7 +379,7 @@ export function ReviewCard({ item, conceptTitle, askWhy, onDone }: { item: Revie
             )}
             {(phase === "why" || phase === "whyDone") && item.why && (
               <div className="rounded-sm border border-amber-3 bg-amber-dim/20 p-3">
-                <div className="font-mono text-2xs uppercase tracking-[0.16em] text-amber">Why?</div>
+                <div className="eyebrow text-2xs text-amber">Why?</div>
                 <p className="mt-1 text-sm text-ink-0">{item.why.prompt}</p>
                 <div className="mt-2 flex flex-col gap-1.5">
                   {item.why.options.map((o) => {
@@ -410,7 +410,7 @@ export function ReviewCard({ item, conceptTitle, askWhy, onDone }: { item: Revie
           </motion.div>
         )}
       </AnimatePresence>
-      {phase !== "answer" && seconds > 0 && <div className="font-mono text-[10px] text-ink-3">answered in {fmtLatency(seconds)}</div>}
+      {phase !== "answer" && seconds > 0 && <div className="font-mono text-[11px] text-ink-3">answered in {fmtLatency(seconds)}</div>}
     </div>
   );
 }

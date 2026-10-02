@@ -42,12 +42,12 @@ export function RevealOverlay({ p, call, correct, detail, xp, onDone }: { p: Pre
             tone === "phos" ? "border-phos-3 shadow-glow-phos" : tone === "alert" ? "border-alert-3 shadow-glow-alert" : "border-amber-3 shadow-glow-amber",
           )}
         >
-          <div className={cx("font-display text-4xl font-extrabold uppercase leading-none", tone === "phos" ? "text-phos glow-phos" : tone === "alert" ? "text-alert glow-alert" : "text-amber glow-amber")}>
+          <div className={cx("font-display text-4xl font-semibold leading-none", tone === "phos" ? "text-phos glow-phos" : tone === "alert" ? "text-alert glow-alert" : "text-amber glow-amber")}>
             <GlitchText text={correct ? "Called it." : s > 0.5 ? "Confidently wrong." : "Not quite."} duration={correct ? 0.35 : 0.8} />
           </div>
           <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div className="rounded-sm border border-line-2 bg-bg-2 p-2.5">
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-2">You said · {call.confidence}% sure</div>
+              <div className="eyebrow text-[11px] text-ink-2">You said · {call.confidence}% sure</div>
               <div className={cx("mt-0.5 text-sm", correct ? "text-ink-0" : "text-ink-1 line-through decoration-alert/60")}>{describeCall(p, call.value)}</div>
             </div>
             <motion.div
@@ -56,7 +56,7 @@ export function RevealOverlay({ p, call, correct, detail, xp, onDone }: { p: Pre
               transition={{ ...spring.heavy, delay: 0.25 }}
               className="rounded-sm border border-line-3 bg-bg-3 p-2.5"
             >
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-2">Reality</div>
+              <div className="eyebrow text-[11px] text-ink-2">Reality</div>
               <div className="mt-0.5 text-sm font-medium text-ink-0">{describeAnswer(p)}</div>
             </motion.div>
           </div>

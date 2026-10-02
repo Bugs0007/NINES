@@ -29,21 +29,21 @@ export function Settings() {
 
   const setAudio = (patch: Partial<AudioSettings>) => void update({ audio: { ...settings.audio, ...patch } });
 
-  if (!hydrated) return <div className="grid min-h-dvh place-items-center font-mono text-2xs uppercase tracking-[0.3em] text-ink-3">restoring state…</div>;
+  if (!hydrated) return <div className="grid min-h-dvh place-items-center eyebrow text-2xs text-ink-3">restoring state…</div>;
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-3xl flex-col gap-3 px-4 pb-12 pt-3">
       <header className="flex h-12 items-center gap-3 border-b border-line">
-        <Link href="/" className="font-mono text-2xs uppercase tracking-[0.16em] text-ink-2 hover:text-amber" aria-label="Back to HQ">
+        <Link href="/" className="eyebrow text-2xs text-ink-2 hover:text-amber" aria-label="Back to HQ">
           ← HQ
         </Link>
         <span className="text-line-3">|</span>
-        <h1 className="font-display text-2xl font-extrabold uppercase tracking-tight text-ink-0">Settings</h1>
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-ink-0">Settings</h1>
       </header>
 
       <Panel label="sound" right={<Chip tone={settings.audio.muted ? "warn" : "muted"}>{settings.audio.muted ? "muted" : "on"}</Chip>}>
         <label className="flex items-center gap-2 text-sm text-ink-1">
-          <input type="checkbox" checked={settings.audio.muted} onChange={(e) => setAudio({ muted: e.target.checked })} className="h-4 w-4 accent-[#ffb547]" />
+          <input type="checkbox" checked={settings.audio.muted} onChange={(e) => setAudio({ muted: e.target.checked })} className="h-4 w-4 accent-[#e8b77d]" />
           Mute everything
         </label>
         <div className={cx("mt-3 flex flex-col gap-3", settings.audio.muted && "pointer-events-none opacity-40")}>
@@ -80,11 +80,11 @@ export function Settings() {
         <p className="mt-2 text-xs text-ink-3">Reduced motion keeps every number and chart but drops shakes, particle trails, and camera moves.</p>
         <div className="mt-3 flex flex-col gap-2">
           <label className="flex items-center gap-2 text-sm text-ink-1">
-            <input type="checkbox" checked={settings.skipSeenCinematics} onChange={(e) => void update({ skipSeenCinematics: e.target.checked })} className="h-4 w-4 accent-[#ffb547]" />
+            <input type="checkbox" checked={settings.skipSeenCinematics} onChange={(e) => void update({ skipSeenCinematics: e.target.checked })} className="h-4 w-4 accent-[#e8b77d]" />
             Skip cinematics I&apos;ve already seen
           </label>
           <label className="flex items-center gap-2 text-sm text-ink-1">
-            <input type="checkbox" checked={settings.showHonestPhysics} onChange={(e) => void update({ showHonestPhysics: e.target.checked })} className="h-4 w-4 accent-[#ffb547]" />
+            <input type="checkbox" checked={settings.showHonestPhysics} onChange={(e) => void update({ showHonestPhysics: e.target.checked })} className="h-4 w-4 accent-[#e8b77d]" />
             Show &ldquo;honest physics&rdquo; notes on simulations
           </label>
         </div>
@@ -121,7 +121,7 @@ function AiPanel() {
               </span>
             </div>
             <Meter value={s.spentUsd / Math.max(0.01, s.budgetUsd)} warnAt={0.7} alertAt={0.95} className="mt-1" label="monthly budget used" />
-            <div className="mt-1 font-mono text-[10px] text-ink-3">{s.calls} calls · at the cap, Claude features switch off until next month and everything falls back to offline.</div>
+            <div className="mt-1 font-mono text-[11px] text-ink-3">{s.calls} calls · at the cap, Claude features switch off until next month and everything falls back to offline.</div>
           </div>
           {s.byRoute && Object.keys(s.byRoute).length > 0 && (
             <table className="w-full font-mono text-xs">
@@ -137,7 +137,7 @@ function AiPanel() {
             </table>
           )}
           {s.models && (
-            <div className="font-mono text-[10px] text-ink-3">
+            <div className="font-mono text-[11px] text-ink-3">
               {Object.entries(s.models)
                 .map(([role, id]) => `${role}: ${id}`)
                 .join(" · ")}
@@ -159,7 +159,7 @@ function TimeWarpPanel({ days, onChange }: { days: number; onChange: (d: number)
           back to today
         </Button>
       </div>
-      <div className="mt-2 font-mono text-[10px] text-ink-3">game day: {istDay()}</div>
+      <div className="mt-2 font-mono text-[11px] text-ink-3">game day: {istDay()}</div>
     </Panel>
   );
 }

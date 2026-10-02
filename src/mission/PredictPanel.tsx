@@ -24,7 +24,7 @@ export function formatNumeric(v: number, unit: string): string {
 export function ConfidencePicker({ value, onChange }: { value: Confidence | null; onChange: (c: Confidence) => void }) {
   return (
     <div>
-      <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">How sure are you?</div>
+      <div className="mb-1.5 eyebrow text-2xs text-ink-2">How sure are you?</div>
       <div role="radiogroup" aria-label="Confidence" className="grid grid-cols-3 gap-1.5">
         {CONFIDENCES.map((c) => {
           const on = value === c;
@@ -44,7 +44,7 @@ export function ConfidencePicker({ value, onChange }: { value: Confidence | null
               )}
             >
               <span className="text-lg tabular leading-none">{c}%</span>
-              <span className="mt-1 text-[10px] uppercase tracking-[0.1em] opacity-80">{CONFIDENCE_LABEL[c]}</span>
+              <span className="mt-1 text-[11px] opacity-80 eyebrow">{CONFIDENCE_LABEL[c]}</span>
             </button>
           );
         })}
@@ -65,7 +65,7 @@ export function PredictPanel({ p, onLock, index, total }: { p: Prediction; onLoc
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <div className="mb-1 font-mono text-2xs uppercase tracking-[0.16em] text-amber">
+        <div className="mb-1 eyebrow text-2xs text-amber">
           Your call {total > 1 ? `· ${index + 1} of ${total}` : ""}
         </div>
         <p className="text-[17px] leading-snug text-ink-0">{p.prompt}</p>
@@ -92,7 +92,7 @@ export function PredictPanel({ p, onLock, index, total }: { p: Prediction; onLoc
                   on ? "border-amber bg-amber-dim/50 text-ink-0" : "border-line-2 bg-bg-2 text-ink-1 hover:border-line-3 hover:text-ink-0",
                 )}
               >
-                <span className={cx("grid h-6 w-6 shrink-0 place-items-center rounded-[2px] border font-mono text-2xs", on ? "border-amber text-amber" : "border-line-3 text-ink-2")}>
+                <span className={cx("grid h-6 w-6 shrink-0 place-items-center rounded-xs border font-mono text-2xs", on ? "border-amber text-amber" : "border-line-3 text-ink-2")}>
                   {String.fromCharCode(65 + i)}
                 </span>
                 {o.label}
@@ -124,7 +124,7 @@ export function PredictPanel({ p, onLock, index, total }: { p: Prediction; onLoc
 
       {p.kind === "order" && (
         <div>
-          <div className="mb-1.5 flex justify-between font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">
+          <div className="mb-1.5 flex justify-between eyebrow text-2xs text-ink-2">
             <span>Fastest</span>
             <span>drag or use arrows</span>
           </div>
@@ -142,10 +142,10 @@ export function PredictPanel({ p, onLock, index, total }: { p: Prediction; onLoc
                   <span className="w-5 font-mono text-2xs text-ink-3">{i + 1}</span>
                   <span className="flex-1">{item.label}</span>
                   <span className="flex gap-0.5">
-                    <button aria-label={`Move ${item.label} up`} className="h-8 w-8 rounded-[2px] text-ink-2 hover:bg-bg-3 hover:text-ink-0" onClick={() => move(order, setOrder, i, -1)}>
+                    <button aria-label={`Move ${item.label} up`} className="h-8 w-8 rounded-xs text-ink-2 hover:bg-bg-3 hover:text-ink-0" onClick={() => move(order, setOrder, i, -1)}>
                       ▲
                     </button>
-                    <button aria-label={`Move ${item.label} down`} className="h-8 w-8 rounded-[2px] text-ink-2 hover:bg-bg-3 hover:text-ink-0" onClick={() => move(order, setOrder, i, 1)}>
+                    <button aria-label={`Move ${item.label} down`} className="h-8 w-8 rounded-xs text-ink-2 hover:bg-bg-3 hover:text-ink-0" onClick={() => move(order, setOrder, i, 1)}>
                       ▼
                     </button>
                   </span>
@@ -153,7 +153,7 @@ export function PredictPanel({ p, onLock, index, total }: { p: Prediction; onLoc
               );
             })}
           </Reorder.Group>
-          <div className="mt-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">Slowest</div>
+          <div className="mt-1.5 eyebrow text-2xs text-ink-2">Slowest</div>
         </div>
       )}
 

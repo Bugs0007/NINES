@@ -40,7 +40,6 @@ export function Shell({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {!reduced && <div className="scanband" aria-hidden />}
       {children}
     </>
   );

@@ -89,12 +89,12 @@ export function BossRunner({ boss }: { boss: BossPack }) {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-40 flex h-12 items-center gap-3 border-b border-alert-3/60 bg-bg-0/90 px-3 backdrop-blur lg:px-4">
-        <Link href={`/campaign/${node.chapter}`} className="font-mono text-2xs uppercase tracking-[0.16em] text-ink-2 hover:text-amber">
+        <Link href={`/campaign/${node.chapter}`} className="eyebrow text-2xs text-ink-2 hover:text-amber">
           ← {node.chapter.toUpperCase()}
         </Link>
         <span className="h-4 w-px bg-line-2" />
-        <span className="font-mono text-2xs uppercase tracking-[0.2em] text-alert">boss</span>
-        <span className="truncate font-display text-lg font-extrabold uppercase text-ink-0">{boss.title.replace(/^Boss: /, "")}</span>
+        <span className="eyebrow text-2xs text-alert">boss</span>
+        <span className="truncate font-display text-lg font-semibold text-ink-0">{boss.title.replace(/^Boss: /, "")}</span>
         {verdict && <Chip tone={verdict.won ? "ok" : "alert"}>{verdict.won ? "survived" : `attempt ${attempts + (verdict.won ? 0 : 0)}`}</Chip>}
       </header>
 
@@ -137,11 +137,11 @@ export function BossRunner({ boss }: { boss: BossPack }) {
                   transition={spring.soft}
                   className={cx("absolute left-1/2 top-3 z-20 w-[min(92%,420px)] -translate-x-1/2 rounded-sm border bg-bg-1/95 p-3 shadow-2xl backdrop-blur", reveal.correct ? "border-phos-3" : "border-amber-3")}
                 >
-                  <div className={cx("font-display text-2xl font-extrabold uppercase", reveal.correct ? "text-phos" : "text-amber")}>{reveal.correct ? "You knew your own system." : "Your system surprised you."}</div>
+                  <div className={cx("font-display text-2xl font-semibold", reveal.correct ? "text-phos" : "text-amber")}>{reveal.correct ? "You knew your own system." : "Your system surprised you."}</div>
                   <div className="mt-1 font-mono text-xs text-ink-1">
                     forecast {formatNumeric(forecast.value, boss.forecast.unit)} · actual {formatNumeric(reveal.actual, boss.forecast.unit)} · {forecast.confidence}% sure
                   </div>
-                  <button onClick={() => setReveal(null)} className="mt-2 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2 hover:text-amber">
+                  <button onClick={() => setReveal(null)} className="mt-2 eyebrow text-2xs text-ink-2 hover:text-amber">
                     dismiss
                   </button>
                 </motion.div>
@@ -170,7 +170,7 @@ export function BossRunner({ boss }: { boss: BossPack }) {
                 />
                 {!forecast ? (
                   <div className="rounded-sm border border-amber-3 bg-amber-dim/20 p-3">
-                    <div className="font-mono text-2xs uppercase tracking-[0.16em] text-amber">Forecast your design</div>
+                    <div className="eyebrow text-2xs text-amber">Forecast your design</div>
                     <p className="mt-1 text-sm text-ink-0">{boss.forecast.prompt}</p>
                     <div className="mt-2 text-center font-mono text-2xl tabular text-amber">{touched ? formatNumeric(fv, boss.forecast.unit) : "?"}</div>
                     <Slider label="forecast" value={fv} min={boss.forecast.min} max={boss.forecast.max} log onChange={(v) => { setTouched(true); setFv(v); }} hideValue />
@@ -225,8 +225,8 @@ function BossDebrief({ boss, lines, stars }: { boss: BossPack; lines: XpLine[]; 
     <div className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-8 lg:grid-cols-2">
       <div className="flex flex-col gap-4">
         <div>
-          <div className="font-mono text-2xs uppercase tracking-[0.3em] text-phos">Boss survived</div>
-          <h1 className="font-display text-6xl font-extrabold uppercase leading-none text-ink-0">
+          <div className="eyebrow text-2xs text-phos">Boss survived</div>
+          <h1 className="font-display text-6xl font-semibold leading-none text-ink-0">
             <GlitchText text={boss.title.replace(/^Boss: /, "")} />
           </h1>
           <div className="mt-2 text-2xl" aria-label={`${stars} stars`}>
@@ -250,7 +250,7 @@ function BossDebrief({ boss, lines, stars }: { boss: BossPack; lines: XpLine[]; 
           </li>
         </ul>
         <div className="rounded-sm border border-line p-3">
-          <div className="font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">
+          <div className="eyebrow text-2xs text-ink-2">
             {rank.tierName} {rank.sub}
           </div>
           <Ticker value={rank.nines} format={(v) => `${formatUptime(v)}%`} className="font-mono text-4xl tabular text-phos glow-phos" />
@@ -264,7 +264,7 @@ function BossDebrief({ boss, lines, stars }: { boss: BossPack; lines: XpLine[]; 
         </div>
       </div>
       <div className="flex flex-col gap-3">
-        <div className="font-mono text-2xs uppercase tracking-[0.16em] text-amber">What actually saved you</div>
+        <div className="eyebrow text-2xs text-amber">What actually saved you</div>
         {boss.debrief.map((c) => (
           <motion.div key={c.id} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} className="rounded-sm border border-line bg-bg-1 p-3">
             <RichText text={c.text} />

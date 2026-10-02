@@ -57,7 +57,7 @@ export default function LatencyBudget({ config, onResult, conditions, locked, ve
           <div className="relative space-y-1.5">
             <div className="pointer-events-none absolute inset-y-0" style={{ left: `calc(34% + ${(c.targetMs / scale) * 66}%)` }}>
               <div className="h-full w-px bg-phos/60" />
-              <span className="absolute -top-4 -translate-x-1/2 whitespace-nowrap font-mono text-[10px] text-phos">target {c.targetMs}ms</span>
+              <span className="absolute -top-4 -translate-x-1/2 whitespace-nowrap font-mono text-[11px] text-phos">target {c.targetMs}ms</span>
             </div>
             {c.spans.map((s) => {
               const l = w.laid.find((x) => x.span.id === s.id);
@@ -66,7 +66,7 @@ export default function LatencyBudget({ config, onResult, conditions, locked, ve
                   <div className={cx("line-clamp-2 w-[34%] text-xs leading-tight", l ? "text-ink-0" : "text-ink-3 line-through")} title={s.label}>
                     {s.label}
                   </div>
-                  <div className="relative h-5 flex-1 rounded-[1px] bg-bg-0">
+                  <div className="relative h-5 flex-1 rounded-xs bg-bg-0">
                     <AnimatePresence>
                       {l && (
                         <motion.div
@@ -75,12 +75,12 @@ export default function LatencyBudget({ config, onResult, conditions, locked, ve
                           animate={{ opacity: 1, left: `${(l.start / scale) * 100}%`, width: `${Math.max(0.4, (l.ms / scale) * 100)}%` }}
                           exit={{ opacity: 0, scaleX: 0 }}
                           transition={spring.soft}
-                          className={cx("absolute inset-y-0.5 rounded-[1px]", KIND_COLOR[s.kind])}
+                          className={cx("absolute inset-y-0.5 rounded-xs", KIND_COLOR[s.kind])}
                         />
                       )}
                     </AnimatePresence>
                     {l && (
-                      <span className="absolute top-1/2 -translate-y-1/2 pl-1 font-mono text-[10px] tabular text-ink-0" style={{ left: `${Math.min(88, ((l.start + l.ms) / scale) * 100)}%` }}>
+                      <span className="absolute top-1/2 -translate-y-1/2 pl-1 font-mono text-[11px] tabular text-ink-0" style={{ left: `${Math.min(88, ((l.start + l.ms) / scale) * 100)}%` }}>
                         {l.ms < 10 ? l.ms.toFixed(1) : Math.round(l.ms)}ms
                       </span>
                     )}
@@ -89,10 +89,10 @@ export default function LatencyBudget({ config, onResult, conditions, locked, ve
               );
             })}
           </div>
-          <div className="mt-3 flex flex-wrap gap-3 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-2">
+          <div className="mt-3 flex flex-wrap gap-3 eyebrow text-[11px] text-ink-2">
             {(["net", "db", "cache", "cpu"] as const).map((k) => (
               <span key={k} className="flex items-center gap-1.5">
-                <span className={cx("inline-block h-2 w-3 rounded-[1px]", KIND_COLOR[k])} /> {k === "net" ? "network" : k}
+                <span className={cx("inline-block h-2 w-3 rounded-xs", KIND_COLOR[k])} /> {k === "net" ? "network" : k}
               </span>
             ))}
           </div>

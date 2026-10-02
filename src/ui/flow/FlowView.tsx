@@ -246,7 +246,7 @@ export function FlowView({
         if (!a || !b) continue;
         const [x1, y1] = toScreen(a.x, a.y, t);
         const [x2, y2] = toScreen(b.x, b.y, t);
-        ctx.strokeStyle = "rgba(54,90,102,0.55)";
+        ctx.strokeStyle = "rgba(66,84,94,0.55)";
         ctx.setLineDash([3, 4]);
         ctx.beginPath();
         if (t.p) {
@@ -369,8 +369,8 @@ export function FlowView({
         const util = Math.max(workUtil, cpuUtil);
         const hot = util > 0.9 || (inst?.queue ?? 0) > (n.workers ?? 4);
         // body
-        ctx.fillStyle = up ? "rgba(13,23,28,0.92)" : "rgba(46,15,13,0.9)";
-        ctx.strokeStyle = !up ? "#ff5a4e" : sel === n.id ? "#ffb547" : hot ? "rgba(255,181,71,0.85)" : "rgba(54,90,102,0.9)";
+        ctx.fillStyle = up ? "rgba(27,37,43,0.92)" : "rgba(58,35,32,0.9)";
+        ctx.strokeStyle = !up ? "#ec8f80" : sel === n.id ? "#e8b77d" : hot ? "rgba(232,183,125,0.85)" : "rgba(66,84,94,0.9)";
         ctx.lineWidth = sel === n.id ? 1.6 : 1;
         roundRect(ctx, x - hw, y - hh, hw * 2, hh * 2, 3);
         ctx.fill();
@@ -381,12 +381,12 @@ export function FlowView({
         // label
         const fs = Math.max(8, 12 * s);
         ctx.font = `600 ${fs}px ${fontMono}`;
-        ctx.fillStyle = up ? "#e2efe8" : "#ff5a4e";
+        ctx.fillStyle = up ? "#e4dfd5" : "#ec8f80";
         ctx.textBaseline = "top";
         ctx.fillText(n.label.toUpperCase(), x - hw + 8 * s, y - hh + 5 * s, hw * 2 - 12 * s);
         if (n.sub) {
           ctx.font = `${Math.max(7, 9.5 * s)}px ${fontMono}`;
-          ctx.fillStyle = "#6f857c";
+          ctx.fillStyle = "#8f9790";
           ctx.fillText(n.sub, x - hw + 8 * s, y - hh + 5 * s + fs + 2 * s, hw * 2 - 12 * s);
         }
         // worker slots: filled = busy (exact count from the sim, not just sampled particles)
@@ -397,15 +397,15 @@ export function FlowView({
             const [sx, sy] = sg.at(i);
             const r = sg.cell / 2 - 0.8;
             if (i < busy) {
-              ctx.fillStyle = busy >= sg.count ? "rgba(255,90,78,0.35)" : "rgba(92,242,154,0.22)";
+              ctx.fillStyle = busy >= sg.count ? "rgba(236,143,128,0.35)" : "rgba(143,212,178,0.22)";
               ctx.fillRect(sx - r, sy - r, r * 2, r * 2);
             }
-            ctx.strokeStyle = busy >= sg.count ? "rgba(255,90,78,0.55)" : "rgba(54,90,102,0.8)";
+            ctx.strokeStyle = busy >= sg.count ? "rgba(236,143,128,0.55)" : "rgba(66,84,94,0.8)";
             ctx.lineWidth = 0.8;
             ctx.strokeRect(sx - r, sy - r, r * 2, r * 2);
           }
           ctx.font = `${Math.max(7, 9 * s)}px ${fontMono}`;
-          ctx.fillStyle = busy >= sg.count ? "#ff5a4e" : "#6f857c";
+          ctx.fillStyle = busy >= sg.count ? "#ec8f80" : "#8f9790";
           ctx.textBaseline = "bottom";
           ctx.textAlign = "right";
           ctx.fillText(`${busy}/${sg.count}`, x + hw - 5 * s, sg.y0 - 1);
@@ -414,13 +414,13 @@ export function FlowView({
         // utilization bar along the top edge
         if (n.workers || n.cores) {
           const bw = hw * 2 - 6;
-          ctx.fillStyle = "rgba(26,42,49,0.9)";
+          ctx.fillStyle = "rgba(36,49,57,0.9)";
           ctx.fillRect(x - hw + 3, y - hh - 4, bw, 2.5);
-          ctx.fillStyle = util > 0.9 ? "#ff5a4e" : util > 0.7 ? "#ffb547" : "#5cf29a";
+          ctx.fillStyle = util > 0.9 ? "#ec8f80" : util > 0.7 ? "#e8b77d" : "#8fd4b2";
           ctx.fillRect(x - hw + 3, y - hh - 4, bw * Math.min(1, util), 2.5);
         }
         if (!up) {
-          ctx.strokeStyle = "rgba(255,90,78,0.8)";
+          ctx.strokeStyle = "rgba(236,143,128,0.8)";
           ctx.lineWidth = 2;
           ctx.beginPath();
           ctx.moveTo(x - 10 * s, y - 10 * s);
@@ -431,7 +431,7 @@ export function FlowView({
         }
         if (hl?.includes(n.id)) {
           const pulse = rm ? 1 : 0.6 + 0.4 * Math.sin(now / 180);
-          ctx.strokeStyle = `rgba(255,181,71,${pulse})`;
+          ctx.strokeStyle = `rgba(232,183,125,${pulse})`;
           ctx.lineWidth = 2;
           roundRect(ctx, x - hw - 6, y - hh - 8, hw * 2 + 12, hh * 2 + 14, 5);
           ctx.stroke();
@@ -439,7 +439,7 @@ export function FlowView({
         const ov = overflow.get(n.id);
         if (ov) {
           ctx.font = `600 ${Math.max(8, 10 * s)}px ${fontMono}`;
-          ctx.fillStyle = "#ff5a4e";
+          ctx.fillStyle = "#ec8f80";
           ctx.textBaseline = "bottom";
           const label = `${ov} queued`;
           if (t.p) ctx.fillText(label, x - hw, y - hh - 8);
@@ -475,7 +475,7 @@ export function FlowView({
       }
       ctx.globalCompositeOperation = "source-over";
       // orphans: hollow, dim red: the client gave up but the server is still working
-      ctx.strokeStyle = "rgba(255,90,78,0.55)";
+      ctx.strokeStyle = "rgba(236,143,128,0.55)";
       ctx.lineWidth = 1;
       for (const q of orphans) {
         const r = size(q.age) / 2 + 0.5;
@@ -491,7 +491,7 @@ export function FlowView({
           continue;
         }
         const k = age / 0.45;
-        ctx.strokeStyle = bt.ok ? `rgba(92,242,154,${0.6 * (1 - k)})` : `rgba(255,90,78,${0.8 * (1 - k)})`;
+        ctx.strokeStyle = bt.ok ? `rgba(143,212,178,${0.6 * (1 - k)})` : `rgba(236,143,128,${0.8 * (1 - k)})`;
         ctx.lineWidth = 1.2;
         if (bt.ok) {
           ctx.beginPath();
@@ -538,14 +538,14 @@ function slotGeom(n: FlowNode, x: number, y: number, s: number) {
 }
 
 function kindColor(k: FlowKind, up: boolean): string {
-  if (!up) return "#ff5a4e";
+  if (!up) return "#ec8f80";
   switch (k) {
     case "client":
-      return "#465851";
+      return "#657069";
     case "lb":
-      return "#6f857c";
+      return "#8f9790";
     default:
-      return "#33c275";
+      return "#6fbb98";
   }
 }
 

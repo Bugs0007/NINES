@@ -17,22 +17,22 @@ export function CodexCard({ pack, mastery = 1, compact = false, onReplay, classN
   return (
     <article className={cx("relative overflow-hidden rounded-sm border border-line-2 bg-bg-1", className)}>
       <header className="relative border-b border-line-2 bg-bg-2 px-4 pb-3 pt-3">
-        <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-ink-2">
+        <div className="flex items-center justify-between eyebrow text-[11px] text-ink-2">
           <span>
             {node ? `${TRACKS[node.track].district} · ${node.chapter.toUpperCase()}` : "codex"}
           </span>
           <span className="flex items-center gap-1" aria-label={`Mastery: ${MASTERY[mastery]}`}>
             {[1, 2, 3].map((l) => (
-              <span key={l} className={cx("h-1.5 w-4 rounded-full", l <= mastery ? "bg-phos shadow-[0_0_6px_rgb(92_242_154/0.7)]" : "bg-line-2")} />
+              <span key={l} className={cx("h-1.5 w-4 rounded-full", l <= mastery ? "bg-phos shadow-[0_0_6px_rgb(143_212_178/0.7)]" : "bg-line-2")} />
             ))}
           </span>
         </div>
-        <h3 className="mt-1 font-display text-3xl font-extrabold uppercase leading-none text-ink-0">{pack.title}</h3>
+        <h3 className="mt-1 font-display text-3xl font-semibold leading-none text-ink-0">{pack.title}</h3>
         <p className="mt-2 text-[15px] leading-snug text-ink-0">{c.oneLiner}</p>
       </header>
       <div className={cx("grid gap-4 p-4", compact ? "" : "md:grid-cols-2")}>
         <section>
-          <h4 className="font-mono text-[10px] uppercase tracking-[0.16em] text-amber">Key numbers</h4>
+          <h4 className="eyebrow text-[11px] text-amber">Key numbers</h4>
           <dl className="mt-1.5 space-y-1">
             {c.keyNumbers.map((k, i) => {
               const src = pack.sources.find((s) => s.id === k.sourceId);
@@ -54,7 +54,7 @@ export function CodexCard({ pack, mastery = 1, compact = false, onReplay, classN
           </dl>
         </section>
         <section>
-          <h4 className="font-mono text-[10px] uppercase tracking-[0.16em] text-amber">Tradeoffs</h4>
+          <h4 className="eyebrow text-[11px] text-amber">Tradeoffs</h4>
           <ul className="mt-1.5 space-y-2 text-sm">
             {c.tradeoffs.map((t, i) => (
               <li key={i}>
@@ -68,7 +68,7 @@ export function CodexCard({ pack, mastery = 1, compact = false, onReplay, classN
         {!compact && (
           <>
             <section>
-              <h4 className="font-mono text-[10px] uppercase tracking-[0.16em] text-amber">Where you&apos;ve seen it</h4>
+              <h4 className="eyebrow text-[11px] text-amber">Where you&apos;ve seen it</h4>
               <ul className="mt-1.5 space-y-1 text-sm text-ink-1">
                 {c.seenIn.map((s, i) => (
                   <li key={i}>· {s}</li>
@@ -76,12 +76,12 @@ export function CodexCard({ pack, mastery = 1, compact = false, onReplay, classN
               </ul>
             </section>
             <section>
-              <h4 className="font-mono text-[10px] uppercase tracking-[0.16em] text-amber">Interview angle</h4>
+              <h4 className="eyebrow text-[11px] text-amber">Interview angle</h4>
               <p className="mt-1.5 text-sm text-ink-1">{c.interviewAngle}</p>
             </section>
             {c.aws.length > 0 && (
               <section className="md:col-span-2">
-                <h4 className="font-mono text-[10px] uppercase tracking-[0.16em] text-amber">On AWS</h4>
+                <h4 className="eyebrow text-[11px] text-amber">On AWS</h4>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {c.aws.map((a, i) => (
                     <Chip key={i} tone="default">
@@ -89,7 +89,7 @@ export function CodexCard({ pack, mastery = 1, compact = false, onReplay, classN
                     </Chip>
                   ))}
                 </div>
-                {c.otherClouds && <p className="mt-1.5 font-mono text-[10px] text-ink-3">{c.otherClouds}</p>}
+                {c.otherClouds && <p className="mt-1.5 font-mono text-[11px] text-ink-3">{c.otherClouds}</p>}
               </section>
             )}
           </>
@@ -97,8 +97,8 @@ export function CodexCard({ pack, mastery = 1, compact = false, onReplay, classN
       </div>
       {onReplay && (
         <footer className="flex items-center justify-between border-t border-line px-4 py-2">
-          <span className="font-mono text-[10px] text-ink-3">{pack.sources.length} sources</span>
-          <button onClick={onReplay} className="font-mono text-2xs uppercase tracking-[0.14em] text-amber hover:underline">
+          <span className="font-mono text-[11px] text-ink-3">{pack.sources.length} sources</span>
+          <button onClick={onReplay} className="eyebrow text-2xs text-amber hover:underline">
             ▶ Replay the sim
           </button>
         </footer>
@@ -120,8 +120,8 @@ export function CodexReveal({ pack }: { pack: ConceptPack }) {
           className="absolute inset-0 grid place-items-center rounded-sm border border-amber-3 bg-bg-2 grid-paper"
         >
           <div className="text-center">
-            <div className="font-mono text-2xs uppercase tracking-[0.3em] text-amber">Codex card</div>
-            <div className="font-display text-5xl font-extrabold uppercase text-ink-0">Unlocked</div>
+            <div className="eyebrow text-2xs text-amber">Codex card</div>
+            <div className="font-display text-5xl font-semibold text-ink-0">Unlocked</div>
           </div>
         </div>
       </motion.div>

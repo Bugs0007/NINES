@@ -37,7 +37,7 @@ export function MechanismPanel({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <div className="font-mono text-2xs uppercase tracking-[0.16em] text-amber">The mechanism</div>
+        <div className="eyebrow text-2xs text-amber">The mechanism</div>
         <div className="flex gap-1" aria-label={`Caption ${index + 1} of ${captions.length}`}>
           {captions.map((_, i) => (
             <button
@@ -55,13 +55,13 @@ export function MechanismPanel({
           {cited.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1">
               {cited.map((s) => (
-                <a key={s.id} href={s.url} target="_blank" rel="noreferrer" className="font-mono text-[10px] text-ink-2 underline decoration-line-3 underline-offset-2 hover:text-amber">
+                <a key={s.id} href={s.url} target="_blank" rel="noreferrer" className="font-mono text-[11px] text-ink-2 underline decoration-line-3 underline-offset-2 hover:text-amber">
                   src: {s.title}
                 </a>
               ))}
             </div>
           )}
-          {c.derived && <div className="mt-2 font-mono text-[10px] text-ink-3">numbers computed from the figures above</div>}
+          {c.derived && <div className="mt-2 font-mono text-[11px] text-ink-3">numbers computed from the figures above</div>}
         </motion.div>
       </AnimatePresence>
       <div className="flex items-center justify-between gap-2">
@@ -108,7 +108,7 @@ export function DeeperSheet({ open, onClose, deeper, honest, sources, interview 
             className="h-full w-full max-w-xl overflow-y-auto border-l border-line-2 bg-bg-1 p-5"
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-3xl font-extrabold uppercase text-ink-0">Go deeper</h2>
+              <h2 className="font-display text-3xl font-semibold text-ink-0">Go deeper</h2>
               <Button variant="ghost" size="sm" onClick={onClose}>
                 Close
               </Button>
@@ -116,13 +116,13 @@ export function DeeperSheet({ open, onClose, deeper, honest, sources, interview 
             <div className="mt-4 space-y-5">
               {deeper.map((d, i) => (
                 <section key={i}>
-                  <h3 className="font-mono text-2xs uppercase tracking-[0.16em] text-amber">{d.title}</h3>
+                  <h3 className="eyebrow text-2xs text-amber">{d.title}</h3>
                   <RichText text={d.body} className="mt-1.5" />
                 </section>
               ))}
               {interview.length > 0 && (
                 <section>
-                  <h3 className="font-mono text-2xs uppercase tracking-[0.16em] text-amber">In the interview</h3>
+                  <h3 className="eyebrow text-2xs text-amber">In the interview</h3>
                   <ul className="mt-1.5 space-y-1.5 text-sm text-ink-1">
                     {interview.map((q, i) => (
                       <li key={i}>· {q}</li>
@@ -132,7 +132,7 @@ export function DeeperSheet({ open, onClose, deeper, honest, sources, interview 
               )}
               {honest.length > 0 && (
                 <section>
-                  <h3 className="font-mono text-2xs uppercase tracking-[0.16em] text-amber">Honest physics</h3>
+                  <h3 className="eyebrow text-2xs text-amber">Honest physics</h3>
                   <ul className="mt-1.5 space-y-1.5 text-sm text-ink-1">
                     {honest.map((q, i) => (
                       <li key={i}>· {q}</li>
@@ -141,7 +141,7 @@ export function DeeperSheet({ open, onClose, deeper, honest, sources, interview 
                 </section>
               )}
               <section>
-                <h3 className="font-mono text-2xs uppercase tracking-[0.16em] text-amber">Sources</h3>
+                <h3 className="eyebrow text-2xs text-amber">Sources</h3>
                 <ul className="mt-1.5 space-y-1 text-sm">
                   {sources.map((s) => (
                     <li key={s.id}>
@@ -175,7 +175,7 @@ export function RichText({ text, className }: { text: string; className?: string
           <p key={i}>
             {b.split(/(`[^`]+`)/).map((part, j) =>
               part.startsWith("`") ? (
-                <code key={j} className="rounded-[2px] bg-bg-3 px-1 font-mono text-[0.9em] text-ink-0">
+                <code key={j} className="rounded-xs bg-bg-3 px-1 font-mono text-[0.9em] text-ink-0">
                   {part.slice(1, -1)}
                 </code>
               ) : (
@@ -234,13 +234,13 @@ export function ChallengePanel({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <div className="font-mono text-2xs uppercase tracking-[0.16em] text-amber">Challenge{attempts > 0 ? ` · attempt ${attempts + 1}` : ""}</div>
-        <h2 className="mt-1 font-display text-3xl font-extrabold uppercase leading-none text-ink-0">{challenge.title}</h2>
+        <div className="eyebrow text-2xs text-amber">Challenge{attempts > 0 ? ` · attempt ${attempts + 1}` : ""}</div>
+        <h2 className="mt-1 font-display text-3xl font-semibold leading-none text-ink-0">{challenge.title}</h2>
         <p className="mt-2 text-[15px] leading-snug text-ink-1">{challenge.brief}</p>
       </div>
       {challenge.line && <CastLine line={challenge.line} compact />}
       <div>
-        <div className="mb-1 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">To win</div>
+        <div className="mb-1 eyebrow text-2xs text-ink-2">To win</div>
         <ul className="space-y-1">
           {challenge.conditions.map((c, i) => {
             const v = verdict?.metrics[c.metric];
@@ -277,14 +277,14 @@ export function ChallengePanel({
             animate={{ opacity: 1, y: 0 }}
             className={cx("rounded-sm border p-3", verdict.won ? "border-phos-3 bg-phos-dim/40" : "border-alert-3 bg-alert-dim/40")}
           >
-            <div className={cx("font-display text-2xl font-extrabold uppercase", verdict.won ? "text-phos" : "text-alert")}>{verdict.won ? (live ? "SLO held." : "Shipped.") : live ? "Outage." : "Not yet."}</div>
+            <div className={cx("font-display text-2xl font-semibold", verdict.won ? "text-phos" : "text-alert")}>{verdict.won ? (live ? "SLO held." : "Shipped.") : live ? "Outage." : "Not yet."}</div>
             <div className="text-sm text-ink-1">{verdict.won ? "That's the win. Collect it." : live ? "Replay it slowly and find the first domino, then change one thing." : "Find the condition that failed, then change one thing."}</div>
           </motion.div>
         )}
       </AnimatePresence>
       <div className="rounded-sm border border-line p-2.5">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">Ask the SRE</span>
+          <span className="eyebrow text-2xs text-ink-2">Ask the SRE</span>
           <Button size="sm" variant="ghost" onClick={ask} disabled={asking || hints.length >= 3}>
             {asking ? "…" : hints.length === 0 ? "Nudge me" : hints.length >= 3 ? "No more nudges" : "Narrower"}
           </Button>
@@ -294,7 +294,7 @@ export function ChallengePanel({
             <CastLine key={i} line={{ speaker: "meera", line: h }} compact typewriter={i === hints.length - 1} />
           ))}
         </div>
-        {hints.length > 0 && <div className="mt-1 font-mono text-[10px] text-ink-3">first nudge free · each narrower one costs 10 XP</div>}
+        {hints.length > 0 && <div className="mt-1 font-mono text-[11px] text-ink-3">first nudge free · each narrower one costs 10 XP</div>}
       </div>
     </div>
   );
@@ -329,7 +329,7 @@ export function ExplainPanel({ concept, eb, required, onDone }: { concept: strin
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <div className="font-mono text-2xs uppercase tracking-[0.16em] text-amber">Explain it back</div>
+        <div className="eyebrow text-2xs text-amber">Explain it back</div>
         <p className="mt-1 text-[17px] leading-snug text-ink-0">{eb.prompt}</p>
         <p className="mt-1 text-xs text-ink-2">Two or three sentences, your own words. Pretend it&apos;s the interview.</p>
       </div>
@@ -360,7 +360,7 @@ export function ExplainPanel({ concept, eb, required, onDone }: { concept: strin
       ) : phase === "claude" && result ? (
         <div className="space-y-3">
           <div className="flex items-baseline justify-between">
-            <span className="font-display text-4xl font-extrabold text-ink-0">{Math.round(result.score * 100)}%</span>
+            <span className="font-display text-4xl font-semibold text-ink-0">{Math.round(result.score * 100)}%</span>
             <Chip tone="muted">graded by Claude</Chip>
           </div>
           <ul className="space-y-1.5">
@@ -380,7 +380,7 @@ export function ExplainPanel({ concept, eb, required, onDone }: { concept: strin
           <CastLine line={{ speaker: "meera", line: result.feedback }} compact />
           {result.gap && (
             <div className="rounded-sm border border-amber-3 bg-amber-dim/30 p-2.5 text-sm">
-              <span className="font-mono text-2xs uppercase tracking-[0.14em] text-amber">The gap</span>
+              <span className="eyebrow text-2xs text-amber">The gap</span>
               <div className="text-ink-0">{result.gap}</div>
             </div>
           )}
@@ -403,7 +403,7 @@ export function ExplainPanel({ concept, eb, required, onDone }: { concept: strin
                       key={v}
                       onClick={() => setSelf((s) => ({ ...s, [r.id]: v }))}
                       className={cx(
-                        "h-8 flex-1 rounded-[2px] border font-mono text-2xs uppercase tracking-[0.1em]",
+                        "h-8 flex-1 rounded-xs border eyebrow text-2xs",
                         self[r.id] === v ? (v === "met" ? "border-phos text-phos" : v === "partial" ? "border-amber text-amber" : "border-alert text-alert") : "border-line-2 text-ink-2",
                       )}
                     >
@@ -426,7 +426,7 @@ export function ExplainPanel({ concept, eb, required, onDone }: { concept: strin
 function Exemplar({ text }: { text: string }) {
   return (
     <details className="rounded-sm border border-line p-2.5">
-      <summary className="cursor-pointer font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">A strong answer</summary>
+      <summary className="cursor-pointer eyebrow text-2xs text-ink-2">A strong answer</summary>
       <p className="mt-1.5 text-sm text-ink-1">{text}</p>
     </details>
   );

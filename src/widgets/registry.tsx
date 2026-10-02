@@ -8,7 +8,7 @@ import type { ComponentType } from "react";
 import type { WidgetProps } from "./types";
 
 function Loading() {
-  return <div className="grid h-full min-h-[300px] place-items-center font-mono text-2xs uppercase tracking-[0.2em] text-ink-3">booting…</div>;
+  return <div className="grid h-full min-h-[300px] place-items-center eyebrow text-2xs text-ink-3">booting…</div>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

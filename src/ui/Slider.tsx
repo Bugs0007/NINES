@@ -82,7 +82,7 @@ export function Slider({ value, onChange, onCommit, min, max, step, log, label, 
   return (
     <div className={cx("select-none", className)}>
       <div className="mb-1.5 flex items-baseline justify-between gap-2">
-        <span className="font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">{label}</span>
+        <span className="eyebrow text-2xs text-ink-2">{label}</span>
         {!hideValue && <span className="font-mono text-sm tabular text-amber">{format ? format(value) : value}</span>}
       </div>
       <div
@@ -142,8 +142,8 @@ export function Slider({ value, onChange, onCommit, min, max, step, log, label, 
         {/* thumb */}
         <motion.div
           className={cx(
-            "absolute top-1/2 h-6 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-[2px] border bg-bg-3",
-            dragging ? "border-amber shadow-[0_0_16px_rgb(255_181_71/0.6)]" : "border-line-3",
+            "absolute top-1/2 h-6 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-xs border bg-bg-3",
+            dragging ? "border-amber shadow-[0_0_16px_rgb(232_183_125/0.6)]" : "border-line-3",
           )}
           animate={{ left: `${frac * 100}%`, scale: dragging ? 1.15 : 1 }}
           transition={spring.snap}
@@ -154,7 +154,7 @@ export function Slider({ value, onChange, onCommit, min, max, step, log, label, 
       {marks && (
         <div className="relative mt-0.5 h-4">
           {marks.map((m) => (
-            <span key={m.value} className="absolute -translate-x-1/2 font-mono text-[10px] text-ink-3" style={{ left: `${toFrac(m.value) * 100}%` }}>
+            <span key={m.value} className="absolute -translate-x-1/2 font-mono text-[11px] text-ink-3" style={{ left: `${toFrac(m.value) * 100}%` }}>
               {m.label}
             </span>
           ))}

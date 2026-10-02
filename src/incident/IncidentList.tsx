@@ -16,14 +16,14 @@ export function IncidentList() {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="flex h-12 items-center gap-3 border-b border-line px-3 lg:px-5">
-        <Link href="/" className="font-mono text-2xs uppercase tracking-[0.16em] text-ink-2 hover:text-amber">
+        <Link href="/" className="eyebrow text-2xs text-ink-2 hover:text-amber">
           ← HQ
         </Link>
-        <span className="font-display text-lg font-extrabold uppercase text-ink-0">Incident Room</span>
+        <span className="font-display text-lg font-semibold text-ink-0">Incident Room</span>
       </header>
       <div className="mx-auto w-full max-w-4xl px-4 py-8">
-        <div className="font-mono text-2xs uppercase tracking-[0.3em] text-alert">on call</div>
-        <h1 className="font-display text-6xl font-extrabold uppercase leading-none text-ink-0">Pages</h1>
+        <div className="eyebrow text-2xs text-alert">on call</div>
+        <h1 className="font-display text-6xl font-semibold leading-none text-ink-0">Pages</h1>
         <p className="mt-2 max-w-xl text-ink-1">Real-time incidents on the simulation. The error budget burns while you investigate. Scored on time to mitigate, root cause, evidence, and what you broke on the way.</p>
         <div className="mt-6 grid gap-2">
           {incidents.map((n) => {
@@ -34,7 +34,7 @@ export function IncidentList() {
               <div className={cx("flex flex-wrap items-center gap-x-4 gap-y-3 rounded-sm border p-4", inc && open ? "border-alert-3 bg-alert-dim/20 hover:bg-alert-dim/40" : "border-line bg-bg-1/50")}>
                 <div className={cx("font-mono text-xs", inc && open ? "text-alert" : "text-ink-3")}>{inc ? inc.code : "INC"}</div>
                 <div className="min-w-[12rem] flex-1">
-                  <div className={cx("font-display text-2xl font-extrabold uppercase leading-none", inc && open ? "text-ink-0" : "text-ink-3")}>{n.title.replace(/^INC(-\d+)?: /, "")}</div>
+                  <div className={cx("font-display text-2xl font-semibold leading-none", inc && open ? "text-ink-0" : "text-ink-3")}>{n.title.replace(/^INC(-\d+)?: /, "")}</div>
                   <div className="mt-1 font-mono text-2xs text-ink-2">{!inc ? "" : open ? `needs: ${n.prereqs.map((p) => NODE_BY_ID.get(p)?.title).join(", ")}` : `locked · build ${n.prereqs.filter((p) => !built.has(p)).map((p) => NODE_BY_ID.get(p)?.title).join(", ")}`}</div>
                 </div>
                 {done && <Chip tone="ok">resolved</Chip>}

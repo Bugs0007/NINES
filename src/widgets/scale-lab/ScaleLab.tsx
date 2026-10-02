@@ -165,8 +165,8 @@ function Side({
     <div className="flex min-h-[360px] flex-col gap-2">
       <div className="flex items-end justify-between gap-2">
         <div>
-          <div className="font-display text-2xl font-extrabold uppercase leading-none text-ink-0">{title}</div>
-          <div className="font-mono text-[10px] text-ink-2">{sub}</div>
+          <div className="font-display text-2xl font-semibold leading-none text-ink-0">{title}</div>
+          <div className="font-mono text-[11px] text-ink-2">{sub}</div>
         </div>
         <div className="text-right font-mono text-2xs text-ink-2">
           p99 (8s avg)
@@ -215,7 +215,7 @@ function Hug({ config: c, onResult, verdict, locked, conditions }: WidgetProps<S
         <Panel label="fleet plan">
           <div className={cx("flex flex-col gap-3", (running || locked) && "pointer-events-none opacity-50")}>
             <div>
-              <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">instance type</div>
+              <div className="mb-1.5 eyebrow text-2xs text-ink-2">instance type</div>
               <Segmented
                 size="sm"
                 label="Instance type"
@@ -239,7 +239,7 @@ function Hug({ config: c, onResult, verdict, locked, conditions }: WidgetProps<S
                 if one dies<span className={cx("block text-sm tabular", n1Busy > 0.9 ? "text-alert" : n1Busy > 0.75 ? "text-amber" : "text-ink-0")}>{Number.isFinite(n1Busy) ? `${Math.round(n1Busy * 100)}%` : "outage"}</span>
               </div>
             </div>
-            <div className="font-mono text-[10px] text-ink-3">
+            <div className="font-mono text-[11px] text-ink-3">
               {INSTANCES.find((x) => x.name === inst)?.memGiB} GiB each · workers = (2 × vCPU) + 1 · the app retries a failed request once
             </div>
           </div>

@@ -112,7 +112,7 @@ export default function LaunchBuilder({ config, onResult, verdict, locked, runLo
         <Panel label="launch plan">
           <div className={cx("flex flex-col gap-3", (!designing || locked) && "pointer-events-none opacity-50")}>
             <div>
-              <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">instances</div>
+              <div className="mb-1.5 eyebrow text-2xs text-ink-2">instances</div>
               <Segmented
                 size="sm"
                 label="Instance type"
@@ -124,7 +124,7 @@ export default function LaunchBuilder({ config, onResult, verdict, locked, runLo
             <Slider label="how many" value={d.count} min={1} max={8} step={1} onChange={(v) => set("count", v)} format={(v) => `${v} × ${d.instance} · ${v * it.vcpu} vCPU`} />
             <div>
               <Slider label="gunicorn workers per box" value={d.workers} min={1} max={48} step={1} onChange={(v) => set("workers", v)} format={(v) => `${v}`} />
-              <div className="mt-1 flex justify-between font-mono text-[10px] text-ink-2">
+              <div className="mt-1 flex justify-between font-mono text-[11px] text-ink-2">
                 <span>RAM per box</span>
                 <span className={cx("tabular", memFits ? "text-ink-1" : "text-alert")}>
                   {mem.used.toFixed(1)} / {mem.total} GiB{memFits ? "" : " · won't fit"}
@@ -133,13 +133,13 @@ export default function LaunchBuilder({ config, onResult, verdict, locked, runLo
               <Meter value={mem.used / mem.total} warnAt={0.8} alertAt={1} className="mt-1" label="memory per box" />
             </div>
             <div>
-              <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">load balancer</div>
+              <div className="mb-1.5 eyebrow text-2xs text-ink-2">load balancer</div>
               <div className="grid grid-cols-2 gap-1">
                 {ALGS.map((a) => (
                   <button
                     key={a.value}
                     onClick={() => set("algorithm", a.value)}
-                    className={cx("h-8 rounded-[2px] border font-mono text-2xs uppercase tracking-[0.06em]", d.algorithm === a.value ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1 hover:border-line-3")}
+                    className={cx("h-8 rounded-xs border eyebrow text-2xs", d.algorithm === a.value ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1 hover:border-line-3")}
                   >
                     {a.label}
                   </button>
@@ -149,22 +149,22 @@ export default function LaunchBuilder({ config, onResult, verdict, locked, runLo
                 <Segmented size="sm" label="Health checks" value={d.hc} onChange={(v: HcMode) => set("hc", v)} options={[{ value: "off", label: "no hc" }, { value: "shallow", label: "shallow" }, { value: "deep", label: "deep" }]} />
               </div>
               <label className="mt-2 flex items-center gap-2 text-sm text-ink-1">
-                <input type="checkbox" checked={d.outlier} onChange={(e) => set("outlier", e.target.checked)} className="h-4 w-4 accent-[#ffb547]" />
+                <input type="checkbox" checked={d.outlier} onChange={(e) => set("outlier", e.target.checked)} className="h-4 w-4 accent-[#e8b77d]" />
                 Passive ejection
               </label>
             </div>
             <div>
-              <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">sessions</div>
+              <div className="mb-1.5 eyebrow text-2xs text-ink-2">sessions</div>
               <div className="grid grid-cols-2 gap-1">
                 {SESSIONS.map((s) => (
                   <button
                     key={s.value}
                     title={s.hint}
                     onClick={() => set("session", s.value)}
-                    className={cx("rounded-[2px] border px-2 py-1.5 text-left", d.session === s.value ? "border-amber bg-amber-dim/50" : "border-line-2 hover:border-line-3")}
+                    className={cx("rounded-xs border px-2 py-1.5 text-left", d.session === s.value ? "border-amber bg-amber-dim/50" : "border-line-2 hover:border-line-3")}
                   >
-                    <div className="font-mono text-2xs uppercase tracking-[0.06em] text-ink-0">{s.label}</div>
-                    <div className="text-[10px] text-ink-2">{s.hint}</div>
+                    <div className="eyebrow text-2xs text-ink-0">{s.label}</div>
+                    <div className="text-[11px] text-ink-2">{s.hint}</div>
                   </button>
                 ))}
               </div>
@@ -202,11 +202,11 @@ function Timeline({ t, duration, active }: { t: number; duration: number; active
           return (
             <div key={e.t} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${(e.t / duration) * 100}%` }} title={e.label}>
               <div className={cx("mx-auto h-2 w-2 rotate-45 border", past ? "border-amber bg-amber" : "border-line-3 bg-bg-1")} />
-              <div className={cx("absolute left-1/2 hidden w-[120px] -translate-x-1/2 truncate text-center font-mono text-[9px] lg:block", up ? "bottom-3" : "top-3", past ? "text-amber" : "text-ink-3")}>{e.label}</div>
+              <div className={cx("absolute left-1/2 hidden w-[120px] -translate-x-1/2 truncate text-center font-mono text-[11px] lg:block", up ? "bottom-3" : "top-3", past ? "text-amber" : "text-ink-3")}>{e.label}</div>
             </div>
           );
         })}
-        {active && <motion.div className="absolute bottom-1 top-1 w-px bg-phos shadow-[0_0_6px_rgb(92_242_154/0.8)]" style={{ left: `${Math.min(1, t / duration) * 100}%` }} />}
+        {active && <motion.div className="absolute bottom-1 top-1 w-px bg-phos shadow-[0_0_6px_rgb(143_212_178/0.8)]" style={{ left: `${Math.min(1, t / duration) * 100}%` }} />}
       </div>
     </div>
   );

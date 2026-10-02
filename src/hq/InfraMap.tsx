@@ -199,9 +199,9 @@ export function InfraMap({
       >
         <defs>
           <pattern id="rust" width="6" height="6" patternUnits="userSpaceOnUse">
-            <rect width="6" height="6" fill="rgb(138 90 24 / 0.35)" />
-            <circle cx="1.5" cy="2" r="0.9" fill="rgb(224 146 42 / 0.6)" />
-            <circle cx="4.5" cy="4.6" r="0.7" fill="rgb(122 34 28 / 0.7)" />
+            <rect width="6" height="6" fill="rgb(139 102 67 / 0.35)" />
+            <circle cx="1.5" cy="2" r="0.9" fill="rgb(210 155 98 / 0.6)" />
+            <circle cx="4.5" cy="4.6" r="0.7" fill="rgb(130 70 61 / 0.7)" />
           </pattern>
           <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="2.4" result="b" />
@@ -214,13 +214,13 @@ export function InfraMap({
 
         {L.districts.map((d) => (
           <g key={d.track} transform={`translate(${d.x},${d.y})`}>
-            <rect width={d.w} height={d.h} rx={6} fill="rgb(8 16 20 / 0.55)" stroke="#1a2a31" strokeDasharray="6 5" />
+            <rect width={d.w} height={d.h} rx={6} fill="rgb(21 29 34 / 0.55)" stroke="#243139" strokeDasharray="6 5" />
             <text x={22} y={27} className="fill-ink-2 font-mono" fontSize={13} letterSpacing="0.2em">
               {d.name.toUpperCase()} · TRACK {d.track}
             </text>
             {d.blocks.map((b) => (
               <g key={b.chapter} transform={`translate(${b.x},${b.y})`}>
-                <rect width={b.w} height={b.h} rx={3} fill="rgb(13 23 28 / 0.75)" stroke="#26404a" />
+                <rect width={b.w} height={b.h} rx={3} fill="rgb(27 37 43 / 0.75)" stroke="#2f3f48" />
                 <text x={10} y={18} className="fill-ink-1 font-mono" fontSize={10} letterSpacing="0.14em">
                   {b.chapter.toUpperCase()} · {b.title.toUpperCase()}
                 </text>
@@ -237,13 +237,13 @@ export function InfraMap({
           const lit = a.state === "built";
           return (
             <g key={`${e.from}-${e.to}`}>
-              <path d={e.d} fill="none" stroke={lit ? "#1f7a4b" : "#1a2a31"} strokeWidth={lit ? 1.6 : 1.2} />
-              {live && !reduced && <path d={e.d} fill="none" stroke="#5cf29a" strokeWidth={1.6} strokeDasharray="2 14" className="trace-flow" />}
+              <path d={e.d} fill="none" stroke={lit ? "#3e7a62" : "#243139"} strokeWidth={lit ? 1.6 : 1.2} />
+              {live && !reduced && <path d={e.d} fill="none" stroke="#8fd4b2" strokeWidth={1.6} strokeDasharray="2 14" className="trace-flow" />}
             </g>
           );
         })}
         {crossLinks.map((d, i) => (
-          <path key={i} d={d} fill="none" stroke="#ffb547" strokeOpacity={0.6} strokeWidth={1.4} strokeDasharray="4 4" />
+          <path key={i} d={d} fill="none" stroke="#e8b77d" strokeOpacity={0.6} strokeWidth={1.4} strokeDasharray="4 4" />
         ))}
 
         {/* lots */}
@@ -295,12 +295,12 @@ function Building({ x, y, node, info, selected, reduced }: { x: number; y: numbe
       <rect x={x - h} y={y - h} width={LOT} height={LOT} rx={2} {...(props as React.SVGProps<SVGRectElement>)} />
     );
 
-  const ring = selected ? <rect x={x - h - 6} y={y - h - 6} width={LOT + 12} height={LOT + 12} rx={4} fill="none" stroke="#ffb547" strokeWidth={1.6} /> : null;
+  const ring = selected ? <rect x={x - h - 6} y={y - h - 6} width={LOT + 12} height={LOT + 12} rx={4} fill="none" stroke="#e8b77d" strokeWidth={1.6} /> : null;
 
   if (info.state === "locked") {
     return (
       <g opacity={0.55}>
-        {shape({ fill: "none", stroke: "#26404a", strokeDasharray: "2 3" })}
+        {shape({ fill: "none", stroke: "#2f3f48", strokeDasharray: "2 3" })}
         {ring}
       </g>
     );
@@ -308,8 +308,8 @@ function Building({ x, y, node, info, selected, reduced }: { x: number; y: numbe
   if (info.state === "blueprint") {
     return (
       <g>
-        {shape({ fill: "rgb(19 33 40 / 0.4)", stroke: "#365a66", strokeDasharray: "4 3" })}
-        {field && <path d={`M${x - 4},${y + 6}V${y - 7}L${x + 6},${y - 3}L${x - 4},${y + 1}`} fill="none" stroke="#365a66" />}
+        {shape({ fill: "rgb(35 48 56 / 0.4)", stroke: "#42545e", strokeDasharray: "4 3" })}
+        {field && <path d={`M${x - 4},${y + 6}V${y - 7}L${x + 6},${y - 3}L${x - 4},${y + 1}`} fill="none" stroke="#42545e" />}
         {ring}
       </g>
     );
@@ -317,16 +317,16 @@ function Building({ x, y, node, info, selected, reduced }: { x: number; y: numbe
   if (info.state === "available") {
     return (
       <g>
-        {shape({ fill: "rgb(51 35 12 / 0.55)", stroke: "#ffb547", strokeDasharray: "4 3", strokeWidth: 1.4 })}
-        <circle cx={x} cy={y} r={3.2} fill="#ffb547" className={reduced ? "" : "animate-pulse-soft"} filter="url(#glow)" />
+        {shape({ fill: "rgb(56 42 31 / 0.55)", stroke: "#e8b77d", strokeDasharray: "4 3", strokeWidth: 1.4 })}
+        <circle cx={x} cy={y} r={3.2} fill="#e8b77d" className={reduced ? "" : "animate-pulse-soft"} filter="url(#glow)" />
         {ring}
       </g>
     );
   }
   // built
   const hl = info.health ?? "online";
-  const bodyStroke = hl === "incident" ? "#ff5a4e" : hl === "sparks" || hl === "rust" ? "#e0922a" : "#33c275";
-  const light = hl === "online" || hl === "flicker" ? "#5cf29a" : hl === "rust" ? "#ffb547" : "#ff5a4e";
+  const bodyStroke = hl === "incident" ? "#ec8f80" : hl === "sparks" || hl === "rust" ? "#d29b62" : "#6fbb98";
+  const light = hl === "online" || hl === "flicker" ? "#8fd4b2" : hl === "rust" ? "#e8b77d" : "#ec8f80";
   const lightClass = hl === "flicker" || hl === "sparks" ? (reduced ? "" : "animate-flicker") : "";
   const m = info.mastery ?? 1;
   const floors = m >= 3 ? 3 : m >= 2 ? 3 : 2;
@@ -334,32 +334,32 @@ function Building({ x, y, node, info, selected, reduced }: { x: number; y: numbe
   for (let r = 0; r < floors; r++) {
     for (let c = 0; c < 3; c++) {
       const lit = hl === "online" || (r + c) % 2 === 0;
-      lights.push(<rect key={`${r}-${c}`} x={x - 8 + c * 6} y={y + 6 - r * 7} width={3.5} height={3.5} fill={lit ? light : "#132128"} opacity={lit ? 0.95 : 1} />);
+      lights.push(<rect key={`${r}-${c}`} x={x - 8 + c * 6} y={y + 6 - r * 7} width={3.5} height={3.5} fill={lit ? light : "#233038"} opacity={lit ? 0.95 : 1} />);
     }
   }
   return (
     <g>
-      {info.repaired && !reduced && <rect x={x - h - 4} y={y - h - 4} width={LOT + 8} height={LOT + 8} rx={4} fill="none" stroke="#5cf29a" className="repair-ping" />}
-      {shape({ fill: hl === "rust" || hl === "sparks" ? "url(#rust)" : "#132128", stroke: bodyStroke, strokeWidth: 1.4 })}
+      {info.repaired && !reduced && <rect x={x - h - 4} y={y - h - 4} width={LOT + 8} height={LOT + 8} rx={4} fill="none" stroke="#8fd4b2" className="repair-ping" />}
+      {shape({ fill: hl === "rust" || hl === "sparks" ? "url(#rust)" : "#233038", stroke: bodyStroke, strokeWidth: 1.4 })}
       <g className={lightClass} filter={hl === "online" ? "url(#glow)" : undefined}>
         {boss ? <circle cx={x} cy={y} r={5} fill={light} /> : lights}
       </g>
       {m >= 3 && !boss && (
         <g>
-          <line x1={x} y1={y - h} x2={x} y2={y - h - 9} stroke="#5cf29a" strokeWidth={1.2} />
-          <circle cx={x} cy={y - h - 10} r={2.2} fill="#5cf29a" className={reduced ? "" : "animate-pulse-soft"} />
+          <line x1={x} y1={y - h} x2={x} y2={y - h - 9} stroke="#8fd4b2" strokeWidth={1.2} />
+          <circle cx={x} cy={y - h - 10} r={2.2} fill="#8fd4b2" className={reduced ? "" : "animate-pulse-soft"} />
         </g>
       )}
-      {m >= 2 && !boss && <rect x={x + h - 1} y={y - 4} width={4} height={12} fill="#1a2a31" stroke="#33c275" strokeWidth={0.8} />}
+      {m >= 2 && !boss && <rect x={x + h - 1} y={y - 4} width={4} height={12} fill="#243139" stroke="#6fbb98" strokeWidth={0.8} />}
       {hl === "sparks" && !reduced && (
         <g className="sparks">
-          <path d={`M${x + h},${y - h}l5,-5M${x + h + 2},${y - h + 4}l6,-1`} stroke="#ffb547" strokeWidth={1.2} />
+          <path d={`M${x + h},${y - h}l5,-5M${x + h + 2},${y - h + 4}l6,-1`} stroke="#e8b77d" strokeWidth={1.2} />
         </g>
       )}
       {hl === "incident" && (
         <g>
-          <rect x={x + h - 12} y={y - h - 9} width={22} height={11} rx={1.5} fill="#ff5a4e" />
-          <text x={x + h - 1} y={y - h - 0.8} textAnchor="middle" fontSize={7.5} fontWeight={700} className="font-mono" fill="#04070a">
+          <rect x={x + h - 12} y={y - h - 9} width={22} height={11} rx={1.5} fill="#ec8f80" />
+          <text x={x + h - 1} y={y - h - 0.8} textAnchor="middle" fontSize={7.5} fontWeight={700} className="font-mono" fill="#0f1519">
             INC
           </text>
         </g>

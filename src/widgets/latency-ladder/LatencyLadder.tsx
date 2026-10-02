@@ -118,11 +118,11 @@ export default function LatencyLadder({ config, mode, scene, calls, onObserve }:
         {/* axis */}
         <div className="relative ml-[38%] h-6 sm:ml-[32%]">
           {ticks.map((t) => (
-            <span key={t.lg} className="absolute top-0 -translate-x-1/2 font-mono text-[10px] text-ink-3" style={{ left: `${x(t.lg)}%` }}>
+            <span key={t.lg} className="absolute top-0 -translate-x-1/2 font-mono text-[11px] text-ink-3" style={{ left: `${x(t.lg)}%` }}>
               {t.label}
             </span>
           ))}
-          <span className="absolute top-3 -translate-x-1/2 font-mono text-[10px] text-amber" style={{ left: `${x(8)}%` }}>
+          <span className="absolute top-3 -translate-x-1/2 font-mono text-[11px] text-amber" style={{ left: `${x(8)}%` }}>
             ▼ 100 ms feels instant
           </span>
         </div>
@@ -133,7 +133,7 @@ export default function LatencyLadder({ config, mode, scene, calls, onObserve }:
               <span key={t.lg} className="absolute inset-y-0 w-px bg-line" style={{ left: `${x(t.lg)}%` }} />
             ))}
             <span className="absolute inset-y-0 w-px bg-amber/50" style={{ left: `${x(8)}%` }} />
-            {phase !== "idle" && <span className="absolute inset-y-0 w-px bg-phos shadow-[0_0_8px_rgb(92_242_154/0.8)]" style={{ left: `${Math.min(100, x(clock))}%` }} />}
+            {phase !== "idle" && <span className="absolute inset-y-0 w-px bg-phos shadow-[0_0_8px_rgb(143_212_178/0.8)]" style={{ left: `${Math.min(100, x(clock))}%` }} />}
           </div>
           {order.map((id, i) => {
             const it = c.items.find((q) => q.id === id)!;
@@ -152,7 +152,7 @@ export default function LatencyLadder({ config, mode, scene, calls, onObserve }:
                 </div>
                 <div className="relative h-5 flex-1">
                   <motion.div
-                    className={cx("absolute inset-y-0 left-0 rounded-[2px]", done ? (phase === "done" && !correct ? "bg-amber/70" : "bg-phos/70") : "bg-phos/35")}
+                    className={cx("absolute inset-y-0 left-0 rounded-xs", done ? (phase === "done" && !correct ? "bg-amber/70" : "bg-phos/70") : "bg-phos/35")}
                     animate={{ width: `${progress}%` }}
                     transition={{ duration: 0.05, ease: "linear" }}
                   />
@@ -204,7 +204,7 @@ export default function LatencyLadder({ config, mode, scene, calls, onObserve }:
       <AnimatePresence>
         {scene === "physics" && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="rounded-sm border border-amber-3 bg-amber-dim/30 p-3 text-sm text-ink-1">
-            <span className="font-mono text-2xs uppercase tracking-[0.14em] text-amber">physics check</span>
+            <span className="eyebrow text-2xs text-amber">physics check</span>
             <div className="mt-1">
               Light in fiber ≈ 200 km per millisecond. Mumbai → Virginia is ~13,000 km each way, so the best possible round trip is ~130 ms before a single router, queue, or handshake.
             </div>

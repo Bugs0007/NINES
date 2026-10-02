@@ -11,7 +11,7 @@ export function HonestNotes({ notes, className }: { notes: string[]; className?:
   if (!show || notes.length === 0) return null;
   return (
     <details className={cx("rounded-sm border border-line p-3", className)}>
-      <summary className="cursor-pointer font-mono text-2xs uppercase tracking-[0.16em] text-ink-2 hover:text-amber">Honest physics · what this model leaves out</summary>
+      <summary className="cursor-pointer eyebrow text-2xs text-ink-2 hover:text-amber">Honest physics · what this model leaves out</summary>
       <ul className="mt-2 space-y-1.5 text-sm text-ink-1">
         {notes.map((n, i) => (
           <li key={i}>· {n}</li>

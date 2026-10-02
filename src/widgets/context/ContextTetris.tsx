@@ -24,7 +24,7 @@ const KIND_STYLE: Record<string, string> = {
   summary: "bg-ink-1/30 border-line-3",
   history: "bg-phos/35 border-phos-2",
   question: "bg-ink-0/40 border-ink-1",
-  reserve: "border-dashed border-line-3 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgb(54_90_102/0.35)_4px,rgb(54_90_102/0.35)_5px)]",
+  reserve: "border-dashed border-line-3 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgb(66_84_94/0.35)_4px,rgb(66_84_94/0.35)_5px)]",
 };
 
 export default function ContextTetris({ config, scene, onObserve, onResult, conditions, locked, runLocked, verdict, mode: wmode }: WidgetProps<ContextConfig>) {
@@ -99,7 +99,7 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
     <div className="flex h-full min-h-0 flex-col gap-3 lg:flex-row">
       {/* the well */}
       <div className="flex flex-col items-center gap-2">
-        <div className="font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">context window · {(c.window / 1000).toFixed(0)}k tokens</div>
+        <div className="eyebrow text-2xs text-ink-2">context window · {(c.window / 1000).toFixed(0)}k tokens</div>
         <div className="relative h-[380px] w-[210px]">
           <div className={cx("absolute inset-0 rounded-sm border-2", st.overflow ? "border-alert shadow-glow-alert" : "border-line-3")} />
           <div className="absolute inset-x-1 bottom-1 top-1 flex flex-col-reverse overflow-visible">
@@ -111,11 +111,11 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
                   animate={{ opacity: 1, height: scale(b.tokens) }}
                   exit={{ opacity: 0, height: "0%" }}
                   transition={reduced ? { duration: 0 } : spring.soft}
-                  className={cx("relative mt-[2px] flex shrink-0 items-center justify-center overflow-hidden rounded-[2px] border px-1", b.kind === "pinned" ? "min-h-[13px]" : "min-h-[3px]", KIND_STYLE[b.kind])}
+                  className={cx("relative mt-[2px] flex shrink-0 items-center justify-center overflow-hidden rounded-xs border px-1", b.kind === "pinned" ? "min-h-[13px]" : "min-h-[3px]", KIND_STYLE[b.kind])}
                   title={`${b.label}: ${b.tokens.toLocaleString()} tokens`}
                 >
                   {(b.tokens / c.window > 0.045 || b.kind === "pinned") && (
-                    <span className={cx("truncate font-mono text-ink-0", b.kind === "pinned" ? "text-[8px] leading-none" : "text-[9px]")}>
+                    <span className={cx("truncate font-mono text-ink-0", b.kind === "pinned" ? "text-[8px] leading-none" : "text-[11px]")}>
                       {b.label} · {b.tokens >= 1000 ? `${(b.tokens / 1000).toFixed(1)}k` : b.tokens}
                     </span>
                   )}
@@ -124,7 +124,7 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
             </AnimatePresence>
           </div>
           {st.overflow && (
-            <div className="absolute -top-7 inset-x-0 text-center font-mono text-[10px] text-alert">
+            <div className="absolute -top-7 inset-x-0 text-center font-mono text-[11px] text-alert">
               over by {overBy.toLocaleString()} · 400 prompt is too long
             </div>
           )}
@@ -161,10 +161,10 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
             {bill && (
               <>
                 <label className="flex items-start gap-2 text-sm text-ink-1">
-                  <input type="checkbox" checked={!!p.cache} onChange={(e) => set("cache", e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 accent-[#ffb547]" />
+                  <input type="checkbox" checked={!!p.cache} onChange={(e) => set("cache", e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 accent-[#e8b77d]" />
                   <span>
                     Cache the stable prefix
-                    <span className="block font-mono text-[10px] text-ink-3">
+                    <span className="block font-mono text-[11px] text-ink-3">
                       system + tools{p.mode === "pinned" ? " + profile" : ""} = {prefixTokens(c, p).toLocaleString()} tokens, identical every turn · first write {CACHE_WRITE_MULT}×, reads {CACHE_READ_MULT}× input price
                     </span>
                   </span>
@@ -181,7 +181,7 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
                       { value: "router", label: "router" },
                     ]}
                   />
-                  <div className="mt-1 font-mono text-[10px] text-ink-3">
+                  <div className="mt-1 font-mono text-[11px] text-ink-3">
                     {p.model === "router"
                       ? `a cheap classifier sends ~${Math.round((1 - ROUTER_FAST_SHARE) * 100)}% of turns (the hard ones) to Sonnet-class, the rest to Haiku-class`
                       : `per million tokens: Sonnet-class $${g.input} in / $${g.output} out · Haiku-class $${f.input} in / $${f.output} out`}
@@ -208,7 +208,7 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
               <div key={i} className={cx("flex-1 rounded-t-[1px]", ev.perTurn[i]!.overflow ? "bg-alert/70" : i + 1 === turn ? "bg-amber" : "bg-phos/50")} style={{ height: `${ev.perTurn[i]!.overflow ? 100 : (v / maxBar) * 100}%` }} />
             ))}
           </div>
-          <div className="mt-1 flex justify-between gap-2 font-mono text-[10px] text-ink-3">
+          <div className="mt-1 flex justify-between gap-2 font-mono text-[11px] text-ink-3">
             <span className="hidden sm:inline">turn 1</span>
             <span>
               {ev.inputTokens.toLocaleString()} input{bill ? ` + ${(c.outputTokens * c.turns).toLocaleString()} output` : ""} tokens across {ev.overflowTurn ? `${ev.overflowTurn - 1} turns (then rejected)` : `${c.turns} turns`} · ttft ≈ {ev.ttftS.toFixed(2)}s
@@ -223,7 +223,7 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
                 <span className={cx("mt-0.5 font-mono text-xs", f.ok ? "text-phos" : "text-alert")}>{f.ok ? "✓" : "✗"}</span>
                 <span className="min-w-0">
                   <span className="text-ink-0">{f.fact.question}</span>
-                  <span className="block font-mono text-[10px] text-ink-3">
+                  <span className="block font-mono text-[11px] text-ink-3">
                     needs: {f.fact.label} · {f.why}
                   </span>
                 </span>

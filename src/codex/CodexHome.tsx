@@ -34,10 +34,10 @@ export function CodexHome() {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="flex h-12 items-center gap-3 border-b border-line px-3 lg:px-5">
-        <Link href="/" className="font-mono text-2xs uppercase tracking-[0.16em] text-ink-2 hover:text-amber">
+        <Link href="/" className="eyebrow text-2xs text-ink-2 hover:text-amber">
           ← HQ
         </Link>
-        <span className="font-display text-lg font-extrabold uppercase text-ink-0">Codex</span>
+        <span className="font-display text-lg font-semibold text-ink-0">Codex</span>
         <span className="ml-auto font-mono text-2xs text-ink-2">
           <span className="tabular text-ink-0">{owned.length}</span> cards earned · {GRAPH.filter((g) => g.kind === "concept").length} in the curriculum
         </span>
@@ -62,7 +62,7 @@ export function CodexHome() {
               {hits.map((p, i) => (
                 <motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring.soft, delay: i * 0.03 }}>
                   <Link href={`/codex/${p.id}`} className="group block h-full rounded-sm border border-line-2 bg-bg-1 p-4 hover:border-amber-3">
-                    <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.16em] text-ink-2">
+                    <div className="flex items-center justify-between eyebrow text-[11px] text-ink-2">
                       <span>{GRAPH.find((g) => g.id === p.id)?.chapter.toUpperCase()}</span>
                       <span className="flex gap-1">
                         {[1, 2, 3].map((l) => (
@@ -70,7 +70,7 @@ export function CodexHome() {
                         ))}
                       </span>
                     </div>
-                    <div className="mt-1 font-display text-2xl font-extrabold uppercase leading-none text-ink-0 group-hover:text-amber">{p.title}</div>
+                    <div className="mt-1 font-display text-2xl font-semibold leading-none text-ink-0 group-hover:text-amber">{p.title}</div>
                     <p className="mt-2 text-sm text-ink-1">{p.codex.oneLiner}</p>
                     <div className="mt-3 flex flex-wrap gap-1">
                       {p.codex.keyNumbers.slice(0, 2).map((k) => (
@@ -85,8 +85,8 @@ export function CodexHome() {
               {!q &&
                 locked.map((p) => (
                   <div key={p.id} className="rounded-sm border border-dashed border-line-2 p-4 opacity-60">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-3">locked</div>
-                    <div className="mt-1 font-display text-2xl font-extrabold uppercase leading-none text-ink-3">{p.title}</div>
+                    <div className="eyebrow text-[11px] text-ink-3">locked</div>
+                    <div className="mt-1 font-display text-2xl font-semibold leading-none text-ink-3">{p.title}</div>
                     <p className="mt-2 text-sm text-ink-3">Build it in the campaign to earn this card.</p>
                   </div>
                 ))}
@@ -121,7 +121,7 @@ function Profile() {
       <Panel label="calibration">
         <p className="text-sm text-ink-1">When you say you&apos;re 90% sure, are you right 90% of the time? Points on the diagonal mean your confidence is honest.</p>
         <svg viewBox={`0 0 ${W} ${H}`} className="mt-3 w-full max-w-sm" role="img" aria-label="Calibration: stated confidence against actual accuracy">
-          <line x1={x(0.4)} y1={y(0.4)} x2={x(1)} y2={y(1)} stroke="#365a66" strokeDasharray="4 3" />
+          <line x1={x(0.4)} y1={y(0.4)} x2={x(1)} y2={y(1)} stroke="#42545e" strokeDasharray="4 3" />
           {[0.5, 0.7, 0.9].map((v) => (
             <text key={v} x={x(v)} y={H - 10} textAnchor="middle" fontSize={9} className="fill-ink-3 font-mono">
               {v * 100}%
@@ -135,7 +135,7 @@ function Profile() {
           {bins.map((b) =>
             b.actual === null ? null : (
               <g key={b.stated}>
-                <circle cx={x(b.stated)} cy={y(b.actual)} r={4 + Math.min(8, Math.sqrt(b.n))} fill={Math.abs(b.actual - b.stated) < 0.12 ? "#5cf29a" : "#ffb547"} fillOpacity={0.8} />
+                <circle cx={x(b.stated)} cy={y(b.actual)} r={4 + Math.min(8, Math.sqrt(b.n))} fill={Math.abs(b.actual - b.stated) < 0.12 ? "#8fd4b2" : "#e8b77d"} fillOpacity={0.8} />
                 <text x={x(b.stated) + 12} y={y(b.actual) + 3} fontSize={9} className="fill-ink-1 font-mono">
                   n={b.n}
                 </text>
@@ -148,7 +148,7 @@ function Profile() {
         </div>
       </Panel>
       <Panel label="rank & mastery">
-        <div className="font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">
+        <div className="eyebrow text-2xs text-ink-2">
           {rank.tierName} {rank.sub}
         </div>
         <div className="font-mono text-3xl tabular text-phos glow-phos">{formatUptime(rank.nines)}%</div>

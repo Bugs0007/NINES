@@ -43,8 +43,8 @@ export function HookScreen({ hook, title, kicker, onGo }: { hook: Hook; title: s
   return (
     <div className="relative flex min-h-full flex-col items-center justify-center gap-6 px-4 py-8">
       <div className="text-center">
-        <div className="font-mono text-2xs uppercase tracking-[0.3em] text-ink-2">{kicker}</div>
-        <h1 className="mt-2 font-display text-5xl font-extrabold uppercase leading-none tracking-tight text-ink-0 sm:text-6xl">
+        <div className="eyebrow text-2xs text-ink-2">{kicker}</div>
+        <h1 className="mt-2 font-display text-5xl font-semibold leading-none tracking-tight text-ink-0 sm:text-6xl">
           <GlitchText text={title} />
         </h1>
       </div>
@@ -81,7 +81,7 @@ function HookVisual({ hook }: { hook: Hook }) {
     case "pager":
       return (
         <div className="rounded-sm border border-alert-3 bg-alert-dim/60 p-4 shadow-glow-alert">
-          <div className="flex items-center justify-between font-mono text-2xs uppercase tracking-[0.16em]">
+          <div className="flex items-center justify-between eyebrow text-2xs">
             <span className="flex items-center gap-2 text-alert">
               <span className="inline-block h-2 w-2 animate-blink rounded-full bg-alert" /> {a?.severity === "warn" ? "warning" : "page · high urgency"}
             </span>
@@ -94,7 +94,7 @@ function HookVisual({ hook }: { hook: Hook }) {
     case "graph-spike":
       return (
         <div className="rounded-sm border border-line-2 bg-bg-1 p-3">
-          <div className="flex items-center justify-between font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">
+          <div className="flex items-center justify-between eyebrow text-2xs text-ink-2">
             <span>{a?.title ?? "p99 latency"}</span>
             <span className="text-alert">{a?.detail}</span>
           </div>
@@ -112,7 +112,7 @@ function HookVisual({ hook }: { hook: Hook }) {
               transition={{ ...spring.soft, delay: 0.15 + i * 0.25 }}
               className={cx("rounded-sm border border-line-2 bg-bg-2 px-3 py-2 text-sm text-ink-0", i % 2 ? "ml-8" : "mr-8")}
             >
-              <div className="mb-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-3">support ticket #{4812 + i * 7}</div>
+              <div className="mb-0.5 eyebrow text-[11px] text-ink-3">support ticket #{4812 + i * 7}</div>
               {t.trim()}
             </motion.div>
           ))}
@@ -121,15 +121,15 @@ function HookVisual({ hook }: { hook: Hook }) {
     case "bill":
       return (
         <div className="rounded-sm border border-amber-3 bg-amber-dim/30 p-4 font-mono">
-          <div className="text-2xs uppercase tracking-[0.16em] text-amber">{a?.title ?? "Invoice"}</div>
+          <div className="text-2xs text-amber eyebrow">{a?.title ?? "Invoice"}</div>
           <div className="mt-2 text-4xl tabular text-ink-0">{a?.detail}</div>
         </div>
       );
     case "launch":
       return (
         <div className="rounded-sm border border-phos-3 bg-phos-dim/30 p-4 text-center">
-          <div className="font-mono text-2xs uppercase tracking-[0.2em] text-phos">{a?.title ?? "Launch"}</div>
-          <div className="mt-1 font-display text-4xl font-extrabold uppercase text-ink-0">{a?.detail}</div>
+          <div className="eyebrow text-2xs text-phos">{a?.title ?? "Launch"}</div>
+          <div className="mt-1 font-display text-4xl font-semibold text-ink-0">{a?.detail}</div>
         </div>
       );
     case "terminal":
@@ -154,8 +154,8 @@ function SpikeChart() {
   const d = pts.map((v, i) => `${i ? "L" : "M"}${((i / (pts.length - 1)) * w).toFixed(1)},${(h - (v / max) * (h - 6) - 3).toFixed(1)}`).join("");
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="mt-2 w-full" aria-hidden>
-      <line x1={0} x2={w} y1={h - (40 / max) * (h - 6) - 3} y2={h - (40 / max) * (h - 6) - 3} stroke="#ff5a4e" strokeOpacity="0.5" strokeDasharray="4 3" />
-      <motion.path d={d} fill="none" stroke="#ff5a4e" strokeWidth={2} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.1, ease: "easeIn" }} />
+      <line x1={0} x2={w} y1={h - (40 / max) * (h - 6) - 3} y2={h - (40 / max) * (h - 6) - 3} stroke="#ec8f80" strokeOpacity="0.5" strokeDasharray="4 3" />
+      <motion.path d={d} fill="none" stroke="#ec8f80" strokeWidth={2} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.1, ease: "easeIn" }} />
     </svg>
   );
 }

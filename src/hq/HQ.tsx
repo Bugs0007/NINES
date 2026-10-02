@@ -61,7 +61,7 @@ export function HQ() {
       <section className="grid grid-cols-1 gap-3 px-3 pt-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:px-5">
         {/* uptime */}
         <div className="relative overflow-hidden rounded-sm border border-line bg-bg-1/80 p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-2 font-mono text-2xs uppercase tracking-[0.18em] text-ink-2">
+          <div className="flex items-center justify-between gap-2 eyebrow text-2xs text-ink-2">
             <span className="flex items-center gap-2">
               <Led tone={degraded ? "warn" : "ok"} blink={!!degraded && !reduced} /> Uptime · live
             </span>
@@ -118,8 +118,8 @@ export function HQ() {
 function Boot() {
   return (
     <div className="grid min-h-dvh place-items-center">
-      <div className="text-center font-mono text-2xs uppercase tracking-[0.3em] text-ink-3">
-        <div className="font-display text-6xl font-extrabold tracking-tight text-phos glow-phos">NINES</div>
+      <div className="text-center eyebrow text-2xs text-ink-3">
+        <div className="font-display text-6xl font-semibold tracking-tight text-phos glow-phos">NINES</div>
         restoring state…
       </div>
     </div>
@@ -129,11 +129,11 @@ function Boot() {
 function TopBar({ streak, tokens }: { streak: number; tokens: number }) {
   return (
     <header className="flex h-12 items-center gap-3 border-b border-line px-3 lg:px-5">
-      <span className="font-display text-2xl font-extrabold uppercase tracking-tight text-ink-0">
+      <span className="font-display text-2xl font-semibold tracking-tight text-ink-0">
         Nine<span className="text-phos">s</span>
       </span>
-      <span className="hidden font-mono text-2xs uppercase tracking-[0.18em] text-ink-3 sm:inline">Pigeon · ops console</span>
-      <div className="ml-auto flex items-center gap-3 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">
+      <span className="hidden eyebrow text-2xs text-ink-3 sm:inline">Pigeon · ops console</span>
+      <div className="ml-auto flex items-center gap-3 eyebrow text-2xs text-ink-2">
         <span title="Daily shift streak">
           streak <span className="tabular text-ink-0">{streak}</span>
           {tokens > 0 && <span className="text-amber"> · {tokens} freeze</span>}
@@ -158,7 +158,7 @@ function NinesScale({ earned, live }: { earned: number; live: number }) {
           <span key={n} className="absolute top-1/2 h-3.5 w-px -translate-y-1/2 bg-line-3" style={{ left: `${pos(n)}%` }} />
         ))}
       </div>
-      <div className="relative mt-1.5 h-4 font-mono text-[10px] text-ink-3">
+      <div className="relative mt-1.5 h-4 font-mono text-[11px] text-ink-3">
         {labels.map((l, i) => (
           <span key={l} className={cx("absolute", i === 0 ? "left-0" : i === 4 ? "right-0" : "-translate-x-1/2")} style={i > 0 && i < 4 ? { left: `${pos(i + 1)}%` } : undefined}>
             {l}
@@ -175,8 +175,8 @@ function ShiftCard({ due, built, streak, tokens, lastDay }: { due: number; built
   return (
     <div className="flex flex-col justify-between gap-3 rounded-sm border border-line bg-bg-1/80 p-4 sm:p-5">
       <div>
-        <div className="font-mono text-2xs uppercase tracking-[0.18em] text-ink-2">Daily shift</div>
-        <div className="mt-1 font-display text-3xl font-extrabold uppercase leading-none text-ink-0">
+        <div className="eyebrow text-2xs text-ink-2">Daily shift</div>
+        <div className="mt-1 font-display text-3xl font-semibold leading-none text-ink-0">
           {built === 0 ? "No services in rotation yet" : due > 0 ? `${due} service${due === 1 ? " needs" : "s need"} attention` : doneToday ? "Shift complete" : "All systems nominal"}
         </div>
         <p className="mt-2 text-sm text-ink-1">
@@ -207,14 +207,14 @@ function ShiftCard({ due, built, streak, tokens, lastDay }: { due: number; built
 
 function Legend() {
   const items: [string, React.ReactNode][] = [
-    ["online", <span key="o" className="inline-block h-2.5 w-2.5 rounded-[1px] border border-phos-2 bg-phos/40" />],
-    ["decaying", <span key="d" className="inline-block h-2.5 w-2.5 rounded-[1px] border border-amber-2 bg-amber/30" />],
-    ["incident", <span key="i" className="inline-block h-2.5 w-2.5 rounded-[1px] border border-alert bg-alert/40" />],
-    ["ready to build", <span key="a" className="inline-block h-2.5 w-2.5 rounded-[1px] border border-dashed border-amber" />],
-    ["blueprint", <span key="b" className="inline-block h-2.5 w-2.5 rounded-[1px] border border-dashed border-line-3" />],
+    ["online", <span key="o" className="inline-block h-2.5 w-2.5 rounded-xs border border-phos-2 bg-phos/40" />],
+    ["decaying", <span key="d" className="inline-block h-2.5 w-2.5 rounded-xs border border-amber-2 bg-amber/30" />],
+    ["incident", <span key="i" className="inline-block h-2.5 w-2.5 rounded-xs border border-alert bg-alert/40" />],
+    ["ready to build", <span key="a" className="inline-block h-2.5 w-2.5 rounded-xs border border-dashed border-amber" />],
+    ["blueprint", <span key="b" className="inline-block h-2.5 w-2.5 rounded-xs border border-dashed border-line-3" />],
   ];
   return (
-    <div className="pointer-events-none absolute left-3 top-3 hidden flex-col gap-1 rounded-sm border border-line bg-bg-1/85 p-2 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-2 sm:flex">
+    <div className="pointer-events-none absolute left-3 top-3 hidden flex-col gap-1 rounded-sm border border-line bg-bg-1/85 p-2 eyebrow text-[11px] text-ink-2 sm:flex">
       {items.map(([l, i]) => (
         <span key={l} className="flex items-center gap-2">
           {i}
@@ -255,14 +255,14 @@ function LotPanel({ id, info, r, due, onClose, onSelect }: { id: string; info: L
       aria-label={n.title}
     >
       <div className="flex items-start justify-between gap-2">
-        <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-2">
+        <div className="eyebrow text-[11px] text-ink-2">
           {TRACKS[n.track].district} · {ch.title} · {n.kind}
         </div>
         <button onClick={onClose} aria-label="Close" className="-mr-1 -mt-1 grid h-8 w-8 place-items-center text-ink-2 hover:text-ink-0">
           ✕
         </button>
       </div>
-      <h3 className="font-display text-2xl font-extrabold uppercase leading-none text-ink-0">{n.title}</h3>
+      <h3 className="font-display text-2xl font-semibold leading-none text-ink-0">{n.title}</h3>
       <div className={cx("mt-2 font-mono text-xs", info.state === "built" ? (info.health === "online" ? "text-phos" : info.health === "incident" ? "text-alert" : "text-amber") : info.state === "available" ? "text-amber" : "text-ink-2")}>{status}</div>
       {info.state === "built" && r !== undefined && (
         <div className="mt-2 grid grid-cols-3 gap-2 font-mono text-2xs text-ink-2">
@@ -280,7 +280,7 @@ function LotPanel({ id, info, r, due, onClose, onSelect }: { id: string; info: L
       <p className="mt-2 text-sm text-ink-1">Signature: {n.interaction}.</p>
       {n.prereqs.length > 0 && (
         <div className="mt-2">
-          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-3">needs</div>
+          <div className="eyebrow text-[11px] text-ink-3">needs</div>
           <div className="mt-1 flex flex-wrap gap-1">
             {n.prereqs.map((p) => (
               <button key={p} onClick={() => onSelect(p)} className="rounded-sm border border-line-2 px-1.5 py-0.5 text-left text-xs text-ink-1 hover:border-amber hover:text-amber">
@@ -322,8 +322,8 @@ function Dock() {
     <nav aria-label="Modes" className="sticky bottom-0 z-20 mt-3 grid grid-cols-4 gap-px border-t border-line bg-line">
       {links.map((l) => (
         <Link key={l.href} href={l.href} className="group bg-bg-0/95 px-2 py-2.5 text-center backdrop-blur hover:bg-bg-2">
-          <div className="font-display text-base font-extrabold uppercase leading-none text-ink-0 group-hover:text-amber sm:text-lg">{l.label}</div>
-          <div className="mt-0.5 hidden font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3 sm:block">{l.sub}</div>
+          <div className="font-display text-base font-semibold leading-none text-ink-0 group-hover:text-amber sm:text-lg">{l.label}</div>
+          <div className="mt-0.5 hidden eyebrow text-[11px] text-ink-3 sm:block">{l.sub}</div>
         </Link>
       ))}
     </nav>
@@ -338,7 +338,7 @@ function ServiceList({ infoOf, onSelect }: { infoOf: (id: string) => LotInfo; on
   });
   return (
     <details className="mx-3 mb-3 mt-3 rounded-sm border border-line p-3 lg:mx-5">
-      <summary className="cursor-pointer font-mono text-2xs uppercase tracking-[0.16em] text-ink-2">Services list ({rows.length})</summary>
+      <summary className="cursor-pointer eyebrow text-2xs text-ink-2">Services list ({rows.length})</summary>
       <ul className="mt-2 grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((n) => {
           const i = infoOf(n.id);
@@ -347,7 +347,7 @@ function ServiceList({ infoOf, onSelect }: { infoOf: (id: string) => LotInfo; on
               <button onClick={() => onSelect(n.id)} className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-ink-1 hover:bg-bg-2 hover:text-ink-0">
                 <Led tone={i.state === "available" ? "info" : i.health === "online" ? "ok" : i.health === "incident" ? "alert" : "warn"} />
                 {n.title}
-                <span className="ml-auto font-mono text-[10px] uppercase text-ink-3">{i.state === "available" ? "ready" : i.health}</span>
+                <span className="ml-auto eyebrow text-[11px] text-ink-3">{i.state === "available" ? "ready" : i.health}</span>
               </button>
             </li>
           );

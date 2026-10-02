@@ -145,7 +145,7 @@ export function ChallengeControls({
       </div>
       {((phase === "done" && verdict && !verdict.won) || inReplay) && ch.cause?.firstBad && cause && (
         <div className={cx("rounded-sm border px-2.5 py-2 text-sm", highlightNow || phase === "done" ? "border-amber-3 bg-amber-dim/40" : "border-line")}>
-          <div className="font-mono text-2xs uppercase tracking-[0.14em] text-amber">First domino · t+{cause.t.toFixed(0)}s</div>
+          <div className="eyebrow text-2xs text-amber">First domino · t+{cause.t.toFixed(0)}s</div>
           <div className="text-ink-0">{cause.detail}</div>
           <div className="mt-1 font-mono text-2xs text-ink-2">
             SLO first broke at t+{ch.cause.firstBad.t.toFixed(0)}s: p99 {fmtLatency(ch.cause.firstBad.p99)}, errors {fmtPct(ch.cause.firstBad.errorRate, 1)}

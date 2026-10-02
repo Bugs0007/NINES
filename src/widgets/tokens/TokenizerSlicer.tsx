@@ -40,7 +40,7 @@ export function TokenChips({ pieces, animate, max = 400 }: { pieces: string[]; a
           initial={animate && !reduced ? { opacity: 0, y: -6, scale: 0.8 } : false}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ ...spring.snap, delay: animate && !reduced ? Math.min(1.6, i * 0.035) : 0 }}
-          className={cx("whitespace-pre rounded-[2px] border px-[3px] py-[1px] text-ink-0", CHIP_TONES[i % CHIP_TONES.length])}
+          className={cx("whitespace-pre rounded-xs border px-[3px] py-[1px] text-ink-0", CHIP_TONES[i % CHIP_TONES.length])}
         >
           {p.replace(/\n/g, "↵").replace(/ /g, "·") || "∅"}
         </motion.span>
@@ -97,13 +97,13 @@ export default function TokenizerSlicer({ config, scene, onObserve, locked, mode
               role="tab"
               aria-selected={sel === s.id}
               onClick={() => setSel(s.id)}
-              className={cx("h-8 rounded-[2px] border px-2.5 font-mono text-2xs uppercase tracking-[0.08em]", sel === s.id ? "border-amber bg-amber text-bg-0" : revealed[s.id] ? "border-phos-3 text-phos" : "border-line-2 text-ink-1 hover:border-line-3")}
+              className={cx("h-8 rounded-xs border px-2.5 eyebrow text-2xs", sel === s.id ? "border-amber bg-amber text-bg-0" : revealed[s.id] ? "border-phos-3 text-phos" : "border-line-2 text-ink-1 hover:border-line-3")}
             >
               {s.label}
               {revealed[s.id] ? ` · ${revealed[s.id]!.actual}` : ""}
             </button>
           ))}
-          <button role="tab" aria-selected={sel === "custom"} onClick={() => setSel("custom")} className={cx("h-8 rounded-[2px] border px-2.5 font-mono text-2xs uppercase tracking-[0.08em]", sel === "custom" ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1")}>
+          <button role="tab" aria-selected={sel === "custom"} onClick={() => setSel("custom")} className={cx("h-8 rounded-xs border px-2.5 eyebrow text-2xs", sel === "custom" ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1")}>
             your text
           </button>
         </div>
@@ -135,7 +135,7 @@ export default function TokenizerSlicer({ config, scene, onObserve, locked, mode
             ) : (
               <div className={cx("flex flex-wrap items-end gap-2", (locked || mode === "preview") && "pointer-events-none opacity-40")}>
                 <label className="flex flex-col gap-1">
-                  <span className="font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">your guess</span>
+                  <span className="eyebrow text-2xs text-ink-2">your guess</span>
                   <input value={guess} onChange={(e) => setGuess(e.target.value.replace(/[^0-9]/g, ""))} inputMode="numeric" aria-label="Guess the token count" className="h-10 w-28 rounded-sm border border-line-2 bg-bg-0 px-2 font-mono text-lg tabular text-amber outline-none focus:border-amber" />
                 </label>
                 <Button variant="go" onClick={slice} disabled={!tok} sound="none">
@@ -150,7 +150,7 @@ export default function TokenizerSlicer({ config, scene, onObserve, locked, mode
         <Panel label="what it costs">
           <div className="font-mono text-2xs text-ink-2">at ${c.usdPerMTok} per million input tokens</div>
           <div className="mt-1 font-mono text-sm text-ink-0">1M of these = {isRevealed ? fmtUsd((pieces.length * c.usdPerMTok * 1e6) / 1e6) : "?"}</div>
-          <div className="mt-1 font-mono text-[10px] text-ink-3">Output tokens usually cost several times more than input.</div>
+          <div className="mt-1 font-mono text-[11px] text-ink-3">Output tokens usually cost several times more than input.</div>
         </Panel>
         <Panel label="scoreboard">
           <ul className="space-y-1 font-mono text-xs">

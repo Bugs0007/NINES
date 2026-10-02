@@ -123,14 +123,14 @@ function Lab({ config: c, onObserve, locked, mode, scene }: WidgetProps<LbConfig
         <Panel label="load balancer">
           <div className={cx("flex flex-col gap-3", locked && "pointer-events-none opacity-40")}>
             <div>
-              <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">algorithm</div>
+              <div className="mb-1.5 eyebrow text-2xs text-ink-2">algorithm</div>
               <div className="grid grid-cols-2 gap-1">
                 {ALGS.map((a) => (
                   <button
                     key={a.value}
                     title={a.hint}
                     onClick={() => setAlg(a.value)}
-                    className={cx("h-9 rounded-[2px] border font-mono text-2xs uppercase tracking-[0.08em]", alg === a.value ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1 hover:border-line-3")}
+                    className={cx("h-9 rounded-xs border eyebrow text-2xs", alg === a.value ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1 hover:border-line-3")}
                   >
                     {a.label}
                   </button>
@@ -138,11 +138,11 @@ function Lab({ config: c, onObserve, locked, mode, scene }: WidgetProps<LbConfig
               </div>
             </div>
             <div>
-              <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">health checks</div>
+              <div className="mb-1.5 eyebrow text-2xs text-ink-2">health checks</div>
               <Segmented size="sm" label="Health checks" value={hc} onChange={setHc} options={HCS} />
             </div>
             <label className="flex items-center gap-2 text-sm text-ink-1">
-              <input type="checkbox" checked={outlier} onChange={(e) => setOutlier(e.target.checked)} className="h-4 w-4 accent-[#ffb547]" />
+              <input type="checkbox" checked={outlier} onChange={(e) => setOutlier(e.target.checked)} className="h-4 w-4 accent-[#e8b77d]" />
               Passive ejection (5 straight errors)
             </label>
             <Slider label="traffic" value={rps} min={40} max={320} step={10} onChange={setRps} format={(v) => `${v} req/s`} />
@@ -169,17 +169,17 @@ function Lab({ config: c, onObserve, locked, mode, scene }: WidgetProps<LbConfig
                     <td className="px-1 py-1 text-right">
                       <div className={cx("inline-flex gap-1", locked && "pointer-events-none opacity-40")}>
                         {st !== "slow" && (
-                          <button onClick={() => setServer(s.id, "slow")} className="rounded-[2px] border border-amber-3 px-1.5 py-0.5 text-amber hover:bg-amber-dim">
+                          <button onClick={() => setServer(s.id, "slow")} className="rounded-xs border border-amber-3 px-1.5 py-0.5 text-amber hover:bg-amber-dim">
                             slow
                           </button>
                         )}
                         {st !== "dead" && (
-                          <button onClick={() => setServer(s.id, "dead")} className="rounded-[2px] border border-alert-3 px-1.5 py-0.5 text-alert hover:bg-alert-dim">
+                          <button onClick={() => setServer(s.id, "dead")} className="rounded-xs border border-alert-3 px-1.5 py-0.5 text-alert hover:bg-alert-dim">
                             kill
                           </button>
                         )}
                         {st !== "ok" && (
-                          <button onClick={() => setServer(s.id, "ok")} className="rounded-[2px] border border-phos-3 px-1.5 py-0.5 text-phos hover:bg-phos-dim">
+                          <button onClick={() => setServer(s.id, "ok")} className="rounded-xs border border-phos-3 px-1.5 py-0.5 text-phos hover:bg-phos-dim">
                             heal
                           </button>
                         )}
@@ -229,21 +229,21 @@ function Noisy({ config: c, onResult, verdict, locked, conditions }: WidgetProps
                   key={a.value}
                   title={a.hint}
                   onClick={() => setAlg(a.value)}
-                  className={cx("h-9 rounded-[2px] border font-mono text-2xs uppercase tracking-[0.08em]", alg === a.value ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1 hover:border-line-3")}
+                  className={cx("h-9 rounded-xs border eyebrow text-2xs", alg === a.value ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1 hover:border-line-3")}
                 >
                   {a.label}
                 </button>
               ))}
             </div>
             <div>
-              <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">health checks</div>
+              <div className="mb-1.5 eyebrow text-2xs text-ink-2">health checks</div>
               <Segmented size="sm" label="Health checks" value={hc} onChange={setHc} options={HCS} />
             </div>
             <label className="flex items-center gap-2 text-sm text-ink-1">
-              <input type="checkbox" checked={outlier} onChange={(e) => setOutlier(e.target.checked)} className="h-4 w-4 accent-[#ffb547]" />
+              <input type="checkbox" checked={outlier} onChange={(e) => setOutlier(e.target.checked)} className="h-4 w-4 accent-[#e8b77d]" />
               Passive ejection (5 straight errors)
             </label>
-            <div className="font-mono text-[10px] text-ink-3">
+            <div className="font-mono text-[11px] text-ink-3">
               {c.count} × {c.instance} · {c.rps} req/s · no client retries
             </div>
           </div>

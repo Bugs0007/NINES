@@ -22,7 +22,7 @@ export interface Pin {
 
 export function PinButton({ pinned, onPin }: { pinned: boolean; onPin: () => void }) {
   return (
-    <button onClick={onPin} aria-pressed={pinned} title={pinned ? "Pinned to the evidence board" : "Pin as evidence"} className={cx("shrink-0 rounded-[2px] px-1 font-mono text-[10px]", pinned ? "bg-amber text-bg-0" : "text-ink-3 hover:text-amber")}>
+    <button onClick={onPin} aria-pressed={pinned} title={pinned ? "Pinned to the evidence board" : "Pin as evidence"} className={cx("shrink-0 rounded-xs px-1 font-mono text-[11px]", pinned ? "bg-amber text-bg-0" : "text-ink-3 hover:text-amber")}>
       {pinned ? "PINNED" : "PIN"}
     </button>
   );
@@ -154,13 +154,13 @@ export function Logs({ lines, pins, pin, clock0 }: { lines: LogLine[]; pins: Pin
           <option value="all">all levels</option>
           <option value="WARN+">warn+</option>
         </select>
-        <span className="font-mono text-[10px] text-ink-3">{shown.length} lines</span>
+        <span className="font-mono text-[11px] text-ink-3">{shown.length} lines</span>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto rounded-sm border border-line bg-bg-0 p-1 font-mono text-[11px] leading-relaxed" role="log" aria-label="Logs">
         {shown.map((l, i) => {
           const key = `log:${l.t.toFixed(2)}:${l.host}:${l.text.slice(0, 40)}`;
           return (
-            <div key={`${key}-${i}`} className="group flex items-start gap-2 rounded-[2px] px-1 py-0.5 hover:bg-bg-2">
+            <div key={`${key}-${i}`} className="group flex items-start gap-2 rounded-xs px-1 py-0.5 hover:bg-bg-2">
               <span className="shrink-0 text-ink-3">{clockAt(l.t, clock0)}</span>
               <span className="w-12 shrink-0 text-ink-2">{l.host}</span>
               <span className={cx("w-10 shrink-0", l.level === "ERROR" || l.level === "CRIT" ? "text-alert" : l.level === "WARN" ? "text-amber" : "text-ink-3")}>{l.level}</span>
@@ -188,7 +188,7 @@ function highlight(text: string, q: string): ReactNode {
   return (
     <>
       {text.slice(0, i)}
-      <mark className="rounded-[1px] bg-amber/40 text-ink-0">{text.slice(i, i + s.length)}</mark>
+      <mark className="rounded-xs bg-amber/40 text-ink-0">{text.slice(i, i + s.length)}</mark>
       {text.slice(i + s.length)}
     </>
   );
@@ -212,14 +212,14 @@ export function Hosts({ inc, state, pins, pin }: { inc: Incident; state: Inciden
     <div className="flex h-full min-h-[420px] flex-col gap-2">
       <div className="flex flex-wrap gap-1" role="tablist" aria-label="Host">
         {inc.hosts.map((h) => (
-          <button key={h} role="tab" aria-selected={host === h} onClick={() => setHost(h)} className={cx("h-8 rounded-[2px] border px-3 font-mono text-2xs uppercase", host === h ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1 hover:border-line-3")}>
+          <button key={h} role="tab" aria-selected={host === h} onClick={() => setHost(h)} className={cx("h-8 rounded-xs border px-3 eyebrow text-2xs", host === h ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1 hover:border-line-3")}>
             {h}
           </button>
         ))}
       </div>
       <div className="flex flex-wrap gap-1">
         {inc.commands.map((c) => (
-          <button key={c.cmd} onClick={() => run(c.cmd)} title={c.describe} className="rounded-[2px] border border-line-2 bg-bg-2 px-2 py-1 font-mono text-[10px] text-ink-1 hover:border-amber hover:text-amber">
+          <button key={c.cmd} onClick={() => run(c.cmd)} title={c.describe} className="rounded-xs border border-line-2 bg-bg-2 px-2 py-1 font-mono text-[11px] text-ink-1 hover:border-amber hover:text-amber">
             {c.cmd.length > 34 ? `${c.cmd.slice(0, 32)}…` : c.cmd}
           </button>
         ))}
@@ -268,7 +268,7 @@ export function Traces({ traces, pins, pin }: { traces: Trace[]; pins: Pin[]; pi
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap gap-1">
         {traces.map((x) => (
-          <button key={x.id} onClick={() => setSel(x.id)} className={cx("rounded-[2px] border px-2.5 py-1.5 text-left font-mono text-2xs", sel === x.id ? "border-amber bg-amber-dim/50 text-ink-0" : "border-line-2 text-ink-1")}>
+          <button key={x.id} onClick={() => setSel(x.id)} className={cx("rounded-xs border px-2.5 py-1.5 text-left font-mono text-2xs", sel === x.id ? "border-amber bg-amber-dim/50 text-ink-0" : "border-line-2 text-ink-1")}>
             <span className={x.status >= 500 ? "text-alert" : "text-phos"}>{x.status}</span> {x.title}
           </button>
         ))}
@@ -281,9 +281,9 @@ export function Traces({ traces, pins, pin }: { traces: Trace[]; pins: Pin[]; pi
                 {s.name}
               </div>
               <div className="relative h-4 flex-1 bg-bg-0">
-                <div className={cx("absolute inset-y-0.5 rounded-[1px]", color[s.kind])} style={{ left: `${(s.start / total) * 100}%`, width: `${Math.max(0.5, (s.ms / total) * 100)}%` }} />
+                <div className={cx("absolute inset-y-0.5 rounded-xs", color[s.kind])} style={{ left: `${(s.start / total) * 100}%`, width: `${Math.max(0.5, (s.ms / total) * 100)}%` }} />
               </div>
-              <div className="w-16 text-right font-mono text-[10px] tabular text-ink-2">{fmtLatency(s.ms / 1000)}</div>
+              <div className="w-16 text-right font-mono text-[11px] tabular text-ink-2">{fmtLatency(s.ms / 1000)}</div>
             </div>
           ))}
         </div>

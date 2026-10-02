@@ -23,7 +23,7 @@ export function CastLine({ line, className, typewriter = true, compact = false }
         {who.glyph}
       </div>
       <div className="min-w-0">
-        <div className="font-mono text-2xs uppercase tracking-[0.12em] text-ink-2">
+        <div className="eyebrow text-2xs text-ink-2">
           {who.name} <span className="text-ink-3">· {who.role}</span>
         </div>
         <p className={cx("text-ink-0", compact ? "text-sm" : "text-[15px] leading-snug")}>{typewriter ? <Typewriter text={line.line} /> : line.line}</p>

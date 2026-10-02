@@ -98,7 +98,7 @@ export function MetricStrip({
     <div className={cx("grid gap-px overflow-hidden rounded-sm border border-line bg-line", className)} style={{ gridTemplateColumns: `repeat(${keys.length}, minmax(0, 1fr))` }}>
       {tiles.map((t) => (
         <div key={t.k} className={cx("relative min-w-0 bg-bg-1 px-2 py-1.5", "bad" in t && t.bad && "bg-alert-dim/60")}>
-          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-2">{t.label}</div>
+          <div className="eyebrow text-[11px] text-ink-2">{t.label}</div>
           <div className={cx("font-mono text-sm tabular sm:text-base", t.tone === "alert" ? "text-alert glow-alert" : t.tone === "amber" ? "text-amber" : t.tone === "phos" ? "text-phos" : "text-ink-0")}>{t.value}</div>
           <Sparkline
             values={t.series}
@@ -224,7 +224,7 @@ export function SimStage({
         </div>
         {showHonest && honestPhysics && honestPhysics.length > 0 && (
           <details ref={hpOpen} className="absolute bottom-2 right-2 max-w-[min(360px,80%)] text-right">
-            <summary className="cursor-pointer list-none font-mono text-2xs uppercase tracking-[0.12em] text-ink-2 hover:text-amber">Honest physics</summary>
+            <summary className="cursor-pointer list-none eyebrow text-2xs text-ink-2 hover:text-amber">Honest physics</summary>
             <ul className="mt-1 space-y-1 rounded-sm border border-line-2 bg-bg-1/95 p-2 text-left text-xs text-ink-1">
               {honestPhysics.map((h, i) => (
                 <li key={i}>· {h}</li>

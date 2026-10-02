@@ -3,29 +3,21 @@ import localFont from "next/font/local";
 import { Shell } from "@/ui/Shell";
 import "./globals.css";
 
-// Self-hosted (OFL) so builds and the PWA work offline. See DECISIONS D-011.
+// Self-hosted (OFL) so builds and the PWA work offline. See DECISIONS D-011 and D-018.
+// Fraunces (variable: opsz, wght, SOFT, WONK) for headings and big readouts; Figtree for the interface.
 const display = localFont({
   src: [
-    { path: "../fonts/big-shoulders-display-latin-700-normal.woff2", weight: "700" },
-    { path: "../fonts/big-shoulders-display-latin-800-normal.woff2", weight: "800" },
-    { path: "../fonts/big-shoulders-display-latin-900-normal.woff2", weight: "900" },
+    { path: "../fonts/fraunces-latin-full-normal.woff2", weight: "300 900", style: "normal" },
+    { path: "../fonts/fraunces-latin-full-italic.woff2", weight: "300 900", style: "italic" },
   ],
   variable: "--font-display-face",
   display: "swap",
 });
 
-const stencil = localFont({
-  src: [{ path: "../fonts/big-shoulders-stencil-display-latin-800-normal.woff2", weight: "800" }],
-  variable: "--font-stencil-face",
-  display: "swap",
-});
-
 const sans = localFont({
   src: [
-    { path: "../fonts/ibm-plex-sans-latin-400-normal.woff2", weight: "400", style: "normal" },
-    { path: "../fonts/ibm-plex-sans-latin-400-italic.woff2", weight: "400", style: "italic" },
-    { path: "../fonts/ibm-plex-sans-latin-500-normal.woff2", weight: "500", style: "normal" },
-    { path: "../fonts/ibm-plex-sans-latin-600-normal.woff2", weight: "600", style: "normal" },
+    { path: "../fonts/figtree-latin-wght-normal.woff2", weight: "300 900", style: "normal" },
+    { path: "../fonts/figtree-latin-wght-italic.woff2", weight: "300 900", style: "italic" },
   ],
   variable: "--font-sans-face",
   display: "swap",
@@ -49,7 +41,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#04070a",
+  themeColor: "#0f1519",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -57,8 +49,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${display.variable} ${stencil.variable} ${sans.variable} ${mono.variable}`} data-reduced-motion="system">
-      <body className="crt">
+    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`} data-reduced-motion="system">
+      <body className="dusk">
         <Shell>{children}</Shell>
       </body>
     </html>
