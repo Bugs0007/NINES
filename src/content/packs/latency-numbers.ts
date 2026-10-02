@@ -1,16 +1,17 @@
 import { definePack, SRC } from "../define";
 
-const FIBER = { id: "fiber-speed", title: "Optical fiber: light travels at roughly c/1.47 (about 200,000 km/s) in glass", url: "https://en.wikipedia.org/wiki/Optical_fiber#Index_of_refraction" };
+const FIBER = { id: "fiber-speed", title: "Optical fiber: light travels at roughly c/1.47 (about 200,000 km/s) in glass", url: "https://en.wikipedia.org/wiki/Optical_fiber#Refractive_index" };
 const RFC8446 = { id: "rfc8446", title: "RFC 8446: TLS 1.3 (full handshake in one round trip)", url: "https://www.rfc-editor.org/rfc/rfc8446" };
+const VERIZON = { id: "verizon-latency", title: "Verizon Business: IP latency statistics (monthly round-trip averages)", url: "https://www.verizon.com/business/terms/latency/" };
 
 const ITEMS = [
   { id: "l1", label: "L1 cache hit", ns: 1 },
   { id: "mutex", label: "Mutex lock/unlock", ns: 25 },
   { id: "ram", label: "Main memory read", ns: 100 },
-  { id: "ssd", label: "SSD random read", ns: 50_000 },
+  { id: "ssd", label: "Local SSD random read", ns: 50_000 },
   { id: "dc", label: "Datacenter round trip", ns: 500_000 },
   { id: "disk", label: "Spinning-disk seek", ns: 8_000_000 },
-  { id: "ocean", label: "US → Europe → US packet", ns: 150_000_000 },
+  { id: "ocean", label: "California → Netherlands → California packet", ns: 150_000_000 },
 ];
 
 const LADDER = { items: ITEMS, scaleRef: "l1", predictionId: "order", raceSeconds: 7 };
@@ -23,17 +24,17 @@ export const BUDGET = {
     { id: "session", label: "Session lookup (Redis, same AZ)", ms: 0.6, kind: "cache" },
     { id: "nplus1", label: "41 sequential Postgres queries (N+1)", ms: 45, kind: "db" },
     { id: "avatar", label: "Avatar from S3 bucket in us-east-1", ms: 230, kind: "net" },
-    { id: "recs", label: "Recs API in Virginia, fresh HTTPS each call ×3", ms: 570, kind: "net" },
+    { id: "recs", label: "Recs API, Virginia: 3 round trips per call (new TCP + TLS + GET)", ms: 570, kind: "net" },
     { id: "render", label: "Template render (CPU)", ms: 25, kind: "cpu" },
   ],
   fixes: [
-    { id: "join", label: "Batch the N+1 into one JOIN", days: 1, detail: "select_related / prefetch_related: 41 round trips become 1.", set: { nplus1: 3 } },
+    { id: "join", label: "Batch the N+1 into one JOIN", days: 1, detail: "select_related (one JOIN) or prefetch_related (one extra query): 41 round trips become 1 or 2.", set: { nplus1: 3 } },
     { id: "cdn", label: "Serve avatars from ap-south-1 via CloudFront", days: 1, detail: "Copy the bucket to Mumbai and put a CDN in front.", set: { avatar: 15 } },
-    { id: "keepalive", label: "Reuse one HTTPS connection to the recs API", days: 0.5, detail: "A pooled session skips the TCP and TLS handshakes after the first call.", set: { recs: 190 }, conflicts: ["async"] },
+    { id: "keepalive", label: "Reuse one HTTPS connection to the recs API", days: 0.5, detail: "A warm pooled connection skips the TCP and TLS handshakes: one round trip instead of three.", set: { recs: 190 }, conflicts: ["async"] },
     { id: "async", label: "Take recs off the critical path", days: 1, detail: "Render the page, then fetch recommendations from the browser.", remove: ["recs"], conflicts: ["keepalive"] },
     { id: "parallel", label: "Fetch avatar and recs in parallel", days: 0.5, detail: "Two independent calls, so wait for the slower one only.", parallel: ["avatar", "recs"] },
-    { id: "bigger", label: "Upgrade to a bigger EC2 instance", days: 0, detail: "Twice the vCPUs. The CFO will have questions.", set: { render: 20 } },
-    { id: "index", label: "Add an index on users.handle", days: 0.5, detail: "The lookup already uses the primary key index.", set: {} },
+    { id: "bigger", label: "Upgrade to a bigger EC2 instance", days: 0, detail: "Twice the vCPUs at the same per-core speed, so one request renders no faster. The CFO will have questions.", set: {} },
+    { id: "index", label: "Add an index on users.handle", days: 0.5, detail: "handle is already UNIQUE, so Postgres already has an index on it.", set: {} },
     { id: "recs-mumbai", label: "Deploy a recs replica in Mumbai", days: 4, detail: "Same API, same region as the app. A big project.", set: { recs: 6 } },
   ],
 };
@@ -76,12 +77,12 @@ export default definePack({
     {
       id: "span",
       scene: "race",
-      text: "Latency spans nine orders of magnitude. A human can't feel the difference between a nanosecond and a microsecond, so we reason about it wrong. The fix is to rescale everything to a clock we understand.",
+      text: "Latency in this ladder spans eight orders of magnitude. A human can't feel the difference between a nanosecond and a microsecond, so we reason about it wrong. The fix is to rescale everything to a clock we understand.",
     },
     {
       id: "human",
       scene: "human-scale",
-      text: "If an L1 cache hit took one second, a RAM read would take under two minutes, an SSD read about fourteen hours, a datacenter round trip almost six days, and one trip to Europe and back nearly five years.",
+      text: "If an L1 cache hit took one second, a RAM read would take under two minutes, an SSD read about fourteen hours, a datacenter round trip almost six days, and one California–Netherlands round trip nearly five years.",
       sourceIds: ["norvig-21-days", "dean-ladis-2009", "gregg-sysperf"],
       derived: true,
     },
@@ -127,7 +128,7 @@ export default definePack({
       { id: "fix", criterion: "Fix by removing, batching, parallelizing, or moving round trips closer, not by adding CPU", keyIdea: "remove round trips" },
     ],
     exemplar:
-      "A page that takes 900ms is almost never CPU-bound: one datacenter round trip is thousands of memory reads, and a cross-region call is hundreds of those. I'd open the trace and count round trips: N+1 queries, calls to other regions, fresh TLS handshakes. Then remove, batch, parallelize, or move those closer to the user; a bigger instance only speeds up the small CPU bar.",
+      "A page that takes 900ms is almost never CPU-bound: one datacenter round trip is thousands of memory reads, and a call across an ocean is hundreds of those. I'd open the trace and count round trips: N+1 queries, calls to other regions, fresh TLS handshakes. Then remove, batch, parallelize, or move those closer to the user; a bigger instance adds capacity, not per-request speed.",
   },
   reviews: [
     {
@@ -137,11 +138,11 @@ export default definePack({
       items: [
         { id: "ram", label: "Read a value from RAM" },
         { id: "redis", label: "Redis GET in the same AZ" },
-        { id: "ssd", label: "SSD random read" },
-        { id: "xregion", label: "Postgres query to another region" },
+        { id: "ssd", label: "Random read from a local NVMe SSD" },
+        { id: "xregion", label: "Postgres query to a region across an ocean" },
       ],
       answer: ["ram", "ssd", "redis", "xregion"],
-      explain: "~100ns, tens of µs, ~0.5ms (a network round trip), and 100ms+ (an ocean). The same-AZ Redis call is slower than a local SSD read because it crosses the network.",
+      explain: "~100ns, tens of µs, ~0.5ms (a network round trip), and 100ms+ (an ocean). The same-AZ Redis call is slower than a local NVMe read because it crosses the network. On EC2 the default disk is EBS, which also crosses the network: expect roughly 0.5 ms to a few ms per read.",
     },
     {
       id: "ln-est-nplus1",
@@ -156,7 +157,7 @@ export default definePack({
     {
       id: "ln-est-human",
       format: "estimate",
-      scenario: "Human scale: if a 100ns RAM read took one second, how many days would a 150ms transatlantic round trip take?",
+      scenario: "Human scale: if a 100ns RAM read took one second, how many days would a 150 ms California–Netherlands round trip take?",
       unit: "days",
       answer: 17.4,
       acceptFactor: 1.5,
@@ -166,7 +167,7 @@ export default definePack({
     {
       id: "ln-pick-tls",
       format: "pick-fix",
-      scenario: "A Django view in Mumbai calls an API in Virginia three times per request, opening a new HTTPS connection each time. p50 is 700ms. Best first fix?",
+      scenario: "A Django view in Mumbai calls an API in Virginia three times in sequence per request, opening a new HTTPS connection each time. p50 is 1.8 s. Best first fix?",
       options: [
         { id: "a", label: "Move to an instance with more vCPUs" },
         { id: "b", label: "Reuse one connection and batch the three calls into one" },
@@ -174,9 +175,9 @@ export default definePack({
         { id: "d", label: "Turn on gzip" },
       ],
       answer: "b",
-      explain: "Each fresh HTTPS connection pays TCP and TLS handshakes before the request itself, and each costs a cross-ocean round trip. Reusing the connection and batching removes most of those trips.",
+      explain: "Each fresh HTTPS connection pays TCP and TLS handshakes before the request itself, and each costs a cross-ocean round trip. Reusing one warm connection and batching turns nine cross-ocean round trips into one.",
       why: {
-        prompt: "What dominates the 700ms?",
+        prompt: "What dominates the 1.8 s?",
         options: [
           { id: "a", label: "Cross-region round trips, including handshakes" },
           { id: "b", label: "Python CPU time" },
@@ -229,19 +230,20 @@ export default definePack({
         { id: "gap", criterion: "Network round trips cost orders of magnitude more than in-memory work" },
         { id: "dominate", criterion: "So a few round trips dominate total latency; shaving CPU barely moves it" },
       ],
-      exemplar: "A single datacenter round trip costs as much as thousands of memory reads, and a cross-region one hundreds of those. A request's time is mostly spent waiting on the network, so removing one round trip saves more than any code optimization.",
+      exemplar: "A single datacenter round trip costs as much as thousands of memory reads, and a round trip across an ocean hundreds of those. A request's time is mostly spent waiting on the network, so removing one round trip saves more than any code optimization.",
       explain: "Profile first. The waterfall almost always shows network and I/O as the big bars.",
     },
   ],
   codex: {
-    oneLiner: "Latency spans nine orders of magnitude; in backend work, network round trips dwarf everything the CPU does.",
+    oneLiner: "Latency spans eight orders of magnitude; in backend work, network round trips dwarf everything the CPU does.",
     keyNumbers: [
       { label: "L1 cache hit", value: "≈ 0.5–1 ns", sourceId: "norvig-21-days" },
       { label: "Main memory read", value: "≈ 100 ns", sourceId: "norvig-21-days" },
       { label: "SSD I/O", value: "≈ 10–100 µs", sourceId: "gregg-sysperf" },
       { label: "Datacenter round trip", value: "≈ 500 µs", sourceId: "dean-ladis-2009" },
       { label: "Disk seek", value: "≈ 8 ms", sourceId: "norvig-21-days" },
-      { label: "US ↔ Europe round trip", value: "≈ 150 ms", sourceId: "norvig-21-days" },
+      { label: "California ↔ Netherlands round trip", value: "≈ 150 ms", sourceId: "dean-ladis-2009" },
+      { label: "New York ↔ London round trip", value: "≈ 70 ms", sourceId: "verizon-latency" },
       { label: "Feels instantaneous", value: "≤ 100 ms", sourceId: "nielsen-response" },
       { label: "Light in fiber", value: "≈ 200 km / ms", sourceId: "fiber-speed" },
       { label: "TLS 1.3 full handshake", value: "1 round trip", sourceId: "rfc8446" },
@@ -289,8 +291,9 @@ export default definePack({
   honestPhysics: [
     "The ladder uses representative values from published tables; your hardware and cloud will differ, sometimes by 10×.",
     "The profile trace is a scenario, not a measurement of a real app; its shape is typical of what an APM waterfall shows.",
+    "SSD numbers are local NVMe. On EC2 the default disk is EBS, a network block device, so a read costs about 0.5 ms to a few ms. The 500 µs datacenter round trip is Dean's 2009 figure; same-AZ on AWS is usually lower and cross-AZ is about 1 ms.",
   ],
-  sources: [SRC.norvig, SRC.deanLadis, SRC.gregg, SRC.nielsen, FIBER, RFC8446],
+  sources: [SRC.norvig, SRC.deanLadis, SRC.gregg, SRC.nielsen, FIBER, RFC8446, VERIZON],
   verify: [
     { id: "untouched", claim: "The untouched page is near one second", run: "budget-total", params: { config: BUDGET, fixes: [] }, expect: { min: 800, max: 950 } },
     { id: "two-days", claim: "Moving recs off the path and fixing avatars (2 days) beats 200ms", run: "budget-total", params: { config: BUDGET, fixes: ["async", "cdn"] }, expect: { max: 199 } },

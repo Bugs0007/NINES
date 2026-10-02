@@ -5,9 +5,11 @@ export const DIET = { title: "order-update prompt", requestsPerDay: 200000, usdP
 
 const SRC = {
   sennrich: { id: "sennrich-2016", title: "R. Sennrich, B. Haddow, A. Birch (2016), Neural Machine Translation of Rare Words with Subword Units (BPE), ACL", url: "https://aclanthology.org/P16-1162/" },
-  anthropicTokens: { id: "anthropic-token-counting", title: "Anthropic docs: Token counting (count tokens before sending a message)", url: "https://docs.claude.com/en/docs/build-with-claude/token-counting" },
-  anthropicPricing: { id: "anthropic-pricing", title: "Anthropic: Claude API pricing (input and output priced separately)", url: "https://www.anthropic.com/pricing#api" },
+  anthropicTokens: { id: "anthropic-token-counting", title: "Anthropic docs: Token counting (count tokens before sending a message)", url: "https://platform.claude.com/docs/en/build-with-claude/token-counting" },
+  anthropicPricing: { id: "anthropic-pricing", title: "Anthropic: Claude API pricing (input and output priced separately)", url: "https://platform.claude.com/docs/en/about-claude/pricing" },
   gptTokenizer: { id: "gpt-tokenizer", title: "gpt-tokenizer (o200k_base BPE, used here as an offline proxy)", url: "https://github.com/niieani/gpt-tokenizer" },
+  radford: { id: "radford-2019", title: "A. Radford et al. (2019), Language Models are Unsupervised Multitask Learners (GPT-2; byte-level BPE)", url: "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" },
+  petrov: { id: "petrov-2023", title: "A. Petrov, E. La Malfa, P. Torr, A. Bibi (2023), Language Model Tokenizers Introduce Unfairness Between Languages, NeurIPS", url: "https://arxiv.org/abs/2305.15425" },
 };
 
 export default definePack({
@@ -27,7 +29,7 @@ export default definePack({
     {
       id: "script",
       kind: "choice",
-      prompt: "'Your order has been delivered. Enjoy your meal!' is 10 tokens. The same message in Telugu has a similar number of characters. How many tokens does it take?",
+      prompt: "With the o200k tokenizer used here, 'Your order has been delivered. Enjoy your meal!' is 10 tokens. The same message in Telugu has a similar number of characters. How many tokens does it take?",
       options: [
         { id: "same", label: "About the same, ~10" },
         { id: "x2", label: "Roughly 2 to 3 times as many" },
@@ -37,8 +39,9 @@ export default definePack({
       answer: "x2",
       observe: "script-gap",
       reveal: {
-        text: "24 tokens with this tokenizer, 2.4× the English. The vocabulary was learned mostly from English, so Telugu words split into smaller pieces. Same meaning, more tokens, higher bill, and less of it fits in the context window.",
+        text: "24 tokens, 2.4× the English. The vocabulary saw far less Telugu, so its words split into smaller pieces: same meaning, higher bill, less room in the context window. GPT-4's older cl100k vocabulary needs 96 tokens for the same sentence, so the premium depends on the tokenizer as much as the language.",
         derived: true,
+        sourceIds: ["gpt-tokenizer"],
         line: { speaker: "meera", line: "Half of Pigeon's users read Telugu or Hindi. Budget for it." },
       },
     },
@@ -54,7 +57,7 @@ export default definePack({
       answer: "json",
       observe: "json-dense",
       reveal: {
-        text: "The JSON: 34 tokens for 74 characters, about twice as dense as prose. Quotes, braces, colons, and numbers each split into their own pieces. Every tool call and structured payload you send is paying this tax.",
+        text: "The JSON: 34 tokens for 74 characters, about twice as dense as prose. Every key and value boundary costs a punctuation token like {\" or \":, and numbers split into chunks of up to three digits. Every tool call and structured payload you send pays this tax.",
         derived: true,
       },
     },
@@ -77,12 +80,12 @@ export default definePack({
       id: "scripts",
       scene: "scripts",
       text: "The same meaning can cost very different amounts. Telugu and Hindi take more tokens than English here, and JSON is denser than prose. Tokenizers differ between model families, so measure with the model you'll actually call.",
-      sourceIds: ["gpt-tokenizer"],
+      sourceIds: ["gpt-tokenizer", "petrov-2023"],
     },
     {
       id: "strawberry",
       scene: "strawberry",
-      text: "Tokenization is also why models fumble spelling and letter-counting: 'strawberry' arrives as three chunks, not ten letters. The model never sees the individual r's unless it reasons them out.",
+      text: "Tokenization is also why models fumble spelling and letter-counting: on its own, 'strawberry' is three chunks here, and mid-sentence ' strawberry' is a single token. The model sees individual letters only if it spells the word out first.",
       derived: true,
     },
   ],
@@ -96,7 +99,6 @@ export default definePack({
       conditions: [
         { metric: "tokens", op: "<=", value: 350, label: "Under 350 tokens" },
         { metric: "factsKept", op: ">=", value: 1, label: "Every required fact survives" },
-        { metric: "costPerMonth", op: "<=", value: 4500, label: "Under $4,500/month" },
       ],
       stars: [{ metric: "tokens", op: "<=", value: 260, label: "Under 260 tokens" }],
       hints: [
@@ -114,7 +116,7 @@ export default definePack({
       { id: "script", criterion: "Languages or formats the tokenizer handles less efficiently split into more tokens, so the same meaning costs more", keyIdea: "more pieces, more cost" },
     ],
     exemplar:
-      "A token is a chunk of text from the model's fixed vocabulary, usually a word or part of a word, and the model reads and bills in tokens, not characters. The vocabulary was learned mostly from English, so Telugu words split into more, smaller pieces. Same message, more tokens, more money and more of the context window used.",
+      "A token is a chunk of text from the model's fixed vocabulary, usually a word or part of a word, and the model reads and bills in tokens, not characters. The vocabulary saw far less Telugu than English, so Telugu words split into more, smaller pieces. Same message, more tokens, more money and more of the context window used.",
   },
   reviews: [
     {
@@ -143,14 +145,14 @@ export default definePack({
     {
       id: "tk-order",
       format: "order",
-      scenario: "Order by tokens per character with a typical BPE tokenizer, fewest first.",
+      scenario: "Order by tokens for the same delivery message with the o200k tokenizer used here, fewest first.",
       items: [
-        { id: "en", label: "English prose" },
-        { id: "te", label: "Telugu prose" },
-        { id: "json", label: "Compact JSON" },
+        { id: "en", label: "English" },
+        { id: "hi", label: "Hindi" },
+        { id: "te", label: "Telugu" },
       ],
-      answer: ["en", "json", "te"],
-      explain: "English is cheapest. JSON pays for punctuation and numbers. Telugu, underrepresented in the vocabulary, splits into the most pieces here.",
+      answer: ["en", "hi", "te"],
+      explain: "10, 18, and 24 tokens for the same meaning. Scripts that were rarer in the tokenizer's training text split into more pieces; GPT-4's older cl100k vocabulary needs 96 for the Telugu.",
     },
     {
       id: "tk-pick-count",
@@ -159,11 +161,11 @@ export default definePack({
       options: [
         { id: "a", label: "Divide the character count by 4" },
         { id: "b", label: "Call the token-counting endpoint for the model you'll use" },
-        { id: "c", label: "Count words and multiply by 0.75" },
+        { id: "c", label: "Count words and multiply by 1.3" },
         { id: "d", label: "Send it and catch the error" },
       ],
       answer: "b",
-      explain: "Rules of thumb are fine for napkin math, but tokenizers differ by model and language. The count_tokens endpoint gives the exact number for free.",
+      explain: "Rules of thumb are fine for napkin math, but tokenizers differ by model and language. The count_tokens endpoint is free and counts with the model's own tokenizer, within a few tokens of what you'll be billed.",
       why: {
         prompt: "Why isn't characters ÷ 4 good enough here?",
         options: [
@@ -204,8 +206,8 @@ export default definePack({
     oneLiner: "Models read and bill in tokens: sub-word chunks from a learned vocabulary. Different languages and formats cost different amounts.",
     keyNumbers: [
       { label: "Tokenization algorithm", value: "byte-pair encoding (subwords)", sourceId: "sennrich-2016" },
-      { label: "Claude Sonnet 5 price", value: "$2 in / $10 out per M tokens", sourceId: "anthropic-pricing" },
-      { label: "Exact counts", value: "messages.count_tokens endpoint", sourceId: "anthropic-token-counting" },
+      { label: "Claude Sonnet 5 / 5.5 price", value: "$2 in / $10 out per M tokens", sourceId: "anthropic-pricing" },
+      { label: "Model-specific counts", value: "messages.count_tokens endpoint", sourceId: "anthropic-token-counting" },
       { label: "Telugu vs English (o200k proxy)", value: "≈ 2.4× tokens", sourceId: "gpt-tokenizer" },
     ],
     tradeoffs: [
@@ -217,7 +219,7 @@ export default definePack({
       "Case Intel's legal RAG: long judgment chunks and Indian-language text inflate token counts per chunk.",
       "Every JSON tool result you've passed back to a model was billed at JSON's token density.",
     ],
-    interviewAngle: "When costing an LLM feature, show the math: tokens per request × requests per day × price, input and output separately. Then name the levers: trim context, cache the prefix, route cheap requests to a cheaper model.",
+    interviewAngle: "When costing an LLM feature, show the math: tokens per request × requests per day × price, input and output separately. Then name the levers: trim context, cache the stable prefix, shorten outputs, route easy requests to a cheaper model, and batch anything that isn't interactive at half price.",
     aws: [{ concept: "Token metering", service: "Amazon Bedrock InputTokenCount / OutputTokenCount metrics" }],
     otherClouds: "Vertex AI and Azure OpenAI report usage per request in tokens as well",
     replay: { id: "tokenizer", config: SLICER },
@@ -230,19 +232,26 @@ export default definePack({
   deeper: [
     {
       title: "How byte-pair encoding builds a vocabulary",
-      body: "Start with individual bytes. Repeatedly find the most frequent adjacent pair in the training text and merge it into a new token, until the vocabulary reaches its target size (tens to hundreds of thousands). Frequent words become single tokens; rare strings stay as several pieces. Because merges come from the training corpus, languages and formats that were rarer there end up with less efficient tokenization.",
-      sourceIds: ["sennrich-2016"],
+      body: "Start with individual characters; byte-level BPE, used by GPT-2 and later tokenizers including o200k, starts from raw bytes so any text can be encoded. Repeatedly find the most frequent adjacent pair in the training text and merge it into a new token, until the vocabulary reaches its target size (tens to hundreds of thousands). Frequent words become single tokens; rare strings stay as several pieces. Because merges come from the training corpus, languages and formats that were rarer there end up with less efficient tokenization.",
+      sourceIds: ["sennrich-2016", "radford-2019"],
     },
     {
       title: "Why we show a proxy",
-      body: "Claude's tokenizer isn't published as a library, so NINES splits text offline with o200k, a real BPE vocabulary. The mechanics are identical; the exact counts are not. With an API key, the Tokenizer Slicer also asks the count_tokens endpoint for Claude's exact number, which is what you should use for real budgets.",
+      body: "Claude's tokenizer isn't published as a library, so NINES splits text offline with o200k, a real BPE vocabulary. The mechanics are the same in kind; the exact counts are not. With an API key, the Tokenizer Slicer also asks the count_tokens endpoint for Claude's own count, which is what you should use for real budgets.",
       sourceIds: ["gpt-tokenizer", "anthropic-token-counting"],
     },
   ],
-  honestPhysics: ["Token counts here come from o200k_base, a stand-in BPE. Claude's own counts differ, often by 10–30% and more for non-English text."],
-  sources: [SRC.sennrich, SRC.anthropicTokens, SRC.anthropicPricing, SRC.gptTokenizer],
+  honestPhysics: [
+    "Token counts here come from o200k_base, a stand-in BPE; Claude's counts differ by model and by content. Claude 4.7 and later models, including Sonnet 5, use a newer tokenizer that produces about 30% more tokens than earlier models for the same text, so check real budgets with count_tokens.",
+    "The invoice and the Token Diet bill count input tokens only. Replies add roughly $2,600 a month at $10 per million output tokens, which is why reply length is a lever too.",
+    "The 2.4× Telugu premium belongs to o200k and this one sentence. Across tokenizers, the same text can take up to 15 times as many tokens in one language as in another (Petrov et al., 2023).",
+    "Prompt caching can't rescue a prompt this small: at about 250 tokens the dieted prompt is under the minimum cacheable length (1,024 tokens on Sonnet 5, 512 on Sonnet 5.5), so trimming is the lever here.",
+  ],
+  sources: [SRC.sennrich, SRC.anthropicTokens, SRC.anthropicPricing, SRC.gptTokenizer, SRC.radford, SRC.petrov],
   verify: [
     { id: "en-10", claim: "The English message is 10 tokens", run: "token-count", params: { sample: "en" }, expect: { min: 10, max: 10 } },
+    { id: "hi-18", claim: "The Hindi message is 18 tokens, between English and Telugu", run: "token-count", params: { sample: "hi" }, expect: { min: 18, max: 18 } },
+    { id: "te-cl100k", claim: "GPT-4's older cl100k vocabulary needs 96 tokens for the Telugu sentence", run: "token-count", params: { sample: "te", encoding: "cl100k" }, expect: { min: 96, max: 96 } },
     { id: "te-24", claim: "The Telugu message is about 2–3× the English", run: "token-count", params: { sample: "te" }, expect: { min: 20, max: 30 } },
     { id: "json-dense", claim: "The JSON sample is the densest per character", run: "token-density-rank", params: { sample: "json" }, expect: { min: 1, max: 1 } },
     { id: "diet-base", claim: "The prompt starts above 1,000 tokens", run: "diet-tokens", params: { flags: [] }, expect: { min: 1000 } },

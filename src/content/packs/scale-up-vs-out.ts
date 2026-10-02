@@ -64,7 +64,8 @@ export default definePack({
       answer: "a",
       observe: "killed-both",
       reveal: {
-        text: "One box is a single point of failure: when it goes, everything goes. The fleet loses a quarter of its capacity, returns 502s for a few seconds until health checks notice, then carries on at higher utilization. That's what you were paying for.",
+        text: "One box is a single point of failure: when it goes, everything goes. The fleet loses a quarter of its capacity and returns 502s on the dead box's share until health checks eject it (about 10 s here, up to a minute with ALB's default 30 s × 2), then runs hotter. That's what you were paying for.",
+        sourceIds: ["alb-health"],
         derived: true,
       },
     },
@@ -88,7 +89,7 @@ export default definePack({
     },
     {
       id: "n-1",
-      text: "Size a fleet for N−1: when one box dies at peak, the rest must carry its share without crossing into the steep part of the hockey stick. Within an EC2 family, 2× the vCPUs costs 2× the money, so the choice is about failure and headroom, not price.",
+      text: "Size a fleet for N−1: when one box dies at peak, the rest must carry its share without crossing into the steep part of the hockey stick. Within a fixed-performance family like m7i, 2× the vCPUs costs 2× the money, so the choice is about failure and headroom, not instance price.",
       sourceIds: ["aws-ec2-pricing"],
     },
   ],
@@ -222,7 +223,7 @@ export default definePack({
     keyNumbers: [
       { label: "m7i.large / xlarge / 2xlarge", value: "2 / 4 / 8 vCPU", sourceId: "aws-m7i" },
       { label: "m7i.large on-demand (us-east-1)", value: "≈ $0.10/hour", sourceId: "aws-ec2-pricing" },
-      { label: "Price per vCPU within a family", value: "linear", sourceId: "aws-ec2-pricing" },
+      { label: "Price per vCPU within m7i", value: "linear", sourceId: "aws-ec2-pricing" },
       { label: "Resize an EBS-backed instance", value: "stop → change type → start", sourceId: "aws-change-type" },
     ],
     tradeoffs: [
@@ -255,7 +256,7 @@ export default definePack({
     },
     {
       title: "N−1 arithmetic",
-      body: "With N boxes each at utilization u, losing one puts the survivors at u × N ÷ (N − 1). Two boxes at 60% become one at 120% (overloaded). Four at 60% become three at 80%. Eight at 60% become seven at about 69%. More boxes make the same headroom go further, which is why a slightly larger fleet of smaller instances is often cheaper to run safely.",
+      body: "With N boxes each at utilization u, losing one puts the survivors at u × N ÷ (N − 1). Two boxes at 60% become one at 120% (overloaded). Four at 60% become three at 80%. Eight at 60% become seven at about 69%. More boxes make the same headroom go further, which is why a slightly larger fleet of smaller instances is often cheaper to run safely. Count failure domains, not just boxes: six boxes across three AZs lose two at once when an AZ goes, so the survivors run at u × 3 ÷ 2.",
       derived: true,
     },
     {
@@ -266,8 +267,11 @@ export default definePack({
   honestPhysics: [
     "Every request is CPU-bound in this lab, so vCPUs are the only resource that matters. Real apps also run out of memory, connections, and I/O.",
     "Boot time for a replacement box is not modelled in the challenge: the dead box stays dead.",
+    "Health checks here fire every 5 seconds and eject after two failures. ALB's default is 30 s × 2, so real ejection takes 30 to 60 seconds.",
+    "The ALB charge assumes a steady 2 LCUs. LCUs bill on the busiest dimension each hour, and heavy responses (1 GB/hour per LCU) raise it.",
+    "vCPUs are hyperthreads, not full cores: an m7i.large is one physical core with two threads.",
   ],
-  sources: [SRC.awsEc2Pricing, SRC.awsResize, AWS_M7I],
+  sources: [SRC.awsEc2Pricing, SRC.awsResize, AWS_M7I, SRC.albHealth],
   verify: [
     { id: "pool-big", claim: "At 80% busy, the big box's p99 is about 70ms", run: "scale-compare", params: { config: COMPARE, load: 0.8, side: "big", metric: "p99" }, expect: { max: 0.075 } },
     { id: "pool-small", claim: "At 80% busy, four small boxes' p99 is about 30% worse", run: "scale-compare", params: { config: COMPARE, load: 0.8, side: "small", metric: "p99" }, expect: { min: 0.085 } },

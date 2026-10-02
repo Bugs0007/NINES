@@ -25,6 +25,7 @@ export const CAPACITY = {
 
 const KINGMAN = { id: "kingman-1961", title: "J.F.C. Kingman (1961), The single server queue in heavy traffic, Proc. Cambridge Philosophical Society 57(4)", url: "https://doi.org/10.1017/S0305004100036094" };
 const AWS_TT = { id: "aws-target-tracking", title: "AWS docs: Target tracking scaling policies for Amazon EC2 Auto Scaling", url: "https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-target-tracking.html" };
+const AWS_T3 = { id: "aws-t3-unlimited", title: "AWS docs: Unlimited mode for burstable performance instances (T3 launches in unlimited mode by default)", url: "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/burstable-performance-instances-unlimited-mode-concepts.html" };
 
 export default definePack({
   id: "queueing-utilization",
@@ -69,7 +70,7 @@ export default definePack({
     {
       id: "formula",
       scene: "curve",
-      text: "For one server with random arrivals and service times, average time in system is S ÷ (1 − ρ). At 50% busy that's 2× the service time. At 80%, 5×. At 90%, 10×. At 99%, 100×.",
+      text: "For one server with random (Poisson) arrivals and exponentially distributed service times, the M/M/1 model, average time in system is S ÷ (1 − ρ). At 50% busy that's 2× the service time. At 80%, 5×. At 90%, 10×. At 99%, 100×.",
       sourceIds: ["harchol-balter"],
     },
     {
@@ -232,7 +233,7 @@ export default definePack({
       { choice: "Shed load when the queue grows", gain: "Protects latency for the requests you accept", cost: "Some users get fast errors instead of slow successes" },
     ],
     seenIn: [
-      "Case Intel's t3.micro fan-out: once CPU credits ran out, capacity dropped to the baseline and the box sat at 100% with a growing queue.",
+      "Case Intel's t3.micro that went unreachable during the fan-out: one suspect is CPU credits. In standard credit mode an empty balance drops the box to its 10% baseline and the queue grows without limit; in T3's default unlimited mode it keeps bursting and bills for it instead.",
       "Every Postgres that is fine at noon and crawling at month-end is sitting on the steep part of this curve.",
     ],
     interviewAngle: "Say your utilization target out loud when sizing: 'I'll plan for roughly 60 to 70% at peak because latency goes nonlinear past that.' Then back it with ρ/(1−ρ).",
@@ -256,7 +257,7 @@ export default definePack({
     },
     {
       title: "Variance: Kingman's formula",
-      body: "Real traffic isn't exponential. For a single server with general arrivals and service (G/G/1) in heavy traffic, the average wait is roughly ρ/(1 − ρ) × (Ca² + Cs²)/2 × S, where Ca and Cs are the coefficients of variation of inter-arrival and service times. Bursty clients (high Ca) and occasional slow requests (high Cs) multiply the wait. Cutting variance, for example by fixing the slow query, moves you down the curve as effectively as adding servers.",
+      body: "Real traffic isn't exponential. For a single server with general arrivals and service (G/G/1) in heavy traffic, the average wait is roughly ρ/(1 − ρ) × (Ca² + Cs²)/2 × S, where Ca and Cs are the coefficients of variation of inter-arrival and service times. Bursty clients (high Ca) and occasional slow requests (high Cs) multiply the wait. Cutting variance (fixing the one slow query, smoothing bursty clients) lowers the whole curve without changing ρ, and it is often cheaper than adding servers.",
       sourceIds: ["kingman-1961"],
     },
     {
@@ -271,8 +272,11 @@ export default definePack({
   ],
   honestPhysics: [
     "The play box has exponential service times, which matches the M/M/1 curve drawn behind it. The challenge uses a heavier-tailed lognormal, closer to real request timings.",
+    "A cloud vCPU is a hyperthread: m7i.large is one physical core with two threads, so two CPU-bound workers get well under 2× one core.",
+    "The challenge prices vCPUs one at a time. Real fleets come in instance steps (m7i comes in 2, 4, 8, 16 vCPUs and up), so a 5-vCPU fleet isn't on the menu.",
+    "Simulated arrivals are Poisson. Real traffic is burstier, which pushes the whole curve up.",
   ],
-  sources: [SRC.harcholBalter, KINGMAN, SRC.sreBookOverload, AWS_TT],
+  sources: [SRC.harcholBalter, KINGMAN, SRC.sreBookOverload, AWS_TT, AWS_T3],
   verify: [
     { id: "ratio", claim: "Doubling load from 45% to 90% makes average latency about 5.5× worse", run: "queue-ratio", params: { from: 0.45, to: 0.9, S: 0.02 }, expect: { min: 4.5, max: 6.8 } },
     { id: "four-fails", claim: "4 vCPUs (about 94% busy at peak) break the 200ms p99", run: "queue-challenge", params: { config: CAPACITY, choice: 4, metric: "p99" }, expect: { min: 0.2 } },

@@ -45,7 +45,7 @@ export default definePack({
     {
       id: "capacity",
       kind: "numeric",
-      prompt: "api-1 runs 4 gunicorn sync workers. Each request takes about 200ms, mostly waiting on Postgres. How many requests per second can it serve before a queue forms?",
+      prompt: "api-1 runs 4 gunicorn sync workers. Each request takes about 200ms, mostly waiting on Postgres. What is the most requests per second it can sustain?",
       unit: "req/s",
       min: 1,
       max: 1000,
@@ -54,7 +54,7 @@ export default definePack({
       tolerance: 1.5,
       observe: "over-capacity",
       reveal: {
-        text: "4 workers ÷ 0.2 s each = 20 requests per second. Past that, arrivals wait in line. The CPU barely noticed: each worker spends its 200ms waiting on Postgres, holding its slot the whole time.",
+        text: "4 workers ÷ 0.2 s each = 20 requests per second. Past that, the line grows without limit. The CPU barely noticed: each worker spends its 200ms waiting on Postgres, holding its slot the whole time.",
         derived: true,
         line: { speaker: "meera", line: "The CPU was bored and the workers were full. Different resources." },
       },
@@ -72,7 +72,7 @@ export default definePack({
       answer: "b",
       observe: "slow-dependency-queue",
       reveal: {
-        text: "At 500ms, 4 workers can only serve 8 per second. Traffic didn't change; capacity halved because each request holds its worker longer. A slow database just took down your API servers without touching their CPU.",
+        text: "At 500ms, 4 workers can only serve 8 per second. Traffic didn't change; capacity fell from 20 to 8 per second because each request holds its worker 2.5 times longer. A slow database just took down your API servers without touching their CPU.",
         derived: true,
       },
     },
@@ -88,7 +88,7 @@ export default definePack({
     {
       id: "capacity",
       scene: "focus-capacity",
-      text: "Flip it for capacity. A sync worker holds one request from start to finish, so a box can hold at most `workers` requests. Max throughput = workers ÷ W. Four workers at 200ms is 20 req/s, however idle the CPU is.",
+      text: "Flip it for capacity. A sync worker holds one request start to finish, so at most `workers` requests are in service. Applied to the workers alone, L = λW gives max throughput = workers ÷ S, where S is how long a request holds a worker. Four workers at 200ms: 20 req/s, however idle the CPU is.",
       derived: true,
     },
     {
@@ -129,11 +129,11 @@ export default definePack({
     prompt: "Your API box is at 40% CPU but requests are timing out. Use Little's Law to explain what's probably full, and why a slower database would cause it.",
     rubric: [
       { id: "law", criterion: "States Little's Law: requests in flight = arrival rate × time in system", keyIdea: "L = λW" },
-      { id: "workers", criterion: "Identifies worker/concurrency slots (not CPU) as the limit: max throughput = workers ÷ time per request", keyIdea: "capacity = workers / W" },
+      { id: "workers", criterion: "Identifies worker/concurrency slots (not CPU) as the limit: max throughput = workers ÷ time each request holds a worker", keyIdea: "capacity = workers / S" },
       { id: "db", criterion: "Explains that a slower DB raises W, so more requests are in flight at the same traffic until workers run out", keyIdea: "W up → L up → pool exhausted" },
     ],
     exemplar:
-      "Little's Law says requests in flight equal arrival rate times time in the system. Each sync worker holds a request for its whole duration, so the box can only serve workers ÷ W requests per second no matter how idle the CPU is. If Postgres slows down, W rises, so at the same traffic more requests are in flight until every worker is busy and the rest queue and time out.",
+      "Little's Law says requests in flight equal arrival rate times time in the system. Each sync worker holds a request for its whole duration, so the box can only serve workers ÷ (time each request holds a worker) requests per second, no matter how idle the CPU is. If Postgres slows down, W rises, so at the same traffic more requests are in flight until every worker is busy and the rest queue and time out.",
   },
   reviews: [
     {
@@ -157,7 +157,7 @@ export default definePack({
         { id: "d", label: "Add a Postgres read replica" },
       ],
       answer: "b",
-      explain: "The slow dependency multiplied W by 20, so in-flight requests blew past 8 workers. More CPU changes nothing. Bound W with a timeout and take the slow call off the hot path.",
+      explain: "The payments call added about 1.9 s to W, so in-flight requests (λ × W) blew past 8 workers. More CPU changes nothing. Bound W with a tight timeout and a circuit breaker, and where the flow allows, confirm payment asynchronously with a pending state and a webhook.",
       why: {
         prompt: "Why doesn't the bigger instance help?",
         options: [
@@ -226,7 +226,7 @@ export default definePack({
         ],
       },
       answer: "api->sms",
-      explain: "The synchronous SMS call puts a 3-second tail inside every signup. At 30/s that's up to 90 requests in flight against 4 workers. Send SMS from a background worker.",
+      explain: "Even if the SMS call averages 500 ms, L = 30 × 0.5 = 15 in flight against 4 workers, and the 3-second tail makes bursts far worse. Send SMS from a background worker.",
     },
     {
       id: "ll-explain-cpu",
@@ -253,13 +253,14 @@ export default definePack({
     oneLiner: "Requests in flight equal arrival rate times time in system: L = λW. It holds for any stable system.",
     keyNumbers: [
       { label: "Little's Law", value: "L = λ × W", sourceId: "little-1961" },
-      { label: "Worker pool capacity", value: "workers ÷ W", sourceId: "little-1961" },
+      { label: "Worker pool capacity", value: "workers ÷ S (time each request holds a worker)", sourceId: "little-1961" },
       { label: "gunicorn default workers", value: "1", sourceId: "gunicorn-settings" },
       { label: "gunicorn suggested start", value: "(2 × cores) + 1", sourceId: "gunicorn-workers" },
       { label: "Postgres default max_connections", value: "100", sourceId: "pg-connections" },
     ],
     tradeoffs: [
       { choice: "More sync workers", gain: "More concurrency for I/O-bound requests", cost: "Each one costs RAM and usually a DB connection" },
+      { choice: "Threaded workers (gthread)", gain: "Several in-flight requests per process, less RAM than more processes", cost: "The GIL still serializes CPU work; code must be thread-safe" },
       { choice: "Async workers (gevent, uvicorn)", gain: "Thousands of in-flight requests per process", cost: "Every library in the path must cooperate; CPU-bound work still blocks" },
       { choice: "Timeouts on dependencies", gain: "Caps W, so one slow dependency can't eat every worker", cost: "Some requests fail fast instead of succeeding slowly" },
     ],
@@ -269,10 +270,10 @@ export default definePack({
     ],
     interviewAngle: "Use it in every sizing answer: 'At 2k req/s and 50ms, about 100 requests are in flight, so I'd size pools around 150 with headroom.' It shows you reason from numbers, not vibes.",
     aws: [
-      { concept: "In-flight requests per target", service: "ALB ActiveConnectionCount + TargetResponseTime" },
+      { concept: "In-flight requests per target (L = λW)", service: "ALB RequestCountPerTarget ÷ 60 × TargetResponseTime (Average)" },
       { concept: "Shared DB connection pool", service: "RDS Proxy" },
     ],
-    otherClouds: "GCP: Cloud SQL Auth Proxy connection limits · Azure: Application Gateway metrics",
+    otherClouds: "GCP: Cloud SQL Managed Connection Pooling, Cloud Load Balancing request metrics · Azure: built-in PgBouncer on Azure Database for PostgreSQL, Application Gateway metrics",
     replay: { id: "queue-lab", config: LITTLE },
   },
   interview: [
@@ -288,7 +289,8 @@ export default definePack({
     },
     {
       title: "Sizing a pool with headroom",
-      body: "Little's Law gives the average. Random arrivals mean the instantaneous count swings around it. A usable rule for pools: size for λ × W at peak, then add headroom until the p99 you need holds. In the challenge, 120 × ~0.2 s ≈ 24 in flight on average, but 24 workers is exactly at the edge and the tail blows up. That gap between the average and what you must provision is the next mission.",
+      body: "Little's Law gives the average. Random arrivals mean the instantaneous count swings around it. A usable rule for pools: size for λ × W at peak, then add headroom until the p99 you need holds. In the challenge, 120 × ~0.2 s ≈ 24 in flight on average, but 24 workers is exactly at the edge and the tail blows up. That gap between the average and what you must provision is the next mission.\n\nGunicorn's docs suggest starting at (2 × cores) + 1 and say 4–12 workers is typical. That rule assumes requests split their time between CPU and I/O: 9 sync workers here would cap the box near 45 req/s. When requests spend 90% of their time waiting, size from λ × W, or switch to threaded workers so one process holds several waiting requests.",
+      sourceIds: ["gunicorn-workers"],
       derived: true,
     },
     {
@@ -299,6 +301,7 @@ export default definePack({
   honestPhysics: [
     "The simulated request's time is a lognormal draw, not a real Postgres query; the arithmetic of workers and waiting is the same.",
     "Worker memory is a fixed number per worker. Real Python processes grow with the requests they handle.",
+    "The sim does not model gunicorn's listen backlog (2,048) or its 30-second worker timeout, which decide whether users see a slow response, a 504, or a 502. Each sync worker also usually holds a Postgres connection, so 28 workers is 28 connections per box.",
   ],
   sources: [SRC.little1961, SRC.gunicornWorkers, SRC.gunicornSettings, SRC.pgConnections],
   verify: [

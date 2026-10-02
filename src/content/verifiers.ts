@@ -12,6 +12,7 @@ import { deployOptions, SessionConfig } from "@/widgets/session-lab/spec";
 import { LaunchConfig, launchSpec, type LaunchDesign } from "@/widgets/launch/spec";
 import type { Aggregate, SimSpec } from "@/engine/types";
 import { encode } from "gpt-tokenizer/encoding/o200k_base";
+import { encode as encodeCl100k } from "gpt-tokenizer/encoding/cl100k_base";
 import { SAMPLES } from "@/widgets/tokens/spec";
 import { buildDietPrompt } from "@/widgets/tokens/diet";
 import { ContextConfig, evaluate, type Policy } from "@/widgets/context/model";
@@ -30,8 +31,8 @@ function pick(a: Aggregate, metric: string): number {
 type Params = Record<string, unknown>;
 
 export const VERIFIERS: Record<string, (p: Params) => number> = {
-  /** o200k token count of a Tokenizer Slicer sample. */
-  "token-count": (p) => encode(SAMPLES.find((s) => s.id === p.sample)!.text).length,
+  /** Token count of a Tokenizer Slicer sample: o200k by default, or cl100k (GPT-4's older vocabulary). */
+  "token-count": (p) => (p.encoding === "cl100k" ? encodeCl100k : encode)(SAMPLES.find((s) => s.id === p.sample)!.text).length,
   /** Rank (1 = densest) of a sample by tokens per character among prose, code, and JSON. */
   "token-density-rank": (p) => {
     const ids = ["en", "code", "json"];

@@ -82,6 +82,8 @@ export interface Incident {
   spec: SimSpec;
   seed: string;
   slo: { p99: number; errorRate: number };
+  /** Where the scenario simplifies reality, said plainly (shown after the postmortem). */
+  honestPhysics?: string[];
   hosts: string[];
   services: string[];
   staticLogs: LogLine[];

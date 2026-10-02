@@ -288,6 +288,8 @@ export const BossPackSchema = z.object({
   debrief: z.array(CaptionSchema).min(1).max(6),
   outro: CastLineSchema.optional(),
   explainBack: ExplainBackSchema,
+  /** Where the boss's model simplifies reality, said plainly (shown in the debrief). */
+  honestPhysics: z.array(z.string()).default([]),
   sources: z.array(SourceSchema).default([]),
   verify: z.array(VerifySchema).default([]),
 });

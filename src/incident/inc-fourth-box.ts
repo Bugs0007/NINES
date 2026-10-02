@@ -30,6 +30,7 @@ function spec(): SimSpec {
 }
 
 const ip = (h: string) => `10.0.1.${10 + HOSTS.indexOf(h) * 11}`;
+const ALB_IP = "10.0.0.37"; // an ALB node's private IP
 
 /** "02:14:07" for a sim time, given clock0 = 02:12:00. */
 export function clockAt(t: number, clock0 = "02:12:00"): string {
@@ -53,7 +54,8 @@ const STATIC: LogLine[] = [
   { t: -12, host: "app-4", source: "gunicorn", level: "INFO", text: "[1107] [INFO] Listening at: unix:/run/gunicorn.sock (1107)" },
   { t: -12, host: "app-4", source: "gunicorn", level: "INFO", text: "[1107] [INFO] Using worker: sync" },
   { t: -12, host: "app-4", source: "gunicorn", level: "INFO", text: "[1112] [INFO] Booting worker with pid: 1112", evidence: "gunicorn-1-worker" },
-  { t: -2, host: "alb", source: "alb", level: "INFO", text: "Target i-0a3fc1d2e5:80 (app-4) registered in pigeon-app-tg. Health checks: 3/3 passed (GET /health → 200).", evidence: "health-nginx" },
+  { t: -2, host: "alb", source: "alb", level: "INFO", text: "pigeon-alb attributes: idle_timeout.timeout_seconds=10 (a target that hasn't answered in 10 s gets a 504)" },
+  { t: -2, host: "alb", source: "alb", level: "INFO", text: "Target i-0a3fc1d2e5:80 (app-4) registered in pigeon-app-tg. Initial health check passed (GET /health → 200); in service.", evidence: "health-nginx" },
   { t: 45, host: "db-1", source: "postgres", level: "WARN", text: "LOG:  duration: 51034.870 ms  statement: SELECT user_id, count(*) FROM reactions GROUP BY 1 ORDER BY 2 DESC", evidence: "db-cron" },
 ];
 
@@ -72,7 +74,7 @@ function liveLogs(w: import("@/engine/types").WindowMetrics, rand: () => number)
           host: h,
           source: "nginx",
           level: "WARN",
-          text: `${ip("alb")} - - "POST /api/checkout HTTP/1.1" 499 0 rt=10.001 urt=- ua="Pigeon/4.2 (Android)"`,
+          text: `${ALB_IP} - - "POST /api/checkout HTTP/1.1" 499 0 rt=10.001 urt=- ua="Pigeon/4.2 (Android)"`,
           evidence: "target-latency",
         });
       } else {
@@ -82,23 +84,23 @@ function liveLogs(w: import("@/engine/types").WindowMetrics, rand: () => number)
           host: h,
           source: "nginx",
           level: "INFO",
-          text: `${ip("alb")} - - "${rand() < 0.7 ? "POST /api/checkout" : "GET /api/feed"} HTTP/1.1" 200 ${Math.floor(600 + rand() * 900)} rt=${rt.toFixed(3)} urt=${(rt - 0.001).toFixed(3)}`,
+          text: `${ALB_IP} - - "${rand() < 0.7 ? "POST /api/checkout" : "GET /api/feed"} HTTP/1.1" 200 ${Math.floor(600 + rand() * 900)} rt=${rt.toFixed(3)} urt=${(rt - 0.001).toFixed(3)}`,
         });
       }
     }
   }
   if (w.failReasons.timeout > 0 && Math.floor(t) % 3 === 0) {
-    out.push({ t: t + 0.5, host: "alb", source: "alb", level: "ERROR", text: `504 GatewayTimeout ×${w.failReasons.timeout} in the last second · target 10.0.1.43:80 (app-4) · target_processing_time=-1`, evidence: "target-latency" });
+    out.push({ t: t + 0.5, host: "alb", source: "alb", level: "ERROR", text: `504 GatewayTimeout ×${w.failReasons.timeout} in the last second · target ${ip("app-4")}:80 (app-4) · target_processing_time=-1`, evidence: "target-latency" });
   }
   const a4 = w.nodes["app-4"];
   if (a4 && a4.queue > 200 && Math.floor(t) % 7 === 0) {
-    out.push({ t: t + 0.8, host: "app-4", source: "nginx", level: "ERROR", text: 'upstream timed out (110: Connection timed out) while reading response header from upstream, request: "POST /api/checkout HTTP/1.1", upstream: "http://unix:/run/gunicorn.sock"', evidence: "target-latency" });
+    out.push({ t: t + 0.8, host: "app-4", source: "nginx", level: "INFO", text: 'epoll_wait() reported that client prematurely closed connection, so upstream connection is closed too while reading response header from upstream, request: "POST /api/checkout HTTP/1.1", upstream: "http://unix:/run/gunicorn.sock:/api/checkout"', evidence: "target-latency" });
   }
   return out;
 }
 
-const PS_OK = (pids: number) =>
-  ["USER   PID  %CPU %MEM COMMAND", "pigeon 902   0.1  0.5 gunicorn: master [pigeon.wsgi]", ...Array.from({ length: pids }, (_, i) => `pigeon ${910 + i}  ${(2 + (i % 5)).toFixed(1)}  1.9 gunicorn: worker [pigeon.wsgi]`)].join("\n");
+const PS_OK = (pids: number, master = 902, firstWorker = 910) =>
+  ["USER   PID  %CPU %MEM COMMAND", `pigeon ${master}   0.1  0.5 gunicorn: master [pigeon.wsgi]`, ...Array.from({ length: pids }, (_, i) => `pigeon ${firstWorker + i}  ${(2 + (i % 5)).toFixed(1)}  1.9 gunicorn: worker [pigeon.wsgi]`)].join("\n");
 
 export const INC_FOURTH_BOX: Incident = {
   id: "inc-fourth-box",
@@ -107,7 +109,7 @@ export const INC_FOURTH_BOX: Incident = {
   severity: "SEV-1",
   clock0: "02:12:00",
   pageAt: 120,
-  page: { title: "checkout · 5xx 24% · SLO burn 60×", detail: "Error budget for the month will be gone in 12 minutes at this rate." },
+  page: { title: "checkout · 5xx 24% · SLO burn 24×", detail: "At this rate the month's error budget is gone in about 30 hours." },
   intro: [
     { speaker: "pager", line: "SEV-1: checkout error rate above 20% for 2 minutes. You are primary on-call." },
     { speaker: "meera", line: "I'm awake, but I'm not driving. Look before you touch anything." },
@@ -115,6 +117,10 @@ export const INC_FOURTH_BOX: Incident = {
   spec: spec(),
   seed: "inc-fourth-box",
   slo: { p99: 0.4, errorRate: 0.01 },
+  honestPhysics: [
+    "app-4's queue is unbounded here. Real gunicorn has a 2,048-connection listen backlog; once it fills, new requests to app-4 fail fast with a 502 instead of waiting in line.",
+    "The ALB idle timeout is assumed to be 10 s, which is what pairs the ALB's 504s with nginx's 499s in the logs.",
+  ],
   hosts: HOSTS,
   services: ["alb", "app-1", "app-2", "app-3", "app-4", "db-1"],
   staticLogs: STATIC,
@@ -125,7 +131,7 @@ export const INC_FOURTH_BOX: Incident = {
       describe: "gunicorn processes",
       run: (h, s) => {
         const fixed = s.applied.includes("set-workers") || s.applied.includes("replace-template");
-        return h === "app-4" && !fixed ? { out: PS_OK(1), evidence: "gunicorn-1-worker" } : { out: PS_OK(WORKERS) };
+        return h === "app-4" && !fixed ? { out: PS_OK(1, 1107, 1112), evidence: "gunicorn-1-worker" } : { out: PS_OK(WORKERS) };
       },
     },
     {
@@ -343,10 +349,11 @@ export const INC_FOURTH_BOX: Incident = {
       { id: "impact", criterion: "States the impact concretely (about a quarter of checkouts failing, for how long)" },
       { id: "cause", criterion: "Root cause: app-4 launched from a template missing WEB_CONCURRENCY, so gunicorn ran 1 worker and couldn't keep up with its share" },
       { id: "detect", criterion: "Why it wasn't caught: the health check was answered by nginx, so the ALB kept a broken box in rotation" },
-      { id: "prevent", criterion: "Prevention: a health check through the app, validated launch templates or config, and/or per-target latency alarms" },
+      { id: "prevent", criterion: "Prevention: a health check through the app, validated launch templates or config (exercise a new template version before autoscaling first uses it; fail boot when WEB_CONCURRENCY is missing), and/or per-target latency alarms" },
+      { id: "mitigate", criterion: "States what stopped the bleeding (deregistering or fixing app-4) and when, relative to the page" },
     ],
     exemplar:
-      "What happened: from 02:12 to about 02:20, roughly 25% of checkouts timed out. Root cause: the autoscaler launched app-4 from launch template v7, which dropped WEB_CONCURRENCY, so gunicorn ran a single worker; round-robin kept sending it a quarter of traffic and requests queued until clients gave up. Prevention: health check through gunicorn instead of nginx, a startup check that fails if the worker count is wrong, and an alarm on per-target latency.",
+      "What happened: from 02:12 to about 02:20, roughly 25% of checkouts timed out. Root cause: the autoscaler launched app-4 from launch template v7, which dropped WEB_CONCURRENCY, so gunicorn ran a single worker; round-robin kept sending it a quarter of traffic and requests queued until clients gave up. v7 was created on 2026-09-26 but nothing used it until this scale-out. Mitigation: taking app-4 out of rotation at about 02:20, six minutes after the page, stopped the errors. Prevention: health check through gunicorn instead of nginx, exercise new template versions when they're created, a startup check that fails if the worker count is wrong, and an alarm on per-target latency.",
   },
   hints: [
     "The fleet is healthy on average. Is every box healthy? Look at the targets one by one.",

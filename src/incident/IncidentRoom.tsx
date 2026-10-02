@@ -20,6 +20,7 @@ import { spring, Ticker } from "@/ui/motion";
 import { clockAt } from "./inc-fourth-box";
 import { Dashboards, Hosts, Logs, Timeline, Traces, type Pin } from "./panels";
 import type { Incident, IncidentState, LogLine } from "./types";
+import { HonestNotes } from "@/ui/HonestNotes";
 
 type Phase = "page" | "room" | "postmortem" | "score";
 type Tab = "dash" | "logs" | "hosts" | "traces" | "timeline";
@@ -340,7 +341,7 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
     if (status?.enabled) {
       const g = await gradeExplanation({
         concept: `${inc.code} ${inc.title} postmortem`,
-        prompt: "Write a three-line postmortem: what happened, the root cause, and how to prevent it.",
+        prompt: "Write a three-line postmortem: what happened and what stopped it, the root cause, and how to prevent it.",
         rubric: inc.postmortem.rubric,
         exemplar: inc.postmortem.exemplar,
         answer: `What happened: ${lines.what}\nRoot cause: ${lines.cause}\nPrevention: ${lines.prevent}`,
@@ -379,6 +380,7 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
           <div className="font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">What actually happened</div>
           <p className="mt-1 text-sm text-ink-0">{inc.postmortem.exemplar}</p>
         </div>
+        <HonestNotes className="mt-4" notes={inc.honestPhysics ?? []} />
         <CastLine className="mt-4" line={{ speaker: "meera", line: rootOk ? "Good. Now go fix the launch template before it does this again." : "Mitigated isn't understood. Read the real cause and come back to this one." }} />
         <div className="mt-6 flex gap-2">
           <Link href="/">
@@ -404,7 +406,7 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
       <div className="mt-5 flex flex-col gap-3">
         {(
           [
-            ["what", "What happened (impact, duration)"],
+            ["what", "What happened (impact, duration, what stopped it)"],
             ["cause", "Root cause (the mechanism, not the symptom)"],
             ["prevent", "Prevention (what stops this class of incident)"],
           ] as const

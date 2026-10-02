@@ -40,7 +40,7 @@ export function noisyOptions(c: LbConfig, ch: LbChoice): FleetOptions {
     timeoutS: 5,
     script: [
       { t: c.slowAt, server: 1, kind: "slow", factor: c.slowFactor, note: "app-2: noisy neighbour, everything 6× slower" },
-      { t: c.crashAt, server: 2, kind: "crash", note: "app-3: kernel panic" },
+      { t: c.crashAt, server: 2, kind: "crash", note: "app-3: gunicorn crashed, nginx returns instant 502s" },
     ],
   };
 }

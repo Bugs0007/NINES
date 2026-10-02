@@ -63,7 +63,7 @@ export default function LatencyBudget({ config, onResult, conditions, locked, ve
               const l = w.laid.find((x) => x.span.id === s.id);
               return (
                 <div key={s.id} className="flex items-center gap-2">
-                  <div className={cx("w-[34%] truncate text-xs", l ? "text-ink-0" : "text-ink-3 line-through")} title={s.label}>
+                  <div className={cx("line-clamp-2 w-[34%] text-xs leading-tight", l ? "text-ink-0" : "text-ink-3 line-through")} title={s.label}>
                     {s.label}
                   </div>
                   <div className="relative h-5 flex-1 rounded-[1px] bg-bg-0">

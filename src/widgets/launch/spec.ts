@@ -42,7 +42,7 @@ export const TIMELINE = [
   { t: 40, label: "Front page: 400 req/s" },
   { t: 80, label: "app-2 gets a noisy neighbour" },
   { t: 100, label: "Kabir tweets: spike to 650 req/s" },
-  { t: 150, label: "app-1 kernel panic" },
+  { t: 150, label: "app-1: gunicorn crashes" },
   { t: 190, label: "Hotfix deploy: app-3 restarts" },
 ];
 
@@ -71,7 +71,7 @@ export function launchOptions(c: LaunchConfig, d: LaunchDesign): FleetOptions {
   };
   const script: FleetOptions["script"] = [];
   if (d.count >= 2) script.push({ t: 80, server: 1, kind: "slow", factor: 5, note: "app-2: noisy neighbour, 5× slower" });
-  script.push({ t: 150, server: 0, kind: "crash", note: "app-1: kernel panic" });
+  script.push({ t: 150, server: 0, kind: "crash", note: "app-1: gunicorn crashed, nginx returns instant 502s" });
   if (d.count >= 3) script.push({ t: 190, server: 2, kind: "deploy", note: "hotfix deploy: app-3 drained and restarting" });
   return {
     servers,

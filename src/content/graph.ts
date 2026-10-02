@@ -394,16 +394,19 @@ const chapterRows: Record<string, Row[]> = {
  * Update this when a pack lands; the content lint checks it against the pack registry.
  */
 const STATUS: Partial<Record<string, BuildStatus>> = {
-  "latency-numbers": "drafted",
-  "littles-law": "drafted",
-  "queueing-utilization": "drafted",
-  "scale-up-vs-out": "drafted",
-  "load-balancing": "drafted",
-  "stateless-services": "drafted",
-  "boss-launch-day": "drafted",
-  tokens: "drafted",
-  "context-windows": "drafted",
-  "boss-the-bill": "drafted",
+  // Built = playable end to end, lint and verification green, e2e walkthrough. Accuracy pass done 2026-10-02;
+  // promote to "verified" after the playtest.
+  "latency-numbers": "built",
+  "littles-law": "built",
+  "queueing-utilization": "built",
+  "scale-up-vs-out": "built",
+  "load-balancing": "built",
+  "stateless-services": "built",
+  "boss-launch-day": "built",
+  "inc-fourth-box": "built",
+  tokens: "built",
+  "context-windows": "built",
+  "boss-the-bill": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

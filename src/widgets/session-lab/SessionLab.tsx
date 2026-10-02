@@ -22,7 +22,7 @@ export { SessionConfig };
 type Mode = Exclude<SessionMode, "none">;
 const MODES: Mode[] = ["local", "sticky", "redis", "cookie"];
 const MODE_HINT: Record<Mode, string> = {
-  local: "Django's default cache/db-less setup: the session lives in this process",
+  local: "Sessions in Django's local-memory cache: the session lives in this process",
   sticky: "The balancer hashes each user to one box (nginx `hash`), sessions in memory",
   redis: "Every box reads sessions from one shared Redis",
   cookie: "Django signed_cookies: the client carries the session, signed with SECRET_KEY",

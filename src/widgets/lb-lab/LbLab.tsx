@@ -2,7 +2,7 @@
 /**
  * LB Lab: four servers behind a load balancer.
  *  - lab:   pick the algorithm and health checks, then sabotage servers and watch where traffic goes.
- *  - noisy: challenge. A noisy neighbour, then a kernel panic. Configure the LB to ride it out.
+ *  - noisy: challenge. A noisy neighbour, then a crashed app. Configure the LB to ride it out.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { HealthCheckSpec, LbAlgorithm, WindowMetrics } from "@/engine/types";
@@ -32,7 +32,7 @@ const HCS: { value: HcMode; label: string; hint: string }[] = [
 
 const HONEST = [
   "Health checks run every 10s; a target is ejected after 2 failures and readmitted after 3 passes.",
-  "A dead box refuses connections instantly, so it looks 'not busy' to a least-outstanding balancer.",
+  "A crashed app behind a live nginx fails every request instantly, so it looks 'not busy' to a least-outstanding balancer.",
   "Passive ejection is modelled on nginx max_fails / Envoy outlier detection: 5 straight errors, out for 30s.",
 ];
 
@@ -221,7 +221,7 @@ function Noisy({ config: c, onResult, verdict, locked, conditions }: WidgetProps
     <div className="flex h-full min-h-0 flex-col gap-3 lg:flex-row">
       <SimStage className="min-h-[360px] flex-1" sim={ch.sim} nodes={layout.nodes} edges={layout.edges} metrics={["p99", "errors", "rps", "util"]} slo={slo} highlight={highlight} honestPhysics={HONEST} />
       <div className="flex w-full flex-col gap-3 lg:w-[300px]">
-        <Panel label="ALB config">
+        <Panel label="Balancer config">
           <div className={cx("flex flex-col gap-3", (running || locked) && "pointer-events-none opacity-50")}>
             <div className="grid grid-cols-2 gap-1">
               {ALGS.map((a) => (
@@ -250,7 +250,7 @@ function Noisy({ config: c, onResult, verdict, locked, conditions }: WidgetProps
         </Panel>
         <ConditionList conditions={conditions} metrics={ch.result?.metrics} />
         <ChallengeControls ch={ch} onRun={() => ch.run(buildFleet(opts))} verdict={verdict} disabled={locked} runLabel="Start the night shift" />
-        {running && <Chip tone="muted">t+{c.slowAt}s noisy neighbour · t+{c.crashAt}s kernel panic</Chip>}
+        {running && <Chip tone="muted">t+{c.slowAt}s noisy neighbour · t+{c.crashAt}s app crash</Chip>}
       </div>
     </div>
   );

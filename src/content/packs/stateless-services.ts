@@ -25,7 +25,7 @@ export default definePack({
     {
       id: "loss",
       kind: "choice",
-      prompt: "Two servers behind round-robin. Django keeps each session in the memory of the box where you logged in. What share of logged-in requests get kicked back to the login screen?",
+      prompt: "Two servers behind round-robin. Pigeon's Django keeps sessions in its local-memory cache, so each session lives in the memory of the box where you logged in. What share of logged-in requests get kicked back to the login screen?",
       options: [
         { id: "0", label: "None: login state is in the cookie" },
         { id: "10", label: "About 10%" },
@@ -167,7 +167,7 @@ export default definePack({
         ],
       },
       answer: "app",
-      explain: "Counters in process memory mean each box counts separately: with N boxes a user gets N times the limit. Shared state (Redis) keeps the count honest.",
+      explain: "Counters in process memory mean every gunicorn worker on every box counts separately: with N boxes of W workers, a user gets up to N × W times the limit. Shared state (Redis) keeps the count honest.",
     },
     {
       id: "st-order",
@@ -191,7 +191,7 @@ export default definePack({
         { id: "c", label: "Shorten the cookie lifetime to 5 minutes" },
       ],
       answer: "b",
-      explain: "A signed cookie is valid until it expires; the server can't reach into a client and delete it. Rotating the key logs out every user of the app, not one user.",
+      explain: "A signed cookie stays valid until it expires unless every request checks something on the server. Django can do that (fold a per-user value into the session auth hash), but that's server-side state anyway; a session store makes 'delete every session for this user' direct. Rotating SECRET_KEY logs out every user, not one.",
     },
     {
       id: "st-explain",
@@ -209,13 +209,13 @@ export default definePack({
     oneLiner: "A stateless server keeps nothing a later request needs, so any box can serve anyone and boxes can come and go freely.",
     keyNumbers: [
       { label: "Users reshuffled by mod-N hashing, N → N+1", value: "≈ N ÷ (N+1)", sourceId: "karger-1997" },
-      { label: "Cookie size browsers must support", value: "≥ 4,096 bytes", sourceId: "rfc6265" },
+      { label: "Practical cookie size limit", value: "≈ 4 KB per cookie (name + value)", sourceId: "django-signed-cookies" },
       { label: "ALB stickiness", value: "cookie-based, duration or app cookie", sourceId: "alb-sticky" },
       { label: "Django session backends", value: "db · cache · cached_db · file · signed_cookies", sourceId: "django-sessions" },
     ],
     tradeoffs: [
       { choice: "Shared session store (Redis / DB)", gain: "Any box, instant revocation, big sessions", cost: "A network hop per request and a store to run" },
-      { choice: "Signed cookies", gain: "No server state at all, zero infrastructure", cost: "Can't revoke before expiry, size-limited, visible to the client" },
+      { choice: "Signed cookies", gain: "No server state at all, zero infrastructure", cost: "Revoking one before expiry needs a server-side check, size-limited, visible to the client" },
       { choice: "Sticky sessions", gain: "No code change", cost: "Breaks on restarts and pool changes, unbalances load" },
     ],
     seenIn: [
@@ -228,7 +228,7 @@ export default definePack({
       { concept: "Shared files", service: "S3 (+ CloudFront)" },
       { concept: "Sticky routing", service: "ALB target group stickiness" },
     ],
-    otherClouds: "GCP: Memorystore, Cloud Storage · Azure: Cache for Redis, Blob Storage",
+    otherClouds: "GCP: Memorystore, Cloud Storage · Azure: Azure Managed Redis, Blob Storage",
     replay: { id: "session-lab", config: LAB },
   },
   interview: [
@@ -244,7 +244,7 @@ export default definePack({
     },
     {
       title: "Signed cookies in Django",
-      body: "The signed_cookies backend stores the whole session in the cookie, signed with SECRET_KEY so the client can't tamper with it (it can still read it). It needs no store and scales perfectly, but a session can't be invalidated server-side before it expires, and cookies are size-limited. JWTs have the same tradeoff; chapter A12 goes deeper.",
+      body: "The signed_cookies backend stores the whole session in the cookie, signed with SECRET_KEY so the client can't tamper with it (it can still read it). It needs no store and scales perfectly, but a session can't be invalidated before it expires without a server-side check on every request, and cookies are size-limited. JWTs have the same tradeoff; chapter A12 goes deeper.",
       sourceIds: ["django-signed-cookies"],
     },
     {
@@ -256,6 +256,8 @@ export default definePack({
   honestPhysics: [
     "Users are simulated as independent request streams; a 'logged out' request fails and the user logs in again on the box that served it.",
     "Redis is always up in this lab. A real shared store is now a dependency to run, monitor, and make highly available.",
+    "Each box is modelled as one process. Django's local-memory cache is per gunicorn worker, so even one box with several workers would log people out; Django's default session store is the database.",
+    "Sticky mode is hash-mod routing, like nginx hash without 'consistent'. ALB's own stickiness is a cookie: adding a box doesn't reshuffle anyone, and a restart loses only that box's users.",
   ],
   sources: [SRC.twelveFactor, SRC.djangoSessions, SRC.albSticky, DJANGO_SIGNED, KARGER, RFC6265],
   verify: [

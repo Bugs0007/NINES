@@ -4,9 +4,11 @@ import { defineBoss } from "../define";
 export const BILL = { variant: "bill", start: { mode: "last", lastN: 34, docs: 3, cache: false, model: "grader" } };
 
 const SRC = {
-  promptCaching: { id: "anthropic-prompt-caching", title: "Anthropic docs: Prompt caching (cache writes 1.25×, cache reads 0.1× the base input price)", url: "https://docs.claude.com/en/docs/build-with-claude/prompt-caching" },
-  anthropicPricing: { id: "anthropic-pricing", title: "Anthropic: Claude API pricing", url: "https://www.anthropic.com/pricing#api" },
+  promptCaching: { id: "anthropic-prompt-caching", title: "Anthropic docs: Prompt caching (5-minute writes 1.25×, 1-hour writes 2×, reads 0.1× base input on Sonnet and Haiku)", url: "https://platform.claude.com/docs/en/build-with-claude/prompt-caching" },
+  anthropicPricing: { id: "anthropic-pricing", title: "Anthropic: Claude API pricing", url: "https://platform.claude.com/docs/en/about-claude/pricing" },
+  anthropicContext: { id: "anthropic-context-windows", title: "Anthropic docs: Context windows", url: "https://platform.claude.com/docs/en/build-with-claude/context-windows" },
   frugal: { id: "frugalgpt-2023", title: "L. Chen, M. Zaharia, J. Zou (2023), FrugalGPT: How to Use Large Language Models While Reducing Cost and Improving Performance", url: "https://arxiv.org/abs/2305.05176" },
+  routellm: { id: "routellm-2024", title: "I. Ong et al. (2024), RouteLLM: Learning to Route LLMs with Preference Data", url: "https://arxiv.org/abs/2406.18665" },
 };
 
 export default defineBoss({
@@ -59,10 +61,16 @@ export default defineBoss({
   debrief: [
     { id: "tokens", text: "Fewer tokens. Production re-sent 34 turns on every request and still lost the allergy. A pinned profile plus the last 6 turns answers the same questions from about half the input.", derived: true },
     { id: "cache", text: "Cheaper tokens. The system prompt, tool definitions, and profile are byte-identical on every turn. Cached, they're read at a tenth of the input price, and the model has less to read before it starts answering.", sourceIds: ["anthropic-prompt-caching"] },
-    { id: "router", text: "Cheaper model, where it's safe. Most turns are easy. Sending only the hard ones to the big model cuts the price per token; sending everything to the small one gets the refund-policy question wrong.", sourceIds: ["frugalgpt-2023"] },
-    { id: "levers", text: "One lever wasn't enough. Trimming history alone left the bill above $60k. The budget needed fewer tokens and a lower price per token together.", derived: true },
+    { id: "router", text: "Cheaper model, where it's safe. Most turns are easy. Routing only the hard ones to the big model cuts the price per token, if the router picks well; sending everything to the small one gets the refund-policy question wrong. Each model keeps its own prompt cache, so routing also splits cache hits.", sourceIds: ["frugalgpt-2023", "routellm-2024", "anthropic-prompt-caching"] },
+    { id: "levers", text: "One lever wasn't enough here. Trimming history alone left the bill above $60k; the budget needed fewer tokens and a lower price per token together. Real APIs can also cache an append-only history, but a sliding window breaks that: dropping the oldest turn changes everything after the stable blocks, so the history is paid in full.", derived: true, sourceIds: ["anthropic-prompt-caching"] },
   ],
   outro: { speaker: "rao", line: "Under budget, and it remembers the peanuts. I'm framing this invoice." },
+  honestPhysics: [
+    "The 32k window forces trimming within 40 turns; current Claude models hold 200k to 1M tokens. The arithmetic of cost and forgetting is the same.",
+    "Turn sizes are assumed, not tokenizer counts. Newer Claude tokenizers can produce noticeably more tokens for the same text, so real bills would run higher.",
+    "Only the stable prefix is cached, and it's written once per chat. Real caches expire after 5 idle minutes by default, but the system prompt and tools are shared across conversations in a workspace, so at 2,000 chats a day they stay warm and per-chat cache writes are overstated.",
+    "The router never misroutes, costs nothing to run, and is billed as an 80/20 blend of the two models sharing one prompt cache. Real routing keeps a separate cache per model, so each model pays its own cache writes.",
+  ],
   explainBack: {
     prompt: "Mr. Rao wants to know what you changed and why the bill fell. Explain in three or four sentences.",
     rubric: [
@@ -73,7 +81,7 @@ export default defineBoss({
     exemplar:
       "The bill is tokens per request times price per token times conversations, and we can't change the conversations. I cut tokens by pinning the user's profile and keeping only the last six turns instead of 34, which still answers everything that matters. Then I cut the price: the system prompt and tools are identical every turn, so caching them makes them ten times cheaper, and a router sends only the hard questions to the expensive model.",
   },
-  sources: [SRC.promptCaching, SRC.anthropicPricing, SRC.frugal],
+  sources: [SRC.promptCaching, SRC.anthropicPricing, SRC.anthropicContext, SRC.frugal, SRC.routellm],
   verify: [
     { id: "baseline", claim: "Production (last 34, Sonnet-class, no cache) costs about $107k/month", run: "ctx-eval", params: { config: BILL, policy: BILL.start, metric: "monthly" }, expect: { min: 100000, max: 115000 } },
     { id: "baseline-forgets", claim: "…and still loses the allergy from turn 2", run: "ctx-eval", params: { config: BILL, policy: BILL.start, metric: "fact", fact: "diet" }, expect: { max: 0 } },

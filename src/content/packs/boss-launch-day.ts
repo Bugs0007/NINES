@@ -1,4 +1,4 @@
-import { defineBoss } from "../define";
+import { defineBoss, SRC } from "../define";
 
 export const LAUNCH = {
   cpu: { kind: "lognormal", median: 0.012, p99: 0.05 },
@@ -22,11 +22,11 @@ export default defineBoss({
   hook: {
     visual: "launch",
     alert: { severity: "page", title: "Product Hunt", detail: "Pigeon launches at 00:01 PT. Everything you built this chapter, at once." },
-    lines: [{ speaker: "kabir", line: "Product Hunt at midnight Pacific, which is 12:31 for us. I made coffee." }],
+    lines: [{ speaker: "kabir", line: "Product Hunt resets at 00:01 Pacific. In September that's 12:31 in the afternoon for us, so I skipped lunch." }],
   },
   intro: [
-    { speaker: "kabir", line: "We're launching on Product Hunt tonight. I may have also scheduled a tweet." },
-    { speaker: "meera", line: "Things will break tonight. Design so they break small." },
+    { speaker: "kabir", line: "We're launching on Product Hunt this afternoon. I may have also scheduled a tweet." },
+    { speaker: "meera", line: "Things will break today. Design so they break small." },
     { speaker: "rao", line: "The budget is six hundred dollars a month. That is not an opening offer." },
   ],
   forecast: {
@@ -42,7 +42,7 @@ export default defineBoss({
   challenge: {
     id: "launch",
     title: "Survive the launch",
-    brief: "Traffic ramps to 400 req/s with a spike to 650. Each request needs about 15ms of CPU and 60ms waiting on Postgres. Expect a noisy neighbour, a kernel panic, and a hotfix deploy. Design the fleet, then go live.",
+    brief: "Traffic ramps to 400 req/s with a spike to 650. Each request needs about 15ms of CPU and 60ms waiting on Postgres. Expect a noisy neighbour, a crashed app process, and a hotfix deploy. Design the fleet, then go live.",
     line: { speaker: "meera", line: "Read the timeline. None of it is a surprise except which box." },
     widget: { id: "launch-builder", config: LAUNCH },
     conditions: [
@@ -63,7 +63,7 @@ export default defineBoss({
     ],
   },
   debrief: [
-    { id: "workers", text: "Workers, not cores. At 650 req/s each box holds λ × W requests in flight. With about 75ms per request, the default (2 × vCPU) + 1 workers run out long before the CPU does. Little's Law sizes them.", derived: true },
+    { id: "workers", text: "Workers, not cores. Each box holds its share of λ times W: at 650 req/s over seven boxes and about 75ms per request, roughly 7 in flight per box, more when one dies. Gunicorn's (2 × vCPU) + 1 starting point gives a 2-vCPU box 5 workers, which run out long before the CPU does. Little's Law sizes them.", sourceIds: ["gunicorn-workers", "little-1961"], derived: true },
     { id: "headroom", text: "Headroom for the worst minute. The spike, a slow box, and a dead box all land on the survivors. Sized for the average, they sit on the vertical part of the hockey stick." },
     { id: "fleet", text: "Small boxes, N−1. Losing one of seven costs a seventh; losing one of three costs a third. Scaling out wasn't about speed, it was about how much a failure hurts." },
     { id: "lb", text: "A balancer that notices. Least-outstanding routes around the noisy neighbour; passive ejection stops the dead box from becoming a black hole the moment it fails." },
@@ -79,12 +79,18 @@ export default defineBoss({
       { id: "state", criterion: "Keeps the app stateless so restarts and deploys don't log users out", keyIdea: "sessions off-box" },
     ],
     exemplar:
-      "I sized for the 650 req/s spike, not the average: enough vCPUs to stay around 70% busy even after losing a box, and enough gunicorn workers per box for about λ × W requests in flight plus headroom, within RAM. Seven small boxes mean one kernel panic costs a seventh of capacity. Least-outstanding routing avoided the noisy neighbour and passive ejection pulled the dead box out immediately. Sessions live in a signed cookie, so the hotfix deploy didn't log anyone out.",
+      "I sized for the 650 req/s spike, not the average: enough vCPUs to stay around 70% busy even after losing a box, and enough gunicorn workers per box for about λ × W requests in flight plus headroom, within RAM. Seven small boxes mean one crashed box costs a seventh of capacity. Least-outstanding routing avoided the noisy neighbour and passive ejection pulled the dead box out immediately. Sessions live in a signed cookie, so the hotfix deploy didn't log anyone out.",
   },
-  sources: [],
+  honestPhysics: [
+    "The balancer offers passive ejection and least outstanding together. A real ALB has neither passive outlier ejection nor anomaly mitigation with least outstanding requests; for ejection you'd put Envoy or a service mesh behind it.",
+    "The crash is a dead app process behind a live nginx, so requests fail instantly. A host that hangs (a kernel panic) sends nothing back, and the ALB waits out its connect timeout instead.",
+    "Workers are sync at about 150 MB each. An I/O-bound Django app would often use gthread or gevent workers (or --threads) rather than 16 sync workers on 2 vCPUs.",
+    "Clients retry once after up to 100 ms.",
+  ],
+  sources: [SRC.gunicornWorkers, SRC.little1961],
   verify: [
-    { id: "single-box", claim: "One big box dies with the kernel panic", run: "launch", params: { config: LAUNCH, design: { instance: "m7i.2xlarge", count: 1, workers: 17, algorithm: "round-robin", outlier: false, hc: "shallow", session: "local" }, metric: "errorRate" }, expect: { min: 0.3 } },
-    { id: "default-workers", claim: "Default gunicorn workers run out (Little's Law)", run: "launch", params: { config: LAUNCH, design: { instance: "m7i.large", count: 7, workers: 5, algorithm: "least-outstanding", outlier: true, hc: "shallow", session: "redis" }, metric: "p99" }, expect: { min: 0.6 } },
+    { id: "single-box", claim: "One big box dies with the crash", run: "launch", params: { config: LAUNCH, design: { instance: "m7i.2xlarge", count: 1, workers: 17, algorithm: "round-robin", outlier: false, hc: "shallow", session: "local" }, metric: "errorRate" }, expect: { min: 0.3 } },
+    { id: "default-workers", claim: "Gunicorn's (2 × vCPU) + 1 starting point runs out (Little's Law)", run: "launch", params: { config: LAUNCH, design: { instance: "m7i.large", count: 7, workers: 5, algorithm: "least-outstanding", outlier: true, hc: "shallow", session: "redis" }, metric: "p99" }, expect: { min: 0.6 } },
     { id: "rr-noisy", claim: "Round-robin drowns in the noisy neighbour", run: "launch", params: { config: LAUNCH, design: { instance: "m7i.large", count: 7, workers: 16, algorithm: "round-robin", outlier: false, hc: "shallow", session: "redis" }, metric: "errorRate" }, expect: { min: 0.01 } },
     { id: "blackhole", claim: "Least-outstanding without ejection black-holes the crash", run: "launch", params: { config: LAUNCH, design: { instance: "m7i.large", count: 7, workers: 16, algorithm: "least-outstanding", outlier: false, hc: "shallow", session: "redis" }, metric: "errorRate" }, expect: { min: 0.01 } },
     { id: "memory-sessions", claim: "In-memory sessions log users out", run: "launch", params: { config: LAUNCH, design: { instance: "m7i.large", count: 7, workers: 16, algorithm: "least-outstanding", outlier: true, hc: "shallow", session: "local" }, metric: "sessionLoss" }, expect: { min: 0.01 } },

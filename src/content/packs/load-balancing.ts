@@ -6,6 +6,7 @@ export const NOISY = { variant: "noisy", cpu: CPU, instance: "m7i.large", count:
 
 const NGINX_UPSTREAM = { id: "nginx-upstream", title: "nginx docs: upstream module (max_fails, fail_timeout, least_conn, hash)", url: "https://nginx.org/en/docs/http/ngx_http_upstream_module.html" };
 const ENVOY_OUTLIER = { id: "envoy-outlier", title: "Envoy docs: Outlier detection (passive health checking)", url: "https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/outlier" };
+const ENVOY_LB = { id: "envoy-lb", title: "Envoy docs: Supported load balancers (least request picks the best of 2 random hosts by default)", url: "https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/load_balancing/load_balancers" };
 const AWS_ELB_TYPES = { id: "aws-elb-types", title: "AWS docs: Elastic Load Balancing product comparison (ALB at layer 7, NLB at layer 4)", url: "https://aws.amazon.com/elasticloadbalancing/features/" };
 
 export default definePack({
@@ -17,7 +18,7 @@ export default definePack({
     visual: "pager",
     alert: { severity: "page", title: "checkout · p99 4.1s (SLO 400ms)", detail: "p50 is fine. Three of four app servers look bored. The ALB says every target is healthy." },
     lines: [
-      { speaker: "meera", line: "Everything is healthy and a quarter of our users are waiting four seconds. Both can't be true for long." },
+      { speaker: "meera", line: "Everything is healthy and a quarter of our requests are waiting four seconds. Both can't be true for long." },
     ],
   },
   predictions: [
@@ -34,7 +35,7 @@ export default definePack({
       answer: "quarter",
       observe: "slow-rr",
       reveal: {
-        text: "Round-robin gives the sick box its full quarter of traffic regardless of how it's doing. Those requests queue on a box running at a fifth of its speed. A quarter of users is 25 times more than the 1% your p99 is allowed to hide.",
+        text: "Round-robin gives the sick box its full quarter of requests regardless of how it's doing. Those requests queue on a box running at a fifth of its speed. A quarter of requests is 25 times the 1% your p99 is allowed to hide, and a user who makes ten requests hits the slow box 94% of the time.",
         derived: true,
         line: { speaker: "meera", line: "Fair isn't the same as smart." },
       },
@@ -72,12 +73,12 @@ export default definePack({
     {
       id: "blackhole",
       scene: "blackhole",
-      text: "The trap: a dead box that refuses connections instantly always has zero in flight. Least-outstanding then pours traffic into it. Active health checks catch it in seconds; passive checks, which eject a target after a few straight errors, catch it in milliseconds.",
-      sourceIds: ["nginx-upstream", "envoy-outlier"],
+      text: "The trap: a dead box that refuses connections instantly always has zero in flight. Least-outstanding then pours traffic into it. Active health checks take tens of seconds to notice (ALB's default is two failures 30 s apart); passive checks, which eject a target after a few straight errors, catch it in milliseconds.",
+      sourceIds: ["nginx-upstream", "envoy-outlier", "alb-health"],
     },
     {
       id: "layers",
-      text: "Layer 4 balancers (AWS NLB) forward TCP connections without reading them. Layer 7 balancers (AWS ALB) read HTTP, so they can route by path or header, terminate TLS, and balance per request instead of per connection.",
+      text: "Layer 4 balancers (AWS NLB) forward TCP or UDP connections without reading the HTTP inside; they can terminate TLS but can't route by path. Layer 7 balancers (AWS ALB) read HTTP, so they can route by path or header and balance per request instead of per connection.",
       sourceIds: ["aws-elb-types"],
     },
   ],
@@ -85,7 +86,7 @@ export default definePack({
     {
       id: "noisy-night",
       title: "The noisy night",
-      brief: "Four boxes, 200 req/s. At t+30s one gets a noisy neighbour and runs 6× slower. At t+70s another kernel-panics. Configure the balancer so p99 stays under 400ms and errors under 0.5%.",
+      brief: "Four boxes, 200 req/s. At t+30s one gets a noisy neighbour and runs 6× slower. At t+70s another one's gunicorn crashes, and nginx answers every request with an instant 502. Configure the balancer so p99 stays under 400ms and errors under 0.5%.",
       line: { speaker: "meera", line: "I'm going to sleep. The load balancer is on call tonight." },
       widget: { id: "lb-lab", config: NOISY },
       conditions: [
@@ -96,7 +97,7 @@ export default definePack({
       hints: [
         "Two different failures are coming. Which algorithm handles a box that is slow, and does that same algorithm like a box that is dead?",
         "Watch where traffic goes right after the crash. What does a dead box look like to a balancer that counts requests in flight?",
-        "Active checks run every few seconds. What notices failures on the very next requests instead?",
+        "Active checks run on a timer: every 10 s here, every 30 s by default on ALB. What notices failures on the very next requests instead?",
       ],
     },
   ],
@@ -108,7 +109,7 @@ export default definePack({
       { id: "hole", criterion: "A dead target that fails fast has zero in flight and attracts traffic; health checks (ideally passive) must eject it", keyIdea: "black hole" },
     ],
     exemplar:
-      "Round-robin gives every target the same share, so a slow box keeps getting a quarter of the traffic and a quarter of users see its latency. Least-outstanding sends each request to the target with the fewest requests in flight, and a slow box holds requests longer, so it gets fewer. But a dead box that refuses connections instantly always looks idle and becomes a black hole, so you need health checks, ideally passive ones that eject after a few errors.",
+      "Round-robin gives every target the same share, so a slow box keeps getting a quarter of the traffic and a quarter of requests see its latency. Least-outstanding sends each request to the target with the fewest requests in flight, and a slow box holds requests longer, so it gets fewer. But a dead box that refuses connections instantly always looks idle and becomes a black hole, so you need health checks, ideally passive ones that eject after a few errors.",
   },
   reviews: [
     {
@@ -187,7 +188,7 @@ export default definePack({
         { id: "dns", label: "Route 53 weighted DNS" },
       ],
       answer: "alb",
-      explain: "Path-based routing needs a balancer that reads HTTP: that's layer 7. NLB forwards TCP without looking inside (great for raw throughput and static IPs).",
+      explain: "Path-based routing needs a balancer that reads HTTP: that's layer 7. NLB can terminate TLS too, but it forwards TCP without reading the HTTP inside (great for raw throughput and static IPs).",
     },
     {
       id: "lb-explain-hc",
@@ -195,9 +196,9 @@ export default definePack({
       scenario: "In two sentences: what's the difference between a shallow and a deep health check, and what's the risk of each?",
       rubric: [
         { id: "shallow", criterion: "Shallow checks only prove the process answers; they miss boxes that are up but broken" },
-        { id: "deep", criterion: "Deep checks exercise dependencies; if a shared dependency blips, every target fails at once and the balancer ejects the whole fleet" },
+        { id: "deep", criterion: "Deep checks exercise dependencies; if a shared dependency blips, every target fails together. ALB then fails open, so the check stops protecting you, while an ASG using ELB health checks or Kubernetes readiness can pull or replace the whole fleet" },
       ],
-      exemplar: "A shallow check only proves the process answers, so a box that's up but can't serve real requests stays in rotation. A deep check exercises dependencies like the database, which catches that, but if the shared database blips every target fails its check at once and you eject the whole fleet.",
+      exemplar: "A shallow check only proves the process answers, so a box that's up but can't serve real requests stays in rotation. A deep check exercises dependencies like the database, which catches that, but if the shared database blips every target fails its check at once: ALB fails open, while an Auto Scaling group or Kubernetes acting on those checks can replace or pull the whole fleet.",
       explain: "Common middle ground: check the app process itself, keep dependencies out of the check, and add passive outlier detection on real traffic. (ALB fails open if every target is unhealthy.)",
     },
   ],
@@ -212,20 +213,20 @@ export default definePack({
     ],
     tradeoffs: [
       { choice: "Round robin", gain: "Simple, predictable, great for identical targets", cost: "Keeps feeding slow or sick boxes their full share" },
-      { choice: "Least outstanding / P2C", gain: "Routes around slow targets automatically", cost: "Fast-failing dead targets attract traffic (black holes)" },
-      { choice: "Deep health checks", gain: "Catch boxes that are up but broken", cost: "A shared dependency blip can eject every target at once" },
+      { choice: "Least outstanding / P2C", gain: "Routes around slow targets automatically", cost: "Fast-failing dead targets attract traffic (black holes); on ALB it can't be combined with slow start, so a cold new target takes a burst" },
+      { choice: "Deep health checks", gain: "Catch boxes that are up but broken", cost: "A shared dependency blip fails every target together; ALB fails open, other systems pull the fleet" },
     ],
     seenIn: [
       "Case Intel sits behind nginx on one box: nginx is a layer 7 reverse proxy, the same idea as an ALB, one server block at a time.",
-      "Every '502 Bad Gateway' you've seen from nginx is the balancer telling you the upstream refused or died.",
+      "Most '502 Bad Gateway' pages from nginx mean the upstream refused the connection, died mid-request, or sent something nginx couldn't parse; a slow upstream gets you a 504 instead.",
     ],
-    interviewAngle: "Name the algorithm and the health-check strategy when you draw a load balancer: 'ALB, least outstanding requests, shallow app-level checks plus outlier ejection'. Mention layer 4 vs 7 only when it changes the design.",
+    interviewAngle: "Name the algorithm and the health-check strategy when you draw a load balancer: 'ALB, least outstanding requests, health checks that go through the app process'. ALB has no passive ejection with that algorithm (its anomaly mitigation needs weighted random), so if you need outlier ejection, add Envoy or a service mesh behind it. Mention layer 4 vs 7 only when it changes the design.",
     aws: [
       { concept: "Layer 7 balancer", service: "Application Load Balancer" },
       { concept: "Layer 4 balancer", service: "Network Load Balancer" },
       { concept: "Health checks", service: "Target group health checks" },
     ],
-    otherClouds: "GCP: HTTP(S) Load Balancing / Network LB · Azure: Application Gateway / Load Balancer",
+    otherClouds: "GCP: Application Load Balancer / Network Load Balancer (proxy or passthrough) · Azure: Application Gateway / Load Balancer",
     replay: { id: "lb-lab", config: LAB },
   },
   interview: [
@@ -241,8 +242,8 @@ export default definePack({
     },
     {
       title: "Power of two choices",
-      body: "Checking every target's load on every request is expensive and, in distributed balancers, stale. Picking two targets at random and choosing the less loaded one reduces the maximum load exponentially compared to picking one at random (Mitzenmacher, 2001). It's the default in Envoy and many service meshes.",
-      sourceIds: ["mitzenmacher-2001"],
+      body: "Checking every target's load on every request is expensive and, in distributed balancers, stale. Picking two targets at random and choosing the less loaded one reduces the maximum load exponentially compared to picking one at random (Mitzenmacher, 2001). Envoy's least-request balancer works this way (two random choices by default), and Linkerd applies it to latency estimates. Envoy's default policy is still round robin.",
+      sourceIds: ["mitzenmacher-2001", "envoy-lb"],
     },
     {
       title: "Active vs passive health checks",
@@ -253,8 +254,12 @@ export default definePack({
   honestPhysics: [
     "The simulated ALB balances each request independently. A real ALB balances per request too, but NLB and connection-pooling clients balance per connection.",
     "A noisy neighbour is modelled as every request on that box taking 6× longer.",
+    "The lab's balancer is labelled ALB but also offers power of two choices and passive ejection. A real ALB has round robin, least outstanding requests and weighted random; its only passive mechanism (Automatic Target Weights) needs weighted random and shifts weight instead of ejecting. Passive ejection here is Envoy- or nginx-style.",
+    "A crashed box fails instantly here, like an app crash behind nginx. A kernel-panicked host sends nothing back, so requests hang until the connect timeout and least-outstanding steers away from it.",
+    "Health checks run every 10 s here. ALB's default is 30 s with two failures, so real detection takes 30 to 60 seconds.",
+    "A real ALB is many nodes, each counting only its own outstanding requests.",
   ],
-  sources: [SRC.albRouting, SRC.albHealth, SRC.mitzenmacher, NGINX_UPSTREAM, ENVOY_OUTLIER, AWS_ELB_TYPES, SRC.little1961],
+  sources: [SRC.albRouting, SRC.albHealth, SRC.mitzenmacher, NGINX_UPSTREAM, ENVOY_OUTLIER, ENVOY_LB, AWS_ELB_TYPES, SRC.little1961],
   verify: [
     { id: "rr-fails", claim: "Round-robin with shallow checks fails the noisy night", run: "lb-noisy", params: { config: NOISY, choice: { algorithm: "round-robin", hc: "shallow", outlier: false }, metric: "errorRate" }, expect: { min: 0.05 } },
     { id: "lor-blackhole", claim: "Least-outstanding without passive ejection black-holes the crash", run: "lb-noisy", params: { config: NOISY, choice: { algorithm: "least-outstanding", hc: "shallow", outlier: false }, metric: "errorRate" }, expect: { min: 0.02 } },

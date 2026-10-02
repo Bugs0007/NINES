@@ -5,10 +5,10 @@ export const CTX_CHALLENGE = { variant: "challenge" };
 
 const SRC = {
   lostMiddle: { id: "liu-2023", title: "N. Liu et al. (2023), Lost in the Middle: How Language Models Use Long Contexts, TACL 2024", url: "https://arxiv.org/abs/2307.03172" },
-  anthropicContext: { id: "anthropic-context-windows", title: "Anthropic docs: Context windows (everything in the request counts, including the output)", url: "https://docs.claude.com/en/docs/build-with-claude/context-windows" },
-  anthropicStateless: { id: "anthropic-messages", title: "Anthropic docs: Messages API (stateless: send the full conversation each time)", url: "https://docs.claude.com/en/api/messages" },
-  anthropicPricing: { id: "anthropic-pricing", title: "Anthropic: Claude API pricing", url: "https://www.anthropic.com/pricing#api" },
-  promptCaching: { id: "anthropic-prompt-caching", title: "Anthropic docs: Prompt caching", url: "https://docs.claude.com/en/docs/build-with-claude/prompt-caching" },
+  anthropicContext: { id: "anthropic-context-windows", title: "Anthropic docs: Context windows (everything in the request counts, including the output)", url: "https://platform.claude.com/docs/en/build-with-claude/context-windows" },
+  anthropicStateless: { id: "anthropic-messages", title: "Anthropic docs: Messages API (stateless: send the full conversation each time)", url: "https://platform.claude.com/docs/en/api/messages" },
+  anthropicPricing: { id: "anthropic-pricing", title: "Anthropic: Claude API pricing", url: "https://platform.claude.com/docs/en/about-claude/pricing" },
+  promptCaching: { id: "anthropic-prompt-caching", title: "Anthropic docs: Prompt caching", url: "https://platform.claude.com/docs/en/build-with-claude/prompt-caching" },
 };
 
 export default definePack({
@@ -71,7 +71,7 @@ export default definePack({
     {
       id: "stateless",
       scene: "stateless",
-      text: "Chat APIs are stateless. Every turn re-sends the history, so each request is bigger than the last and total input grows roughly with the square of the conversation length. Eventually a request won't fit at all and is rejected.",
+      text: "The model is stateless. Each request carries the whole history, whether your code re-sends it or a stateful API replays it for you, so every request is bigger than the last and total input grows roughly with the square of the conversation length. Eventually a request won't fit and is rejected.",
       sourceIds: ["anthropic-messages"],
       derived: true,
     },
@@ -82,8 +82,8 @@ export default definePack({
     },
     {
       id: "middle",
-      text: "Fitting isn't the same as working. Cost and latency scale with every input token, and models use information at the start and end of a long context better than information buried in the middle.",
-      sourceIds: ["liu-2023"],
+      text: "Fitting isn't the same as working. Cost and latency scale with every input token, and accuracy falls as context grows. Liu et al. found 2023 models used facts in the middle of a long context worst; current models still lose accuracy in long, cluttered contexts.",
+      sourceIds: ["liu-2023", "anthropic-context-windows"],
     },
   ],
   challenges: [
@@ -196,7 +196,7 @@ export default definePack({
         ],
       },
       answer: "search",
-      explain: "Twenty chunks bury the one that matters in the middle of a huge context, where models use information least reliably, and you pay for all of it. Retrieve fewer, better-ranked chunks.",
+      explain: "Twenty chunks put the one that matters among nineteen near-misses, and you pay for all of them on every turn. Accuracy drops as context fills with distractors, and Liu et al. found extra retrieved chunks barely helped. Retrieve fewer, better-ranked chunks.",
     },
     {
       id: "cw-explain",
@@ -216,8 +216,8 @@ export default definePack({
       { label: "What counts toward the window", value: "system + tools + messages + output", sourceId: "anthropic-context-windows" },
       { label: "Conversation state", value: "none: re-send history each turn", sourceId: "anthropic-messages" },
       { label: "Cumulative input over n turns", value: "grows ∝ n²", sourceId: "anthropic-messages" },
-      { label: "Mid-context recall", value: "worse than start or end", sourceId: "liu-2023" },
-      { label: "Cached prefix reads", value: "≈ 0.1× the input price", sourceId: "anthropic-prompt-caching" },
+      { label: "Mid-context recall (2023 models)", value: "worse than start or end", sourceId: "liu-2023" },
+      { label: "Cached prefix reads", value: "≈ 0.1× the input price (Sonnet, Haiku)", sourceId: "anthropic-prompt-caching" },
     ],
     tradeoffs: [
       { choice: "Full history", gain: "Nothing is forgotten (until it doesn't fit)", cost: "Cost grows quadratically; eventually rejected" },
@@ -231,7 +231,7 @@ export default definePack({
     ],
     interviewAngle: "In a chat-product design, state the context budget explicitly: 'system + tools ≈ 4k, top-3 chunks ≈ 2k, pinned profile, last N turns, answer reserve', and how you cache the stable prefix. It shows you understand cost and quality at once.",
     aws: [{ concept: "Long-conversation state", service: "Store history in DynamoDB; build the context per request" }],
-    otherClouds: "The same pattern applies on any provider: the API is stateless, your service owns memory",
+    otherClouds: "The model is stateless on every provider. Some APIs store history for you, but every turn still processes and bills the full context.",
     replay: { id: "context-tetris", config: LAB },
   },
   interview: [
@@ -247,7 +247,7 @@ export default definePack({
     },
     {
       title: "Prompt caching softens (but doesn't remove) the curve",
-      body: "The stable prefix (system prompt, tool definitions, pinned facts) is identical on every turn. Prompt caching lets the provider reuse it: cache reads cost a fraction of normal input. The growing history still costs full price unless it's also cached, and any change to an earlier byte invalidates everything after it.",
+      body: "The stable prefix (system prompt, tool definitions, pinned facts) is identical on every turn, and prompt caching lets the provider reuse it: cache reads cost a fraction of normal input. An append-only history caches too, since each request starts with the previous one. A sliding window breaks that: dropping the oldest turn changes everything after the stable blocks, and that part is paid in full again.",
       sourceIds: ["anthropic-prompt-caching"],
     },
     {
@@ -257,8 +257,12 @@ export default definePack({
     },
   ],
   honestPhysics: [
-    "Window size is set to 32k tokens so the trade-offs appear within 40 turns. Current Claude models have far larger windows; the arithmetic of cost and forgetting is the same.",
+    "Window size is set to 32k tokens so the trade-offs appear within 40 turns. Current Claude models have 200k–1M windows, where a 40-turn chat fits easily; there, dropping turns is a choice about cost, latency, and accuracy rather than a hard limit.",
     "Whether the model answers a question is modelled as 'is the needed fact in the request?'. Real models can also fail with the fact present, or guess right without it.",
+    "A request here is rejected when input plus the 1,024-token answer reserve exceeds the window. On current Claude models only input over the window is rejected; if the input fits but the answer doesn't, the reply is cut off with stop_reason model_context_window_exceeded.",
+    "Lost in the middle is a stylized rule: a retrieved doc is missed only when 6 or more are retrieved, it is neither in the top two nor last, and the window is over 60% full at turn 40. Real position effects are gradual and vary by model.",
+    "Prompt caching is modelled only in The Bill, and only for the stable prefix (system, tools, pinned profile), written once per chat. Real automatic caching also reuses an append-only history, and cache entries expire after 5 idle minutes by default.",
+    "Time to first token is stylized: a fixed overhead plus prefill time proportional to uncached input. It ignores queueing, network time, and any thinking the model does before its first visible token.",
   ],
   sources: [SRC.anthropicContext, SRC.anthropicStateless, SRC.lostMiddle, SRC.anthropicPricing, SRC.promptCaching],
   verify: [

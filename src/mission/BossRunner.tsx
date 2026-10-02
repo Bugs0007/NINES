@@ -23,6 +23,7 @@ import { ChallengePanel, ExplainPanel, RichText } from "./panels";
 import { ConfidencePicker, formatNumeric } from "./PredictPanel";
 import type { XpLine } from "./Debrief";
 import { useMusic } from "@/audio/useMusic";
+import { HonestNotes } from "@/ui/HonestNotes";
 
 type Beat = "intro" | "fight" | "explain" | "debrief";
 
@@ -270,6 +271,7 @@ function BossDebrief({ boss, lines, stars }: { boss: BossPack; lines: XpLine[]; 
           </motion.div>
         ))}
         {boss.outro && <CastLine line={boss.outro} />}
+        <HonestNotes notes={boss.honestPhysics} />
       </div>
     </div>
   );
