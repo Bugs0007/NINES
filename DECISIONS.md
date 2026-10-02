@@ -56,3 +56,22 @@ Architecture decision log. Newest at the bottom. Each entry: context, decision, 
 ### D-012 · Claude usage ledger on the server filesystem (local), Postgres later
 - **Decision:** `.nines/usage.json` (gitignored) records cost per call; the hard monthly cap is enforced server-side before each call.
 - **Why:** The key and the budget must be enforced where the key lives. A file is enough for local single-user use; the Vercel phase will move it to Postgres.
+
+### D-013 · React Compiler lint advisories are warnings, not errors
+- **Context:** `eslint-config-next` now ships the React Compiler rules. NINES doesn't run the compiler.
+- **Decision:** `react-hooks/set-state-in-effect`, `react-hooks/refs`, and `react-hooks/preserve-manual-memoization` are warnings. Purity, immutability, and use-before-declare stay errors.
+- **Why:** The flagged patterns are deliberate: widgets sync to a narrated `scene` prop, and hooks keep the latest callbacks in a ref. The rules that stayed errors caught real bugs (a render-time `Date.now()` that ignored the time-warp clock).
+
+### D-014 · The 60fps bar is measured on the hardware GPU
+- **Context:** Headless Chromium composites in software and caps every page near 30fps, including an empty canvas with zero particles. CPU profiling showed the renderer's JS at about 10% of the main thread.
+- **Decision:** `e2e/perf.spec.ts` launches Chromium with ANGLE/D3D11 and skips itself when only a software renderer exists. Result: 1,969 particles at 60fps, p95 frame 16.8ms (RTX 4050 laptop).
+- **Consequence:** FlowView also drops its additive glow pass when the frame-time average runs long with many particles, as insurance for weak phones.
+
+### D-015 · Unbuilt content appears only as blueprints on the HQ map
+- **Decision:** Lists (Incident Room, chapter rows) show only content that exists in the build. The HQ map keeps drawing the whole curriculum as blueprint lots.
+- **Why:** The brief rules out "coming soon" tiles. The map's blueprints are the curriculum itself (D-008), not placeholders for a feature; a list row that says "not yet constructed" is.
+
+### D-016 · Context Tetris is a stylized model, priced from the real config
+- **Decision:** A deterministic model (`src/widgets/context/model.ts`): a 32k window over a 40-turn chat; a question is answerable when the needed fact is in the request; lost-in-the-middle applies to buried docs in a crowded window; a router sends 20% of turns to the Sonnet-class model; TTFT is a fixed overhead plus prefill on uncached input. Prices and cache multipliers come from `src/config/models.ts`.
+- **Why:** The lesson is the arithmetic (re-sent history, quadratic cost, what falls out) and the trade-offs between policies, which a model shows exactly and reproducibly; honest-physics notes disclose the simplifications.
+- **Consequence:** In The Bill the dollar figure stays hidden until you ship, so the forecast is an estimate from tokens and the price sheet, not a read-off.

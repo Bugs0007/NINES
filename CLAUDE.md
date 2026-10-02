@@ -12,7 +12,10 @@ A game that teaches system design, AI engineering, and dev fundamentals. Read `R
 | Type-check | `npx tsc --noEmit` |
 | E2E + screenshots | `npx playwright test` (shots land in `e2e/__shots__/`, gitignored) |
 | Regenerate CONTENT_PLAN tables | `npm run content:plan` |
-| Calibrate a challenge | edit and run `npx tsx scripts/calibrate.ts` |
+| Calibrate a challenge | edit and run `npx tsx scripts/calibrate.ts` (sims), `scripts/ctx.mts` (Context Tetris), `scripts/tok.mts` (tokenizer) |
+| Every screen at both widths | `npx playwright test e2e/tour.spec.ts` (fails on any sideways scroll) |
+| Renderer perf (needs a GPU) | `npx playwright test e2e/perf.spec.ts` (stress page: `/dev/perf?n=2000`) |
+| Regenerate app icons | `npx tsx scripts/gen-icons.mts` (from `src/app/icon.svg`) |
 
 Windows + OneDrive notes: installs are slow here. If Vitest dies with "Cannot find native binding" run `npm i --no-save @rolldown/binding-win32-x64-msvc`. Fonts are committed in `src/fonts/` because `next/font/google` can't fetch on this network.
 
@@ -24,9 +27,16 @@ src/
   engine/         Pure TS discrete-event sim. sim.ts (core), host.ts + sim.worker.ts (worker), useSim.ts (React)
   content/        graph.ts (whole curriculum), schema.ts (Zod + lint), packs/*.ts, verifiers.ts, scenarios.ts
   widgets/        Interactive widgets. registry.tsx (id -> component), manifest.ts (metrics/observes/scenes)
-  mission/        Mission Runner and its panels (hook, predict, reveal, mechanism, challenge, explain, debrief)
+  mission/        Mission Runner, Boss Runner, and their panels (hook, predict, reveal, mechanism, challenge, explain, debrief)
+  hq/             HQ: uptime headline, infrastructure map (decay states), dock
+  campaign/       Chapter view (missions, boss, side incidents)
+  shift/          Daily Shift (reviews, micro-challenge, Estimathon)
+  review/         Review card formats and diagrams
+  codex/          Codex cards, search, calibration profile
+  incident/       Incident Room scenarios and war-room panels
+  settings/       Settings page
   game/           Dexie db, Zustand store, FSRS, rank (nines), scoring
-  audio/          Web Audio engine (sfx singleton)
+  audio/          Web Audio engine (sfx singleton), useMusic() for the generative score
   ui/             Design system: kit.tsx, motion.tsx, Slider, Cast, flow/FlowView (canvas particles)
   claude/         Browser helpers + shared request schemas for the Claude routes
   server/         Server-only Claude client, usage ledger, budget cap
@@ -44,6 +54,8 @@ e2e/              Playwright flows and screenshot specs
 - Every number a player reads as fact has a source (`sources` + `sourceIds`) or is marked `derived: true` because the sim produced it. The lint enforces this.
 - Challenge thresholds are calibrated against the engine with the widget's exact spec and seed, then locked in with `verify` blocks. RNG streams are keyed by node id, so renaming a node changes results.
 - Copy: dry, specific, no exclamation marks, no emoji, no guilt. Cast lines are at most two sentences.
+- Responsive grids need a base `grid-cols-1` (minmax(0,1fr)); without it wide content (tables, truncated rows) stretches the column off a 390px screen.
+- Lists show only content that exists in the build; unbuilt content appears only as blueprints on the HQ map (D-015).
 - Commits end with the `Co-Authored-By` line from the session instructions.
 
 ## Design tokens (`src/app/globals.css`, Tailwind v4 `@theme`)
