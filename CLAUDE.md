@@ -38,9 +38,9 @@ src/
   game/           Dexie db, Zustand store, FSRS, rank (nines), scoring
   audio/          Web Audio engine (sfx singleton), useMusic() for the generative score
   ui/             Design system: kit.tsx, motion.tsx, Slider, Cast, flow/FlowView (canvas particles)
-  claude/         Browser helpers + shared request schemas for the Claude routes
-  server/         Server-only Claude client, usage ledger, budget cap
-  config/         models.ts (every model ID), claude.ts (budget)
+  ai/             Browser helpers + shared request schemas for the AI routes
+  server/         Server-only AI client (Groq), usage ledger, budget cap
+  config/         models.ts (every runtime model ID + price), ai.ts (budget)
 tests/content/    Graph + pack lint + engine-verified claims
 e2e/              Playwright flows and screenshot specs
 ```
@@ -92,8 +92,11 @@ Motion presets live in `src/ui/motion.tsx` (`spring.snap`, `soft`, `heavy`, `bou
 6. `npm test` must be green (lint + verification). Then play it end to end (`/mission/<id>`) and extend `e2e/` if the flow is new.
 7. After drafting a track, run the accuracy pass (a fact-check subagent) and log it in `CONTENT_PLAN.md`.
 
-## Claude API
+## AI provider (Groq)
 
-- Routes: `/api/claude/status`, `/grade` (structured output, Sonnet-class), `/hint` (Socratic, Haiku-class), `/count-tokens`.
-- Model IDs only in `src/config/models.ts`. Key in `.env.local` (see `.env.example`). The ledger is `.nines/usage.json`; the monthly cap is `NINES_MONTHLY_BUDGET_USD`.
-- Every feature must work without a key (self-graded rubric, scripted hints, BPE proxy counts).
+- Runtime AI is Groq's OpenAI-compatible API, called with plain `fetch` from `src/server/ai.ts` (no SDK). Key: `GROQ_API_KEY` in `.env` (gitignored), read server-side only.
+- Routes: `/api/ai/status`, `/api/ai/grade` (gpt-oss-120b, strict JSON-schema output, medium reasoning), `/api/ai/hint` (gpt-oss-20b, low reasoning). `include_reasoning: false` always.
+- Model IDs and runtime prices only in `src/config/models.ts`. The lessons' price sheet (Claude list prices the AI track teaches with) is `src/content/prices.ts`; never couple the two, or a provider change moves calibrated challenges.
+- The ledger is `.nines/usage.json`; the monthly cap is `NINES_MONTHLY_BUDGET_USD` (default $5). Free tier: 30 requests/min, 8,000 tokens/min; a 429 falls back to offline behaviour.
+- Groq caches matching prompt prefixes automatically on gpt-oss (cached tokens at half price): keep system prompts stable and first, volatile content last.
+- Every feature must work without a key (self-graded rubric, scripted hints). The offline tokenizer (o200k) is exact for gpt-oss.

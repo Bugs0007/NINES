@@ -11,7 +11,7 @@ import { spring, useReducedMotion } from "@/ui/motion";
 import { Slider } from "@/ui/Slider";
 import { ConditionList } from "../shared";
 import type { WidgetProps } from "../types";
-import { CACHE_READ_MULT, CACHE_WRITE_MULT, MODELS, PRICING } from "@/config/models";
+import { TEACHING_CACHE_READ_MULT as CACHE_READ_MULT, TEACHING_CACHE_WRITE_MULT as CACHE_WRITE_MULT, TEACHING_PRICES } from "@/content/prices";
 import { ContextConfig, evaluate, FACTS, prefixTokens, ROUTER_FAST_SHARE, turnState, type HistoryMode, type Policy } from "./model";
 
 export { ContextConfig };
@@ -92,8 +92,8 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
   const controlsLocked = locked || shipped || wmode === "preview";
   // In the boss the bill stays hidden until you ship: you forecast it from tokens and prices.
   const showUsd = !bill || shipped;
-  const g = PRICING[MODELS.grader]!;
-  const f = PRICING[MODELS.fast]!;
+  const g = TEACHING_PRICES.big;
+  const f = TEACHING_PRICES.small;
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-3 lg:flex-row">

@@ -6,7 +6,7 @@
 import { AnimatePresence, motion, Reorder } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { sfx } from "@/audio/engine";
-import { claudeStatus, gradeExplanation } from "@/claude/client";
+import { aiStatus, gradeExplanation } from "@/ai/client";
 import type { ReviewItem } from "@/content/schema";
 import { runTune } from "@/content/scenarios";
 import { scoreEstimate, type Confidence } from "@/game/scoring";
@@ -120,7 +120,7 @@ export function ReviewCard({ item, conceptTitle, askWhy, onDone }: { item: Revie
       }
       case "explain": {
         setBusy(true);
-        const status = await claudeStatus();
+        const status = await aiStatus();
         const g = status?.enabled ? await gradeExplanation({ concept: conceptTitle, prompt: item.scenario, rubric: item.rubric.map((x) => ({ id: x.id, criterion: x.criterion })), exemplar: item.exemplar, answer: text }) : null;
         setBusy(false);
         if (g) r = { correct: g.score >= 0.67, partial: g.score >= 0.34 && g.score < 0.67, note: g.gap ? `gap: ${g.gap}` : g.feedback };

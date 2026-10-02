@@ -2,7 +2,7 @@
  * Estimathon: procedurally generated back-of-envelope problems with worked breakdowns.
  * Scaffolding fades with practice: worked (all steps but the last) -> faded (first step) -> solo.
  */
-import { PRICING, MODELS } from "@/config/models";
+import { TEACHING_PRICES } from "@/content/prices";
 import { Rng } from "@/engine/rng";
 
 export interface EstProblem {
@@ -117,7 +117,7 @@ const GENS: Gen[] = [
     const reqs = r.pick([1e4, 5e4, 2e5, 1e6]);
     const tin = r.pick([800, 2000, 6000]);
     const tout = r.pick([200, 400, 800]);
-    const p = PRICING[MODELS.grader]!;
+    const p = TEACHING_PRICES.big;
     const usd = (reqs * tin * p.input + reqs * tout * p.output) / 1e6;
     return {
       id: "llm-cost",

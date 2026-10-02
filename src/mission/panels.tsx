@@ -4,8 +4,8 @@
  */
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { askSre, claudeStatus, gradeExplanation } from "@/claude/client";
-import type { GradeResult } from "@/claude/schemas";
+import { askSre, aiStatus, gradeExplanation } from "@/ai/client";
+import type { GradeResult } from "@/ai/schemas";
 import type { Caption, Challenge, Deeper, ExplainBack, Source } from "@/content/schema";
 import { sfx } from "@/audio/engine";
 import { CastLine } from "@/ui/Cast";
@@ -213,7 +213,7 @@ export function ChallengePanel({
   const ask = async () => {
     setAsking(true);
     const level = Math.min(3, hints.length + 1);
-    const status = await claudeStatus();
+    const status = await aiStatus();
     let h: string | null = null;
     if (status?.enabled) {
       h = await askSre({
@@ -311,7 +311,7 @@ export function ExplainPanel({ concept, eb, required, onDone }: { concept: strin
 
   const submit = async () => {
     setPhase("grading");
-    const status = await claudeStatus();
+    const status = await aiStatus();
     if (status?.enabled) {
       const r = await gradeExplanation({ concept, prompt: eb.prompt, rubric: eb.rubric, exemplar: eb.exemplar, answer: text });
       if (r) {

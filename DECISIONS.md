@@ -75,3 +75,9 @@ Architecture decision log. Newest at the bottom. Each entry: context, decision, 
 - **Decision:** A deterministic model (`src/widgets/context/model.ts`): a 32k window over a 40-turn chat; a question is answerable when the needed fact is in the request; lost-in-the-middle applies to buried docs in a crowded window; a router sends 20% of turns to the Sonnet-class model; TTFT is a fixed overhead plus prefill on uncached input. Prices and cache multipliers come from `src/config/models.ts`.
 - **Why:** The lesson is the arithmetic (re-sent history, quadratic cost, what falls out) and the trade-offs between policies, which a model shows exactly and reproducibly; honest-physics notes disclose the simplifications.
 - **Consequence:** In The Bill the dollar figure stays hidden until you ship, so the forecast is an estimate from tokens and the price sheet, not a read-off.
+
+### D-017 · Runtime AI moves from Claude to Groq; the lessons keep Claude as reference
+- **Context:** Bhagath won't add an Anthropic key; he added `GROQ_API_KEY`.
+- **Decision:** Grading and hints call Groq with plain `fetch` (`src/server/ai.ts`): `openai/gpt-oss-120b` grades with strict JSON-schema structured outputs, `openai/gpt-oss-20b` gives hints. Reasoning effort is set per route and reasoning text is never returned. The Anthropic SDK and the token-count route are removed.
+- **Why:** Same shape as before (capable model for judgement, cheap model for chatter), structured outputs with constrained decoding, automatic prefix caching, and prices low enough that the $5 cap covers thousands of grades (a grade costs about $0.0006).
+- **Consequence:** The AI-engineering lessons still teach with Claude's pricing and docs (a stable, sourced reference), now in `src/content/prices.ts`, decoupled from the runtime config so switching providers can't shift a calibrated challenge. The Tokenizer Slicer's o200k counts are now exact for the models NINES actually calls.

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { sfx } from "@/audio/engine";
 import { useMusic } from "@/audio/useMusic";
-import { claudeStatus, type ClaudeStatus } from "@/claude/client";
+import { aiStatus, type AiStatus } from "@/ai/client";
 import { exportAll, importAll, resetAll, type AudioSettings, type ExportBlob, type ReducedMotionPref } from "@/game/db";
 import { istDay, useGame } from "@/game/store";
 import { Button, Chip, cx, fmtUsd, Meter, Panel, Segmented } from "@/ui/kit";
@@ -90,25 +90,25 @@ export function Settings() {
         </div>
       </Panel>
 
-      <ClaudePanel />
+      <AiPanel />
       <TimeWarpPanel days={settings.timeWarpDays ?? 0} onChange={(d) => void update({ timeWarpDays: d })} />
       <DataPanel />
     </div>
   );
 }
 
-function ClaudePanel() {
-  const [s, setS] = useState<(ClaudeStatus & { byRoute?: Record<string, { calls: number; usd: number }>; models?: Record<string, string> }) | null | undefined>(undefined);
+function AiPanel() {
+  const [s, setS] = useState<(AiStatus & { byRoute?: Record<string, { calls: number; usd: number }>; models?: Record<string, string> }) | null | undefined>(undefined);
   useEffect(() => {
-    void claudeStatus(true).then((v) => setS(v));
+    void aiStatus(true).then((v) => setS(v));
   }, []);
   return (
-    <Panel label="claude" right={s === undefined ? <Chip tone="muted">checking…</Chip> : <Chip tone={s?.enabled ? "ok" : "muted"}>{s?.enabled ? "connected" : "offline"}</Chip>}>
+    <Panel label={s?.provider ? `AI coach · ${s.provider}` : "AI coach"} right={s === undefined ? <Chip tone="muted">checking…</Chip> : <Chip tone={s?.enabled ? "ok" : "muted"}>{s?.enabled ? "connected" : "offline"}</Chip>}>
       {s === undefined ? null : !s?.enabled ? (
         <div className="space-y-2 text-sm text-ink-1">
           <p>No API key, and that&apos;s fine: every mission, boss, incident, and review works offline. Explanations are self-graded against the rubric and hints come from the script.</p>
           <p className="text-ink-2">
-            To turn on graded explanations and the live SRE, put <code className="font-mono text-amber">ANTHROPIC_API_KEY</code> in <code className="font-mono">.env</code> and restart. The key stays on the server; the browser never sees it. Cap spend with <code className="font-mono text-amber">NINES_MONTHLY_BUDGET_USD</code> (default $5).
+            To turn on graded explanations and the live SRE, put <code className="font-mono text-amber">GROQ_API_KEY</code> in <code className="font-mono">.env</code> and restart. The key stays on the server; the browser never sees it. Cap spend with <code className="font-mono text-amber">NINES_MONTHLY_BUDGET_USD</code> (default $5).
           </p>
         </div>
       ) : (

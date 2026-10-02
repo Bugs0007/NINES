@@ -1,25 +1,26 @@
 "use client";
 /**
- * Browser-side helpers for the Claude routes. Every call returns null when Claude is unavailable
- * (no key, budget reached, network), and callers fall back to offline behaviour.
+ * Browser-side helpers for the AI routes. Every call returns null when the AI coach is unavailable
+ * (no key, budget reached, rate limited, network), and callers fall back to offline behaviour.
  */
 import type { GradeRequest, GradeResult, HintRequest } from "./schemas";
 
-export interface ClaudeStatus {
+export interface AiStatus {
   enabled: boolean;
+  provider: string;
   spentUsd: number;
   calls: number;
   budgetUsd: number;
   month: string;
 }
 
-let statusCache: { at: number; v: ClaudeStatus | null } | null = null;
+let statusCache: { at: number; v: AiStatus | null } | null = null;
 
-export async function claudeStatus(force = false): Promise<ClaudeStatus | null> {
+export async function aiStatus(force = false): Promise<AiStatus | null> {
   if (!force && statusCache && Date.now() - statusCache.at < 30_000) return statusCache.v;
   try {
-    const r = await fetch("/api/claude/status", { cache: "no-store" });
-    const v = (await r.json()) as ClaudeStatus;
+    const r = await fetch("/api/ai/status", { cache: "no-store" });
+    const v = (await r.json()) as AiStatus;
     statusCache = { at: Date.now(), v };
     return v;
   } catch {
@@ -40,16 +41,11 @@ async function post<T>(url: string, body: unknown): Promise<T | null> {
 }
 
 export async function gradeExplanation(req: GradeRequest): Promise<GradeResult | null> {
-  const r = await post<{ result: GradeResult }>("/api/claude/grade", req);
+  const r = await post<{ result: GradeResult }>("/api/ai/grade", req);
   return r?.result ?? null;
 }
 
 export async function askSre(req: HintRequest): Promise<string | null> {
-  const r = await post<{ hint: string }>("/api/claude/hint", req);
+  const r = await post<{ hint: string }>("/api/ai/hint", req);
   return r?.hint ?? null;
-}
-
-export async function claudeTokenCount(text: string): Promise<number | null> {
-  const r = await post<{ tokens: number }>("/api/claude/count-tokens", { text });
-  return r?.tokens ?? null;
 }

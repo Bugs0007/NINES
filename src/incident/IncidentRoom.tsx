@@ -8,7 +8,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { sfx } from "@/audio/engine";
-import { askSre, claudeStatus, gradeExplanation } from "@/claude/client";
+import { askSre, aiStatus, gradeExplanation } from "@/ai/client";
 import type { WindowMetrics } from "@/engine/types";
 import { useSim } from "@/engine/useSim";
 import { useGame } from "@/game/store";
@@ -126,7 +126,7 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
 
   const ask = async () => {
     const level = Math.min(3, hints.length + 1);
-    const status = await claudeStatus();
+    const status = await aiStatus();
     let h: string | null = null;
     if (status?.enabled) {
       h = await askSre({
@@ -337,7 +337,7 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
 
   const submit = async () => {
     setGrading(true);
-    const status = await claudeStatus();
+    const status = await aiStatus();
     if (status?.enabled) {
       const g = await gradeExplanation({
         concept: `${inc.code} ${inc.title} postmortem`,

@@ -3,7 +3,7 @@
  * and which facts the model can still see. Deterministic and stylized (see honest physics).
  */
 import { z } from "zod";
-import { PRICING, MODELS, CACHE_READ_MULT, CACHE_WRITE_MULT } from "@/config/models";
+import { TEACHING_CACHE_READ_MULT as CACHE_READ_MULT, TEACHING_CACHE_WRITE_MULT as CACHE_WRITE_MULT, TEACHING_PRICES } from "@/content/prices";
 
 export type HistoryMode = "full" | "last" | "summary" | "pinned";
 
@@ -130,8 +130,8 @@ export function evaluate(c: ContextConfig, p: Policy): Evaluation {
     if ((p.mode === "pinned" || p.mode === "summary") && f.profile) return { fact: f, ok: true, why: p.mode === "pinned" ? "pinned in the profile block" : "kept by the summary" };
     return { fact: f, ok: false, why: `turn ${f.turn} fell out of the window` };
   });
-  const g = PRICING[MODELS.grader]!;
-  const fp = PRICING[MODELS.fast]!;
+  const g = TEACHING_PRICES.big;
+  const fp = TEACHING_PRICES.small;
   const r = ROUTER_FAST_SHARE;
   const price = p.model === "fast" ? fp : p.model === "router" ? { input: r * fp.input + (1 - r) * g.input, output: r * fp.output + (1 - r) * g.output } : g;
   let usd = 0;

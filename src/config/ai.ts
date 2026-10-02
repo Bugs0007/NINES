@@ -1,4 +1,4 @@
-/** Hard monthly budget for Claude calls. Override with NINES_MONTHLY_BUDGET_USD in .env.local. */
+/** Hard monthly budget for AI calls. Override with NINES_MONTHLY_BUDGET_USD in .env. */
 export const DEFAULT_MONTHLY_BUDGET_USD = 5;
 
 export function monthlyBudgetUsd(): number {

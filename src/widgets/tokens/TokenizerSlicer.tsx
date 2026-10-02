@@ -5,7 +5,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { sfx } from "@/audio/engine";
-import { claudeStatus, claudeTokenCount } from "@/claude/client";
 import { magnitudeError } from "@/game/scoring";
 import { Button, Chip, cx, fmtUsd, Panel } from "@/ui/kit";
 import { spring, useReducedMotion } from "@/ui/motion";
@@ -59,16 +58,11 @@ export default function TokenizerSlicer({ config, scene, onObserve, locked, mode
   const [custom, setCustom] = useState("");
   const [guess, setGuess] = useState("");
   const [revealed, setRevealed] = useState<Record<string, { guess: number | null; actual: number }>>({});
-  const [claude, setClaude] = useState<Record<string, number | null>>({});
-  const [keyOn, setKeyOn] = useState(false);
   const fired = useRef(new Set<string>());
   const text = sel === "custom" ? custom : samples.find((s) => s.id === sel)?.text ?? "";
   const pieces = useMemo(() => (tok && text ? tok.encode(text).map((id) => tok.decode([id])) : []), [tok, text]);
   const isRevealed = sel === "custom" ? !!custom : !!revealed[sel];
 
-  useEffect(() => {
-    void claudeStatus().then((s) => setKeyOn(!!s?.enabled));
-  }, []);
   useEffect(() => {
     if (scene === "scripts") setSel("te");
     if (scene === "strawberry") setSel("straw");
@@ -80,7 +74,7 @@ export default function TokenizerSlicer({ config, scene, onObserve, locked, mode
     onObserve?.(e);
   };
 
-  const slice = async () => {
+  const slice = () => {
     if (!tok) return;
     const g = Number(guess);
     setRevealed((r) => ({ ...r, [sel]: { guess: Number.isFinite(g) && guess ? g : null, actual: pieces.length } }));
@@ -90,10 +84,6 @@ export default function TokenizerSlicer({ config, scene, onObserve, locked, mode
     if (sel === "te" || sel === "hi") fire("script-gap");
     if (sel === "json") fire("json-dense");
     if (sel === "straw") fire("strawberry");
-    if (keyOn) {
-      const n = await claudeTokenCount(text);
-      setClaude((cc) => ({ ...cc, [sel]: n }));
-    }
   };
 
   const en = revealed["en"]?.actual;
@@ -129,8 +119,7 @@ export default function TokenizerSlicer({ config, scene, onObserve, locked, mode
               <motion.div key={sel} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-2">
                 <TokenChips pieces={pieces} animate={sel !== "custom"} />
                 <div className="flex flex-wrap items-center gap-2 font-mono text-2xs text-ink-2">
-                  <Chip tone="ok">{pieces.length} tokens · BPE proxy (o200k)</Chip>
-                  {claude[sel] != null && <Chip tone="warn">Claude: {claude[sel]} tokens (exact)</Chip>}
+                  <Chip tone="ok">{pieces.length} tokens · o200k</Chip>
                   <span>{([...text].length / Math.max(1, pieces.length)).toFixed(1)} characters per token</span>
                   {en && sel !== "en" && sel !== "custom" && <span>· {(pieces.length / en).toFixed(1)}× the English message</span>}
                 </div>
@@ -177,7 +166,7 @@ export default function TokenizerSlicer({ config, scene, onObserve, locked, mode
           </ul>
         </Panel>
         <p className="text-xs text-ink-3">
-          Offline, NINES splits text with o200k, a real byte-pair encoder. Claude uses its own tokenizer, so exact counts differ{keyOn ? "; with your key, the Claude count comes from the token-counting API." : ". Add an API key to see Claude's exact counts."}
+          NINES splits text with o200k, a real byte-pair encoder. It is the vocabulary of the gpt-oss models NINES calls for coaching, so these counts are exact for them (chat formatting adds a few tokens per message). Other model families, Claude included, use their own tokenizers, so the same text counts differently there.
         </p>
       </div>
     </div>

@@ -20,7 +20,6 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.128.0",
     "dexie": "^4.4.6",
     "gpt-tokenizer": "^4.0.0",
     "motion": "^13.4.4",
