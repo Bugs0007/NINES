@@ -119,7 +119,7 @@ function Profile() {
   return (
     <div className="mt-5 grid gap-3 lg:grid-cols-2">
       <Panel label="calibration">
-        <p className="text-sm text-ink-1">When you say you're 90% sure, are you right 90% of the time? Points on the diagonal mean your confidence is honest.</p>
+        <p className="text-sm text-ink-1">When you say you&apos;re 90% sure, are you right 90% of the time? Points on the diagonal mean your confidence is honest.</p>
         <svg viewBox={`0 0 ${W} ${H}`} className="mt-3 w-full max-w-sm" role="img" aria-label="Calibration: stated confidence against actual accuracy">
           <line x1={x(0.4)} y1={y(0.4)} x2={x(1)} y2={y(1)} stroke="#365a66" strokeDasharray="4 3" />
           {[0.5, 0.7, 0.9].map((v) => (

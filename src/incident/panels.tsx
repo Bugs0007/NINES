@@ -45,7 +45,7 @@ export function Dashboards({ inc, sim, pins, pin }: { inc: Incident; sim: SimHan
   return (
     <div className="flex flex-col gap-3">
       <MetricStrip windows={ws} keys={["p50", "p99", "errors", "rps"]} slo={inc.slo} />
-      <div className="grid gap-3 xl:grid-cols-[1.3fr_1fr]">
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
         <Panel label="targets · pigeon-app-tg" bodyClassName="p-0">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[520px] text-left font-mono text-2xs">

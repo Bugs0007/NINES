@@ -4,13 +4,13 @@
  */
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CHAPTERS, GRAPH, NODE_BY_ID, TRACKS } from "@/content/graph";
 import { hrefFor, isPlayable } from "@/content/progression";
 import { PACK_BY_ID } from "@/content/packs";
 import { gameNow } from "@/game/clock";
 import { formatUptime, MAX_NINES, TIER_NAMES } from "@/game/rank";
-import { dueConcepts, useGame, useLive } from "@/game/store";
+import { dueConcepts, istDay, useGame, useLive } from "@/game/store";
 import { sfx } from "@/audio/engine";
 import { Button, Chip, cx, Led } from "@/ui/kit";
 import { spring, Ticker, useReducedMotion } from "@/ui/motion";
@@ -28,18 +28,12 @@ export function HQ() {
   const beaten = useMemo(() => new Set([...profile.bossesBeaten, ...profile.incidentsResolved]), [profile.bossesBeaten, profile.incidentsResolved]);
   const rMap = useMemo(() => new Map(live.health.map((h) => [h.id, h.r])), [live.health]);
   const now = gameNow().getTime();
-  const infoOf = useMemo(() => {
-    const cache = new Map<string, LotInfo>();
-    return (id: string) => {
-      let v = cache.get(id);
-      if (!v) {
-        v = lotInfo(NODE_BY_ID.get(id)!, concepts, built, beaten, (x) => rMap.get(x), now);
-        cache.set(id, v);
-      }
-      return v;
-    };
+  const infos = useMemo(
+    () => new Map(GRAPH.map((n) => [n.id, lotInfo(n, concepts, built, beaten, (x) => rMap.get(x), now)])),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [concepts, built, beaten, rMap]);
+    [concepts, built, beaten, rMap],
+  );
+  const infoOf = useCallback((id: string): LotInfo => infos.get(id)!, [infos]);
 
   const due = useMemo(() => dueConcepts(concepts), [concepts, live]); // eslint-disable-line react-hooks/exhaustive-deps
   const focusChapter = useMemo(() => {
@@ -64,7 +58,7 @@ export function HQ() {
   return (
     <div className="flex min-h-dvh flex-col">
       <TopBar streak={profile.streak.count} tokens={profile.streak.freezeTokens} />
-      <section className="grid gap-3 px-3 pt-3 lg:grid-cols-[1.35fr_1fr] lg:px-5">
+      <section className="grid grid-cols-1 gap-3 px-3 pt-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:px-5">
         {/* uptime */}
         <div className="relative overflow-hidden rounded-sm border border-line bg-bg-1/80 p-4 sm:p-5">
           <div className="flex items-center justify-between gap-2 font-mono text-2xs uppercase tracking-[0.18em] text-ink-2">
@@ -177,7 +171,7 @@ function NinesScale({ earned, live }: { earned: number; live: number }) {
 
 function ShiftCard({ due, built, streak, tokens, lastDay }: { due: number; built: number; streak: number; tokens: number; lastDay?: string }) {
   const minutes = Math.max(6, Math.min(15, due * 1.4 + 5));
-  const doneToday = lastDay === new Date(Date.now() + 5.5 * 3_600_000).toISOString().slice(0, 10);
+  const doneToday = lastDay === istDay();
   return (
     <div className="flex flex-col justify-between gap-3 rounded-sm border border-line bg-bg-1/80 p-4 sm:p-5">
       <div>

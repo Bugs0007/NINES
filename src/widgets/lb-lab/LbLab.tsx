@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { HealthCheckSpec, LbAlgorithm, WindowMetrics } from "@/engine/types";
 import { useSim } from "@/engine/useSim";
-import { Button, Chip, cx, fmtLatency, Panel, Segmented } from "@/ui/kit";
+import { Chip, cx, fmtLatency, Panel, Segmented } from "@/ui/kit";
 import { Slider } from "@/ui/Slider";
 import { ChallengeControls, useReplayHighlight, useSimChallenge, useSloAlarm } from "../sim/challenge";
 import { SimStage } from "../sim/SimStage";

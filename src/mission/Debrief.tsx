@@ -25,7 +25,7 @@ export function Debrief({ pack, lines, firstBuild, stars, nextHref, nextLabel }:
     sfx.recovery();
   }, []);
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-8 lg:grid-cols-[1fr_1.1fr]">
+    <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-6 px-4 py-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
       <div className="flex flex-col gap-5">
         <div>
           <div className="font-mono text-2xs uppercase tracking-[0.3em] text-phos">{firstBuild ? "Service built" : "Service re-run"}</div>
@@ -63,7 +63,7 @@ export function Debrief({ pack, lines, firstBuild, stars, nextHref, nextLabel }:
           </div>
           {rank.gated && <div className="mt-1.5 text-xs text-amber">XP banked. Beat {rank.gate?.label} to open the next nine.</div>}
         </div>
-        <p className="text-sm text-ink-2">It's on your map now, and in the review queue. Retrieval tomorrow-ish keeps the lights on.</p>
+        <p className="text-sm text-ink-2">It&apos;s on your map now, and in the review queue. Retrieval tomorrow-ish keeps the lights on.</p>
         <div className="flex flex-wrap gap-2">
           {nextHref && (
             <Link href={nextHref}>

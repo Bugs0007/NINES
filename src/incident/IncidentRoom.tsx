@@ -12,6 +12,7 @@ import { askSre, claudeStatus, gradeExplanation } from "@/claude/client";
 import type { WindowMetrics } from "@/engine/types";
 import { useSim } from "@/engine/useSim";
 import { useGame } from "@/game/store";
+import { useMusic } from "@/audio/useMusic";
 import { CastLine } from "@/ui/Cast";
 import { Cinematic } from "@/ui/Cinematic";
 import { Button, Chip, cx, fmtLatency, fmtPct, Led, Segmented } from "@/ui/kit";
@@ -37,8 +38,10 @@ function mulberry(seed: number) {
 }
 
 export function IncidentRoom({ inc }: { inc: Incident }) {
-  const store = useGame();
   const [phase, setPhase] = useState<Phase>("page");
+  const markSeen = useGame((s) => s.markSeen);
+  const skipIntro = useGame((s) => s.hydrated && s.profile.settings.skipSeenCinematics && s.profile.seen.includes(`intro:${inc.id}`));
+  if (skipIntro && phase === "page") setPhase("room");
   const [tab, setTab] = useState<Tab>("dash");
   const [speed, setSpeed] = useState(1);
   const sim = useSim({ spec: phase === "page" ? null : inc.spec, seed: inc.seed, speed: phase === "room" ? speed : 0, vizTarget: 220, keepWindows: 900 });
@@ -95,6 +98,8 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
 
   // Alarm while burning.
   const burning = !!last && last.t >= inc.pageAt && last.errorRate > inc.slo.errorRate * 3 && recovered === null;
+  // Score: tense while burning, easing off once mitigated, silent for the postmortem.
+  useMusic(phase === "room" ? { root: 50, scale: "dorian", intensity: recovered !== null ? 0.15 : burning ? 0.8 : 0.45 } : null);
   useEffect(() => {
     sfx.alarm(burning && phase === "room");
     return () => sfx.alarm(false);
@@ -140,7 +145,10 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
         tone="alert"
         sound="alarm"
         frames={[{ kind: "title", kicker: `${inc.severity} · ${clockAt(inc.pageAt, inc.clock0)} IST`, title: inc.page.title, sub: inc.page.detail, tone: "alert", ms: 3200 }, ...inc.intro.map((line) => ({ kind: "line" as const, line }))]}
-        onDone={() => setPhase("room")}
+        onDone={() => {
+          void markSeen(`intro:${inc.id}`);
+          setPhase("room");
+        }}
       />
     );
   }
@@ -155,7 +163,7 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
         <Link href="/incident" className="font-mono text-2xs uppercase tracking-[0.16em] text-ink-2 hover:text-amber">
           ←
         </Link>
-        <Chip tone={recovered !== null ? "ok" : "alert"}>{inc.severity}</Chip>
+        <Chip tone={recovered !== null ? "ok" : "alert"} className="shrink-0 whitespace-nowrap">{inc.severity}</Chip>
         <span className="truncate font-display text-lg font-extrabold uppercase text-ink-0">
           {inc.code} · {inc.title}
         </span>
@@ -165,7 +173,7 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
         <Segmented size="sm" label="Speed" value={speed} onChange={setSpeed} options={[{ value: 1, label: "1×" }, { value: 2, label: "2×" }, { value: 4, label: "4×" }]} />
       </header>
 
-      <div className="grid min-h-0 flex-1 gap-3 p-3 lg:grid-cols-[minmax(0,1fr)_360px] lg:p-4">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 p-3 lg:grid-cols-[minmax(0,1fr)_360px] lg:p-4">
         <div className="flex min-h-0 flex-col gap-2 lg:h-[calc(100dvh-88px)]">
           <div className="flex gap-1 overflow-x-auto no-scrollbar" role="tablist" aria-label="War room tools">
             {(

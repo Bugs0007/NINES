@@ -123,6 +123,9 @@ export function FlowView({
     const bursts: Burst[] = [];
     let raf = 0;
     let last = performance.now();
+    // Adaptive quality: on slow devices, drop the additive glow pass (most of the overdraw) while frames run long.
+    let frameEma = 16.7;
+    let lowQuality = false;
     let cssW = 0,
       cssH = 0,
       dpr = 1;
@@ -221,6 +224,11 @@ export function FlowView({
       // After a long pause (hidden tab), snap instead of crawling from stale positions.
       const snap = gap > 0.25;
       last = now;
+      if (!snap) {
+        frameEma += (gap * 1000 - frameEma) * 0.05;
+        if (!lowQuality && frameEma > 21) lowQuality = true;
+        else if (lowQuality && frameEma < 17.5) lowQuality = false;
+      }
       const { nodes: ns, edges: es, highlight: hl, selected: sel, reducedMotion: rm } = props.current;
       const nm = nodeMap();
       const t = tf();
@@ -452,12 +460,14 @@ export function FlowView({
         const list = byBucket[b]!;
         if (!list.length) continue;
         ctx.fillStyle = BUCKET_COLORS[b]!;
-        ctx.globalAlpha = 0.16;
-        for (const q of list) {
-          const r = size(q.age) * 2.2;
-          ctx.fillRect(q.x - r, q.y - r, r * 2, r * 2);
+        if (!lowQuality || parts.size < 600) {
+          ctx.globalAlpha = 0.16;
+          for (const q of list) {
+            const r = size(q.age) * 2.2;
+            ctx.fillRect(q.x - r, q.y - r, r * 2, r * 2);
+          }
+          ctx.globalAlpha = 1;
         }
-        ctx.globalAlpha = 1;
         for (const q of list) {
           const r = size(q.age) / 2;
           ctx.fillRect(q.x - r, q.y - r, r * 2, r * 2);

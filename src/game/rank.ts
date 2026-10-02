@@ -12,8 +12,8 @@ export const TIER_XP: Record<number, number> = { 1: 1500, 2: 4500, 3: 10000, 4: 
 /** Gates between tiers: beating any `count` of the listed bosses opens the next nine. */
 export const GATES: Record<number, { bosses: string[]; count: number; label: string }> = {
   1: { bosses: ["boss-launch-day"], count: 1, label: "Launch Day" },
-  2: { bosses: ["boss-viral-tuesday", "boss-far-away-users", "boss-celebrity-post", "boss-seat-rush", "boss-the-bill"], count: 3, label: "3 of the Two Nines bosses" },
-  3: { bosses: ["boss-primary-down", "case-kv-store", "case-payment-system", "boss-ship-the-prompt", "boss-agent-meltdown", "case-notification-system"], count: 4, label: "4 of the Three Nines bosses" },
+  2: { bosses: ["boss-viral-tuesday", "boss-far-away-users", "boss-celebrity-post", "boss-seat-rush", "boss-the-bill"], count: 3, label: "any 3 of this tier's 5 bosses" },
+  3: { bosses: ["boss-primary-down", "case-kv-store", "case-payment-system", "boss-ship-the-prompt", "boss-agent-meltdown", "case-notification-system"], count: 4, label: "any 4 of this tier's 6 bosses" },
   4: { bosses: ["boss-region-outage", "boss-breach", "capstone-case-intel-india"], count: 3, label: "Region Down, The Breach, and the Capstone" },
 };
 

@@ -22,6 +22,7 @@ import type { ChallengeVerdict } from "@/widgets/types";
 import { ChallengePanel, ExplainPanel, RichText } from "./panels";
 import { ConfidencePicker, formatNumeric } from "./PredictPanel";
 import type { XpLine } from "./Debrief";
+import { useMusic } from "@/audio/useMusic";
 
 type Beat = "intro" | "fight" | "explain" | "debrief";
 
@@ -42,6 +43,11 @@ export function BossRunner({ boss }: { boss: BossPack }) {
   const [rankUp, setRankUp] = useState<{ from: number; to: number } | null>(null);
   const [stars, setStars] = useState(0);
   const ch = boss.challenge;
+  const markSeen = useGame((s) => s.markSeen);
+  const skipIntro = useGame((s) => s.hydrated && s.profile.settings.skipSeenCinematics && s.profile.seen.includes(`intro:${boss.id}`));
+  if (skipIntro && beat === "intro") setBeat("fight");
+  // Score during the fight: builds once the forecast is locked, resolves on a win.
+  useMusic(beat === "fight" ? { root: 45, scale: "pentatonic", intensity: verdict?.won ? 0.1 : forecast ? 0.7 : 0.35 } : null);
 
   const onResult = async (metrics: Record<string, number>) => {
     const failed = ch.conditions.filter((c) => !evalCond(metrics[c.metric] ?? NaN, c.op, c.value));
@@ -97,7 +103,10 @@ export function BossRunner({ boss }: { boss: BossPack }) {
             tone="alert"
             sound="alarm"
             frames={[{ kind: "title", kicker: "Boss incident", title: boss.title.replace(/^Boss: /, ""), sub: boss.hook.alert?.detail, tone: "alert", stencil: true }, ...boss.intro.map((line) => ({ kind: "line" as const, line }))]}
-            onDone={() => setBeat("fight")}
+            onDone={() => {
+              void markSeen(`intro:${boss.id}`);
+              setBeat("fight");
+            }}
           />
         )}
       </AnimatePresence>
@@ -105,7 +114,7 @@ export function BossRunner({ boss }: { boss: BossPack }) {
       {beat === "debrief" ? (
         <BossDebrief boss={boss} lines={lines} stars={stars} />
       ) : (
-        <div className="grid min-h-0 flex-1 gap-3 p-3 lg:grid-cols-[minmax(0,1fr)_360px] lg:p-4">
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 p-3 lg:grid-cols-[minmax(0,1fr)_360px] lg:p-4">
           <div className="relative min-h-[520px] lg:h-[calc(100dvh-88px)] lg:min-h-0 lg:overflow-hidden">
             <Widget
               key={runKey}

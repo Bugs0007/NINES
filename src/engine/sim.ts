@@ -124,6 +124,7 @@ abstract class NodeRt {
     return 0;
   }
   /** Called after a `set` patch mutates the spec. */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- subclasses read the previous spec
   onSpecChange(_prev: NodeSpec): void {}
   start(): void {}
   crash(): void {}

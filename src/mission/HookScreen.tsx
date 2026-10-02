@@ -24,6 +24,11 @@ export function HookScreen({ hook, title, kicker, onGo }: { hook: Hook; title: s
     return () => clearTimeout(t);
   }, [hook, reduced]);
 
+  const advance = () => {
+    if (step < hook.lines.length) setStep((s) => s + 1);
+    else onGo();
+  };
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Enter" || e.key === " ") {
@@ -34,11 +39,6 @@ export function HookScreen({ hook, title, kicker, onGo }: { hook: Hook; title: s
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   });
-
-  const advance = () => {
-    if (step < hook.lines.length) setStep((s) => s + 1);
-    else onGo();
-  };
 
   return (
     <div className="relative flex min-h-full flex-col items-center justify-center gap-6 px-4 py-8">

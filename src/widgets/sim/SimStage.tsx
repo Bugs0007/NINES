@@ -10,6 +10,7 @@ import type { NotableEvent, WindowMetrics } from "@/engine/types";
 import { FlowView, type FlowEdge, type FlowNode } from "@/ui/flow/FlowView";
 import { Chip, cx, fmtLatency, fmtNum, fmtPct, fmtUsd, Led, Sparkline } from "@/ui/kit";
 import { spring, useReducedMotion } from "@/ui/motion";
+import { useGame } from "@/game/store";
 
 export type MetricKey = "p50" | "p99" | "errors" | "rps" | "cost" | "inflight" | "util" | "queue";
 
@@ -195,6 +196,7 @@ export function SimStage({
   honestPhysics,
 }: SimStageProps) {
   const reduced = useReducedMotion();
+  const showHonest = useGame((s) => s.profile.settings.showHonestPhysics);
   const loadNodes = useMemo(() => nodes.filter((n) => n.kind !== "client" && n.kind !== "lb").map((n) => n.id), [nodes]);
   useLoadSound(sim.windows, loadNodes, sound);
   const hpOpen = useRef<HTMLDetailsElement>(null);
@@ -220,7 +222,7 @@ export function SimStage({
           </Chip>
           {overlay}
         </div>
-        {honestPhysics && honestPhysics.length > 0 && (
+        {showHonest && honestPhysics && honestPhysics.length > 0 && (
           <details ref={hpOpen} className="absolute bottom-2 right-2 max-w-[min(360px,80%)] text-right">
             <summary className="cursor-pointer list-none font-mono text-2xs uppercase tracking-[0.12em] text-ink-2 hover:text-amber">Honest physics</summary>
             <ul className="mt-1 space-y-1 rounded-sm border border-line-2 bg-bg-1/95 p-2 text-left text-xs text-ink-1">

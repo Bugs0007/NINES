@@ -25,7 +25,8 @@ const DAY_MS = 86_400_000;
 const SPACED_GAP_MS = 20 * 3_600_000;
 
 /** Calendar day in Asia/Kolkata, as YYYY-MM-DD. */
-export function istDay(t = Date.now()): string {
+/** Calendar day in IST on the game clock (so time warp moves streaks and reviews together). */
+export function istDay(t = gameNow().getTime()): string {
   return new Date(t + 5.5 * 3_600_000).toISOString().slice(0, 10);
 }
 

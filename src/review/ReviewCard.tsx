@@ -4,7 +4,7 @@
  * Correct answers sometimes get a "Why?" follow-up, so guessing never pays.
  */
 import { AnimatePresence, motion, Reorder } from "motion/react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { sfx } from "@/audio/engine";
 import { claudeStatus, gradeExplanation } from "@/claude/client";
 import type { ReviewItem } from "@/content/schema";
@@ -45,7 +45,10 @@ const FORMAT_LABEL: Record<ReviewItem["format"], string> = {
 };
 
 export function ReviewCard({ item, conceptTitle, askWhy, onDone }: { item: ReviewItem; conceptTitle: string; askWhy: boolean; onDone: (o: ReviewOutcome) => void }) {
-  const started = useRef(performance.now());
+  const started = useRef(0);
+  useEffect(() => {
+    started.current = performance.now();
+  }, [item.id]);
   const [phase, setPhase] = useState<"answer" | "feedback" | "why" | "whyDone">("answer");
   const [conf, setConf] = useState<Confidence | null>(null);
   const [result, setResult] = useState<{ correct: boolean; partial: boolean; note?: string } | null>(null);

@@ -68,7 +68,7 @@ export function CodexCard({ pack, mastery = 1, compact = false, onReplay, classN
         {!compact && (
           <>
             <section>
-              <h4 className="font-mono text-[10px] uppercase tracking-[0.16em] text-amber">Where you've seen it</h4>
+              <h4 className="font-mono text-[10px] uppercase tracking-[0.16em] text-amber">Where you&apos;ve seen it</h4>
               <ul className="mt-1.5 space-y-1 text-sm text-ink-1">
                 {c.seenIn.map((s, i) => (
                   <li key={i}>· {s}</li>
