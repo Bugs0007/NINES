@@ -109,7 +109,7 @@ export const INC_FOURTH_BOX: Incident = {
   severity: "SEV-1",
   clock0: "02:12:00",
   pageAt: 120,
-  page: { title: "checkout · 5xx 24% · SLO burn 24×", detail: "At this rate the month's error budget is gone in about 30 hours." },
+  page: { title: "Checkout is failing", detail: "5xx errors at 24%, burning the error budget 24× faster than the SLO allows. At this rate the month's budget is gone in about 30 hours." },
   intro: [
     { speaker: "pager", line: "SEV-1: checkout error rate above 20% for 2 minutes. You are primary on-call." },
     { speaker: "meera", line: "I'm awake, but I'm not driving. Look before you touch anything." },
@@ -353,7 +353,7 @@ export const INC_FOURTH_BOX: Incident = {
       { id: "mitigate", criterion: "States what stopped the bleeding (deregistering or fixing app-4) and when, relative to the page" },
     ],
     exemplar:
-      "What happened: from 02:12 to about 02:20, roughly 25% of checkouts timed out. Root cause: the autoscaler launched app-4 from launch template v7, which dropped WEB_CONCURRENCY, so gunicorn ran a single worker; round-robin kept sending it a quarter of traffic and requests queued until clients gave up. v7 was created on 2026-09-26 but nothing used it until this scale-out. Mitigation: taking app-4 out of rotation at about 02:20, six minutes after the page, stopped the errors. Prevention: health check through gunicorn instead of nginx, exercise new template versions when they're created, a startup check that fails if the worker count is wrong, and an alarm on per-target latency.",
+      "What happened: From 02:12 to about 02:20, roughly 25% of checkouts timed out. Root cause: The autoscaler launched app-4 from launch template v7, which dropped WEB_CONCURRENCY, so gunicorn ran a single worker; round-robin kept sending it a quarter of traffic and requests queued until clients gave up. v7 was created on 2026-09-26 but nothing used it until this scale-out. Mitigation: Taking app-4 out of rotation at about 02:20, six minutes after the page, stopped the errors. Prevention: Health check through gunicorn instead of nginx, exercise new template versions when they're created, a startup check that fails if the worker count is wrong, and an alarm on per-target latency.",
   },
   hints: [
     "The fleet is healthy on average. Is every box healthy? Look at the targets one by one.",

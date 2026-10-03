@@ -45,11 +45,11 @@ export function Settings() {
             <div key={c.key} className="flex items-end gap-3">
               <Slider className="flex-1" label={c.label} value={settings.audio[c.key]} min={0} max={1} step={0.05} onChange={(v) => setAudio({ [c.key]: v })} format={(v) => `${Math.round(v * 100)}%`} />
               {c.key === "music" ? (
-                <Button size="sm" variant="secondary" sound="none" onClick={() => setPreview((p) => !p)} aria-label={preview ? "Stop the music preview" : "Preview music"}>
+                <Button size="md" variant="secondary" sound="none" className="min-w-16 shrink-0" onClick={() => setPreview((p) => !p)} aria-label={preview ? "Stop the music preview" : "Preview music"}>
                   {preview ? "Stop" : "Play"}
                 </Button>
               ) : (
-                <Button size="sm" variant="secondary" sound="none" onClick={c.test} aria-label={`Test ${c.label.toLowerCase()} sound`}>
+                <Button size="md" variant="secondary" sound="none" className="min-w-16 shrink-0" onClick={c.test} aria-label={`Test ${c.label.toLowerCase()} sound`}>
                   Test
                 </Button>
               )}

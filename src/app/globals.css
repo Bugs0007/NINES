@@ -1,4 +1,6 @@
-@import "tailwindcss";
+/* Scan only src/ for classes. The default scans the whole project (docs, scripts, e2e screenshots); on a
+   OneDrive folder that is slow enough to time out Turbopack's PostCSS worker under load. */
+@import "tailwindcss" source("../");
 
 /*
  * NINES design tokens: "Dusk". A calm evening palette for long sessions: warm parchment text on
@@ -173,10 +175,13 @@ body {
   color: var(--color-ink-0);
 }
 
-:focus-visible {
-  outline: 2px solid rgb(232 183 125 / 0.8);
-  outline-offset: 2px;
-  border-radius: 8px;
+/* A light sand ring for keyboard focus. Layered in base so a component's own focus cue
+   (outline-none plus a border, or a ring on a slider thumb) replaces it instead of doubling up. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid rgb(232 183 125 / 0.55);
+    outline-offset: 3px;
+  }
 }
 
 /* A quiet grid for maps and canvases */
@@ -186,17 +191,6 @@ body {
     linear-gradient(rgb(228 223 213 / 0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgb(228 223 213 / 0.025) 1px, transparent 1px);
   background-size: 28px 28px;
-}
-
-/* Live values get a faint warmth, not a neon halo. */
-.glow-phos {
-  text-shadow: 0 0 18px rgb(143 212 178 / 0.25);
-}
-.glow-amber {
-  text-shadow: 0 0 18px rgb(232 183 125 / 0.25);
-}
-.glow-alert {
-  text-shadow: 0 0 18px rgb(236 143 128 / 0.3);
 }
 
 /* hide scrollbars on horizontal strips but keep them scrollable */

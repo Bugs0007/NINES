@@ -95,7 +95,7 @@ export function Slider({ value, onChange, onCommit, min, max, step, log, label, 
         aria-valuenow={value}
         aria-valuetext={typeof format?.(value) === "string" ? (format(value) as string) : String(value)}
         aria-disabled={disabled}
-        className={cx("relative h-9 touch-none", disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer")}
+        className={cx("group relative h-9 touch-none outline-none", disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer")}
         onPointerDown={(e) => {
           if (disabled) return;
           sfx.unlock();
@@ -139,10 +139,10 @@ export function Slider({ value, onChange, onCommit, min, max, step, log, label, 
         {marks?.map((m) => (
           <div key={m.value} className="absolute top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink-3/70" style={{ left: `${toFrac(m.value) * 100}%` }} />
         ))}
-        {/* thumb: a round pebble with a soft halo while held */}
+        {/* thumb: a round pebble with a soft halo while held; keyboard focus rings the thumb, not the whole track */}
         <motion.div
           className={cx(
-            "absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-amber bg-ink-0 transition-shadow duration-200",
+            "absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-amber bg-ink-0 transition-shadow duration-200 group-focus-visible:ring-4 group-focus-visible:ring-amber/30",
             dragging ? "shadow-[0_0_0_7px_rgb(232_183_125/0.18),0_2px_8px_rgb(0_0_0/0.45)]" : "shadow-[0_2px_8px_rgb(0_0_0/0.45)]",
           )}
           animate={{ left: `${frac * 100}%`, scale: dragging ? 1.1 : 1 }}

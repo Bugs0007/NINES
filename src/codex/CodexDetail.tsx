@@ -43,9 +43,9 @@ export function CodexDetail({ id }: { id: string }) {
                 </Panel>
               ))}
               <Panel label="Interview questions">
-                <ul className="space-y-2 text-sm leading-relaxed text-ink-1">
+                <ul className="list-disc space-y-2 pl-4 text-sm leading-relaxed text-ink-1 marker:text-ink-3">
                   {pack.interview.map((q, i) => (
-                    <li key={i}>· {q}</li>
+                    <li key={i}>{q}</li>
                   ))}
                 </ul>
               </Panel>

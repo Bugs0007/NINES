@@ -119,7 +119,7 @@ function Lab({ config: c, onObserve, locked, mode, scene }: WidgetProps<LbConfig
         highlight={scene === "rr" || scene === "lor" ? ["lb"] : scene === "blackhole" ? servers.filter((s) => state[s.id] === "dead").map((s) => s.id) : []}
         honestPhysics={HONEST}
       />
-      <div className="flex w-full flex-col gap-4 lg:w-[320px]">
+      <div className="flex w-full flex-col gap-4 lg:w-[280px] 2xl:w-[320px]">
         <Panel label="Load balancer">
           <div className={cx("flex flex-col gap-4", locked && "pointer-events-none opacity-40")}>
             <div>
@@ -152,10 +152,10 @@ function Lab({ config: c, onObserve, locked, mode, scene }: WidgetProps<LbConfig
           <table className="w-full text-left text-[13px]">
             <thead className="text-xs text-ink-3">
               <tr>
-                <th className="px-4 py-1.5 font-medium">Box</th>
+                <th className="px-3 py-1.5 font-medium">Box</th>
                 <th className="px-2 py-1.5 font-medium">Busy</th>
                 <th className="px-2 py-1.5 font-medium">p99</th>
-                <th className="px-4 py-1.5 font-medium" />
+                <th className="py-1.5 pl-1 pr-3 font-medium" />
               </tr>
             </thead>
             <tbody>
@@ -163,23 +163,23 @@ function Lab({ config: c, onObserve, locked, mode, scene }: WidgetProps<LbConfig
                 const st = state[s.id] ?? "ok";
                 return (
                   <tr key={s.id} className="border-t border-line/60">
-                    <td className={cx("px-4 py-2 font-mono text-xs", st === "dead" ? "text-alert" : st === "slow" ? "text-amber" : "text-ink-0")}>{s.label}</td>
+                    <td className={cx("px-3 py-1.5 font-mono text-xs", st === "dead" ? "text-alert" : st === "slow" ? "text-amber" : "text-ink-0")}>{s.label}</td>
                     <td className="px-2 font-mono text-xs tabular text-ink-1">{w ? `${Math.round(Math.max(w.util, w.workerUtil) * 100)}%` : "—"}</td>
                     <td className="px-2 font-mono text-xs tabular text-ink-1">{w && w.completed ? fmtLatency(w.p99) : "—"}</td>
-                    <td className="px-4 py-1.5 text-right">
+                    <td className="py-1.5 pl-1 pr-3 text-right">
                       <div className={cx("inline-flex gap-1.5", locked && "pointer-events-none opacity-40")}>
                         {st !== "slow" && (
-                          <button onClick={() => setServer(s.id, "slow")} className="rounded-full border border-amber-3/70 px-2.5 py-0.5 text-xs font-medium text-amber transition-colors hover:bg-amber-dim">
+                          <button onClick={() => setServer(s.id, "slow")} className="relative inline-flex h-7 items-center rounded-full border px-2.5 text-xs font-medium transition-colors after:absolute after:-inset-x-[3px] after:-inset-y-1.5 after:content-[''] border-amber-3/70 text-amber hover:bg-amber-dim">
                             Slow
                           </button>
                         )}
                         {st !== "dead" && (
-                          <button onClick={() => setServer(s.id, "dead")} className="rounded-full border border-alert-3/70 px-2.5 py-0.5 text-xs font-medium text-alert transition-colors hover:bg-alert-dim">
+                          <button onClick={() => setServer(s.id, "dead")} className="relative inline-flex h-7 items-center rounded-full border px-2.5 text-xs font-medium transition-colors after:absolute after:-inset-x-[3px] after:-inset-y-1.5 after:content-[''] border-alert-3/70 text-alert hover:bg-alert-dim">
                             Kill
                           </button>
                         )}
                         {st !== "ok" && (
-                          <button onClick={() => setServer(s.id, "ok")} className="rounded-full border border-phos-3/70 px-2.5 py-0.5 text-xs font-medium text-phos transition-colors hover:bg-phos-dim">
+                          <button onClick={() => setServer(s.id, "ok")} className="relative inline-flex h-7 items-center rounded-full border px-2.5 text-xs font-medium transition-colors after:absolute after:-inset-x-[3px] after:-inset-y-1.5 after:content-[''] border-phos-3/70 text-phos hover:bg-phos-dim">
                             Heal
                           </button>
                         )}
@@ -220,7 +220,7 @@ function Noisy({ config: c, onResult, verdict, locked, conditions }: WidgetProps
   return (
     <div className="flex h-full min-h-0 flex-col gap-4 lg:flex-row">
       <SimStage className="min-h-[360px] flex-1" sim={ch.sim} nodes={layout.nodes} edges={layout.edges} metrics={["p99", "errors", "rps", "util"]} slo={slo} highlight={highlight} honestPhysics={HONEST} />
-      <div className="flex w-full flex-col gap-4 lg:w-[300px]">
+      <div className="flex w-full flex-col gap-4 lg:w-[280px] 2xl:w-[320px]">
         <Panel label="Balancer config">
           <div className={cx("flex flex-col gap-4", (running || locked) && "pointer-events-none opacity-50")}>
             <div className="grid grid-cols-2 gap-1.5">

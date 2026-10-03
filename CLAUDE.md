@@ -106,4 +106,4 @@ Motion presets live in `src/ui/motion.tsx` (`spring.snap`, `soft`, `heavy`, `bou
 - The ledger is `.nines/usage.json`; the monthly cap is `NINES_MONTHLY_BUDGET_USD` (default $5). Free tier: 30 requests/min, 8,000 tokens/min; a 429 falls back to offline behaviour.
 - Groq caches matching prompt prefixes automatically on gpt-oss (cached tokens at half price): keep system prompts stable and first, volatile content last.
 - Every feature must work without a key (self-graded rubric, scripted hints). The offline tokenizer (o200k) is exact for gpt-oss.
-- A per-browser switch turns the coach off (`localStorage['nines:ai'] = 'off'`, in Settings). The e2e suite starts every context with it off (`e2e/ai-off.storage.json`), so tests never call the live provider.
+- A per-browser switch turns the coach off (`localStorage['nines:ai'] = 'off'`, in Settings). The e2e suite starts every context with it off (`storageState` in `playwright.config.ts`), so tests never call the live provider.

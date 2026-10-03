@@ -15,7 +15,7 @@ import { useGame } from "@/game/store";
 import { useMusic } from "@/audio/useMusic";
 import { CastLine } from "@/ui/Cast";
 import { Cinematic } from "@/ui/Cinematic";
-import { Button, Chip, cx, fmtLatency, fmtPct, Led, Segmented } from "@/ui/kit";
+import { Button, Chip, cx, fmtLatency, fmtPct, Led } from "@/ui/kit";
 import { spring, Ticker } from "@/ui/motion";
 import { clockAt } from "./inc-fourth-box";
 import { Dashboards, Hosts, Logs, Timeline, Traces, type Pin } from "./panels";
@@ -123,6 +123,7 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
 
   const failedSincePage = useMemo(() => sim.windows.filter((w) => w.t >= inc.pageAt).reduce((s, w) => s + w.failed, 0), [sim.windows, inc.pageAt]);
   const sincePage = Math.max(0, sim.t - inc.pageAt);
+  const sincePageLabel = `${Math.floor(sincePage / 60)}m${String(Math.floor(sincePage % 60)).padStart(2, "0")}s`;
 
   const ask = async () => {
     const level = Math.min(3, hints.length + 1);
@@ -132,7 +133,7 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
       h = await askSre({
         mission: `${inc.code} ${inc.title}`,
         goal: "Find the root cause from evidence and mitigate the incident.",
-        situation: `Page: ${inc.page.title}. Pinned evidence: ${pins.map((p) => p.text.slice(0, 80)).join(" | ") || "none"}. Actions taken: ${applied.map((a) => a.id).join(", ") || "none"}.`,
+        situation: `Page: ${inc.page.title}. ${inc.page.detail} Pinned evidence: ${pins.map((p) => p.text.slice(0, 80)).join(" | ") || "none"}. Actions taken: ${applied.map((a) => a.id).join(", ") || "none"}.`,
         previous: hints,
         level,
       });
@@ -160,8 +161,8 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className={cx("sticky top-0 z-40 flex h-14 items-center gap-3 border-b px-4 backdrop-blur transition-colors duration-700 lg:gap-4 lg:px-8", burning ? "border-alert-3/50 bg-alert-dim/75" : "border-line/60 bg-bg-0/85")}>
-        <Link href="/incident" aria-label="Back to the incident list" className="-ml-1.5 grid h-8 w-8 shrink-0 place-items-center rounded-full text-[15px] text-ink-2 transition-colors hover:bg-bg-2 hover:text-amber">
+      <header className={cx("sticky top-0 z-40 flex h-14 items-center gap-3 border-b px-4 backdrop-blur transition-colors duration-700 lg:gap-4 lg:px-8", burning ? "border-alert-3/50 bg-alert-dim/90" : "border-line/60 bg-bg-0/90")}>
+        <Link href="/incident" aria-label="Back to the incident list" className="-ml-2.5 grid h-10 w-10 shrink-0 place-items-center rounded-full text-[15px] text-ink-2 transition-colors hover:bg-bg-2 hover:text-amber">
           ←
         </Link>
         <Chip tone={recovered !== null ? "ok" : "alert"} className="shrink-0 whitespace-nowrap">{inc.severity}</Chip>
@@ -169,28 +170,54 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
           <span className="hidden font-mono text-[13px] font-normal text-ink-2 sm:inline">{inc.code} · </span>
           {inc.title}
         </span>
-        <span className="ml-auto hidden shrink-0 font-mono text-xs tabular text-ink-1 md:inline">
-          {clockAt(sim.t, inc.clock0)} IST · page +{Math.floor(sincePage / 60)}m{String(Math.floor(sincePage % 60)).padStart(2, "0")}s
+        <span className="ml-auto shrink-0 font-mono text-xs tabular text-ink-1">
+          {clockAt(sim.t, inc.clock0)}
+          <span className="hidden lg:inline"> IST · page +{sincePageLabel}</span>
         </span>
-        <Segmented size="sm" label="Speed" value={speed} onChange={setSpeed} options={[{ value: 1, label: "1×" }, { value: 2, label: "2×" }, { value: 4, label: "4×" }]} className="ml-auto shrink-0 md:ml-0" />
+        <SpeedControl value={speed} onChange={setSpeed} className="hidden md:inline-flex" />
       </header>
+
+      {/* Below lg the status card sits under the tools, so the numbers that matter ride along under the header. */}
+      <div className={cx("sticky top-14 z-30 flex h-10 items-center gap-3 border-b px-4 text-xs backdrop-blur transition-colors duration-700 lg:hidden", burning ? "border-alert-3/40 bg-alert-dim/90" : "border-line/60 bg-bg-0/90")}>
+        <span className={cx("flex shrink-0 items-center gap-1.5 font-semibold", recovered !== null ? "text-phos" : "text-alert")}>
+          <Led tone={recovered !== null ? "ok" : "alert"} />
+          {recovered !== null ? "Recovered" : "Burning"}
+        </span>
+        <span className="shrink-0 text-ink-2">
+          page <span className="font-mono tabular text-ink-1">+{sincePageLabel}</span>
+        </span>
+        <span className="ml-auto shrink-0 text-ink-2">
+          errors <span className={cx("font-mono tabular", (last?.errorRate ?? 0) > inc.slo.errorRate ? "text-alert" : "text-phos")}>{last ? fmtPct(last.errorRate, 1) : "—"}</span>
+        </span>
+        <span className="shrink-0 text-ink-2">
+          p99 <span className="font-mono tabular text-ink-0">{last?.ok ? fmtLatency(last.p99) : "—"}</span>
+        </span>
+      </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-5 lg:px-8 lg:py-5">
         <div className="flex min-h-0 min-w-0 flex-col gap-3 lg:h-[calc(100dvh-96px)]">
-          <div className="flex shrink-0 gap-1 self-start overflow-x-auto rounded-full border border-line/70 bg-bg-1/70 p-1 no-scrollbar max-w-full" role="tablist" aria-label="War room tools">
-            {(
-              [
-                ["dash", "Dashboards"],
-                ["logs", "Logs"],
-                ["hosts", "Hosts"],
-                ["traces", "Traces"],
-                ["timeline", "Timeline"],
-              ] as [Tab, string][]
-            ).map(([id, label]) => (
-              <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={cx("h-8 shrink-0 rounded-full px-2.5 text-[13px] font-semibold transition-colors duration-200 sm:px-3.5", tab === id ? "bg-amber text-bg-0" : "text-ink-2 hover:bg-bg-2 hover:text-ink-0")}>
-                {label}
-              </button>
-            ))}
+          <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex max-w-full shrink-0 gap-1 overflow-x-auto rounded-full border border-line/70 bg-bg-1/70 p-1 no-scrollbar" role="tablist" aria-label="War room tools">
+              {(
+                [
+                  ["dash", "Dashboards"],
+                  ["logs", "Logs"],
+                  ["hosts", "Hosts"],
+                  ["traces", "Traces"],
+                  ["timeline", "Timeline"],
+                ] as [Tab, string][]
+              ).map(([id, label]) => (
+                <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={cx("h-8 shrink-0 rounded-full px-2.5 text-[13px] font-semibold transition-colors duration-200 sm:px-3.5", tab === id ? "bg-amber text-bg-0" : "text-ink-2 hover:bg-bg-2 hover:text-ink-0")}>
+                  {label}
+                </button>
+              ))}
+            </div>
+            <div className="ml-auto flex items-center gap-2 md:hidden">
+              <span className="text-xs text-ink-3" aria-hidden>
+                Sim speed
+              </span>
+              <SpeedControl value={speed} onChange={setSpeed} />
+            </div>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto">
             {tab === "dash" && <Dashboards inc={inc} sim={sim} pins={pins} pin={pin} />}
@@ -215,7 +242,7 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
                 {pins.map((p) => (
                   <li key={p.key} className="group rounded-md border border-line-2/70 bg-bg-2/60 p-2.5">
                     <div className="flex items-start justify-between gap-2">
-                      <pre className="min-w-0 whitespace-pre-wrap break-all font-mono text-xs leading-relaxed text-ink-1">{p.text.length > 160 ? `${p.text.slice(0, 160)}…` : p.text}</pre>
+                      <pre className="min-w-0 whitespace-pre-wrap font-mono text-[12.5px] leading-relaxed text-ink-1 [overflow-wrap:anywhere]">{p.text.length > 160 ? `${p.text.slice(0, 160)}…` : p.text}</pre>
                       <button onClick={() => pin(p)} className="-mr-1 -mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs text-ink-3 transition-colors hover:bg-alert-dim hover:text-alert" aria-label="Unpin">
                         ✕
                       </button>
@@ -301,7 +328,52 @@ function Status({ last, failed, recovered, inc }: { last?: WindowMetrics; failed
   );
 }
 
+/** Sim speed as a quiet radio group: the header's loudest element shouldn't be a playback control. */
+function SpeedControl({ value, onChange, className }: { value: number; onChange: (v: number) => void; className?: string }) {
+  return (
+    <div role="radiogroup" aria-label="Speed" className={cx("shrink-0 gap-0.5 rounded-full border border-line/70 bg-bg-1/60 p-0.5", className ?? "inline-flex")}>
+      {[1, 2, 4].map((v) => {
+        const active = v === value;
+        return (
+          <button
+            key={v}
+            role="radio"
+            aria-checked={active}
+            onClick={() => {
+              if (active) return;
+              sfx.unlock();
+              sfx.tick();
+              onChange(v);
+            }}
+            className={cx("h-9 min-w-10 rounded-full px-2.5 font-mono text-xs tabular transition-colors duration-200 sm:pointer-fine:h-7 sm:pointer-fine:min-w-9", active ? "bg-bg-3 text-ink-0" : "text-ink-2 hover:text-ink-0")}
+          >
+            {v}×
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------- postmortem + score
+
+const EXEMPLAR_PARTS = /(What happened|Root cause|Mitigation|Prevention):\s*/g;
+
+/** The reference postmortem, split on its own labels so it reads as four short parts, not one paragraph. */
+function Exemplar({ text, className }: { text: string; className?: string }) {
+  const marks = [...text.matchAll(EXEMPLAR_PARTS)];
+  if (marks.length < 2 || marks[0]!.index !== 0) return <p className={cx("max-w-prose text-[15px] leading-relaxed text-ink-0", className)}>{text}</p>;
+  return (
+    <dl className={cx("max-w-prose space-y-4", className)}>
+      {marks.map((m, i) => (
+        <div key={m[1]}>
+          <dt className="eyebrow text-xs text-ink-2">{m[1]}</dt>
+          <dd className="mt-1 text-[15px] leading-relaxed text-ink-0">{text.slice(m.index! + m[0].length, marks[i + 1]?.index ?? text.length).trim()}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
 
 function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { inc: Incident; pins: Pin[]; hyp: string | null; applied: { id: string; at: number }[]; recovered: number | null; failed: number; onScored: () => void }) {
   const store = useGame();
@@ -378,8 +450,8 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
           </div>
         )}
         <div className="mt-5 rounded-lg border border-line/80 bg-bg-1/75 p-5 shadow-card">
-          <div className="eyebrow text-xs text-ink-2">What actually happened</div>
-          <p className="mt-2 max-w-prose text-[15px] leading-relaxed text-ink-0">{inc.postmortem.exemplar}</p>
+          <h2 className="font-display text-xl font-semibold text-ink-0">What actually happened</h2>
+          <Exemplar text={inc.postmortem.exemplar} className="mt-4" />
         </div>
         <HonestNotes className="mt-5" notes={inc.honestPhysics ?? []} />
         <CastLine className="mt-6" line={{ speaker: "meera", line: rootOk ? "Good. Now go fix the launch template before it does this again." : "Mitigated isn't understood. Read the real cause and come back to this one." }} />
@@ -424,7 +496,7 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
         ) : (
           <div className="rounded-lg border border-line/80 bg-bg-1/75 p-5 shadow-card sm:p-6">
             <div className="text-sm text-ink-2">No Claude key: grade yourself against the rubric.</div>
-            <p className="mt-2 text-[15px] leading-relaxed text-ink-0">{inc.postmortem.exemplar}</p>
+            <Exemplar text={inc.postmortem.exemplar} className="mt-4" />
             <ul className="mt-4 space-y-4">
               {inc.postmortem.rubric.map((r) => (
                 <li key={r.id}>

@@ -4,7 +4,7 @@
  */
 import Link from "next/link";
 import { motion } from "motion/react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { CHAPTERS, GRAPH, NODE_BY_ID, TRACKS, type PlannedNode } from "@/content/graph";
 import { BOSS_BY_ID, PACK_BY_ID } from "@/content/packs";
 import { CHAPTER_LEARNING, CONCEPT_LEARNING } from "@/content/learning";
@@ -40,6 +40,11 @@ export function ChapterView({ chapterId }: { chapterId: string }) {
   const side = nodes.filter((n) => n.kind === "incident" || n.kind === "field");
   const builtCount = missions.filter((n) => done.has(n.id)).length;
   const gate = Object.entries(GATES).find(([, g]) => bosses.some((b) => g.bosses.includes(b.id)));
+  // The one thing to do next: the first mission ready to build, else the boss once it opens.
+  const nextMission = missions.find((n) => stateOf(n) === "available");
+  const nextBoss = nextMission ? undefined : bosses.find((n) => stateOf(n) === "available" && BOSS_BY_ID.has(n.id));
+  const next = nextMission ?? nextBoss;
+  const [about, setAbout] = useState(false);
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -69,29 +74,51 @@ export function ChapterView({ chapterId }: { chapterId: string }) {
             </Chip>
           )}
         </div>
+        {next && (
+          <Link href={hrefFor(next)} className="mt-6 block sm:inline-block">
+            <Button variant="primary" size="lg" className="w-full sm:w-auto">
+              {nextBoss ? `Face the boss: ${next.title.replace(/^Boss: /, "")}` : `${builtCount === 0 ? "Start" : "Continue"}: ${next.title}`}
+            </Button>
+          </Link>
+        )}
         {learning && (
-          <div className="mt-8 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-            <div className="rounded-lg border border-line/80 bg-bg-1/75 p-5 shadow-card">
-              <div className="eyebrow text-xs text-ink-2">By the end of this chapter you can</div>
-              <ul className="mt-3 space-y-2">
-                {learning.outcomes.map((o) => (
-                  <li key={o} className="flex items-start gap-3 text-[15px] text-ink-0">
-                    <span className={cx("mt-2 h-1.5 w-1.5 shrink-0 rounded-full", ch.track === "B" ? "bg-lilac" : "bg-phos")} />
-                    {o}
-                  </li>
-                ))}
-              </ul>
+          <>
+            {/* On phones the learning notes fold away so the missions sit near the top. */}
+            <button
+              type="button"
+              onClick={() => setAbout((o) => !o)}
+              aria-expanded={about}
+              aria-controls="chapter-about"
+              className="mt-6 flex w-full items-center justify-between gap-3 rounded-lg border border-line/80 bg-bg-1/60 px-4 py-3 text-left text-sm font-medium text-ink-1 transition-colors duration-200 hover:text-ink-0 lg:hidden"
+            >
+              What this chapter teaches, and why
+              <svg aria-hidden viewBox="0 0 16 16" className={cx("h-4 w-4 shrink-0 text-ink-2 transition-transform duration-300", about && "rotate-180")}>
+                <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <div id="chapter-about" className={cx("grid-cols-1 gap-3 lg:mt-8 lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]", about ? "mt-3 grid" : "hidden")}>
+              <div className="rounded-lg border border-line/80 bg-bg-1/75 p-5 shadow-card">
+                <div className="eyebrow text-xs text-ink-2">By the end of this chapter you can</div>
+                <ul className="mt-3 space-y-2">
+                  {learning.outcomes.map((o) => (
+                    <li key={o} className="flex items-start gap-3 text-[15px] text-ink-0">
+                      <span className={cx("mt-2 h-1.5 w-1.5 shrink-0 rounded-full", ch.track === "B" ? "bg-lilac" : "bg-phos")} />
+                      {o}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-lg border border-line/80 bg-bg-1/75 p-5 shadow-card">
+                <div className="eyebrow text-xs text-ink-2">Why this chapter</div>
+                <p className="mt-2 text-[15px] leading-relaxed text-ink-1">{learning.why}</p>
+                <div className="eyebrow mt-4 text-xs text-ink-2">The payoff</div>
+                <p className="mt-2 text-sm leading-relaxed text-ink-2">{learning.payoff}</p>
+                <Link href="/learn" className="mt-4 inline-block text-[13px] font-medium text-amber hover:text-amber-2">
+                  How NINES teaches →
+                </Link>
+              </div>
             </div>
-            <div className="rounded-lg border border-line/80 bg-bg-1/75 p-5 shadow-card">
-              <div className="eyebrow text-xs text-ink-2">Why this chapter</div>
-              <p className="mt-2 text-[15px] leading-relaxed text-ink-1">{learning.why}</p>
-              <div className="eyebrow mt-4 text-xs text-ink-2">The payoff</div>
-              <p className="mt-2 text-sm leading-relaxed text-ink-2">{learning.payoff}</p>
-              <Link href="/learn" className="mt-4 inline-block text-[13px] font-medium text-amber hover:text-amber-2">
-                How NINES teaches →
-              </Link>
-            </div>
-          </div>
+          </>
         )}
       </section>
 

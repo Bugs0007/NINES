@@ -81,14 +81,21 @@ export function Cinematic({ frames, onDone, sound = "whoosh", tone = "default" }
               {f.kind === "title" && (
                 <div className="text-center">
                   <div className={cx("eyebrow text-[13px]", f.tone ? toneText(f.tone) : "text-phos")}>{f.kicker}</div>
-                  <h1 className={cx("mt-4 text-balance font-display text-[clamp(2.75rem,10vw,5.5rem)] font-semibold leading-[1.02]", toneText(f.tone))}>
+                  <h1 className={cx("mt-4 text-balance font-display text-[clamp(2.5rem,7vw,4.5rem)] font-semibold leading-[1.05]", toneText(f.tone))}>
                     <motion.span
                       className="inline-block"
                       initial={{ opacity: 0, y: reduced ? 0 : 8, filter: reduced ? "none" : "blur(6px)" }}
                       animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                       transition={{ duration: 0.7, ease: "easeOut" }}
                     >
-                      {f.title}
+                      {/* "checkout · 5xx 24% · SLO burn 24×" is a title card, not a log line: one part per line. */}
+                      {f.title.includes(" · ")
+                        ? f.title.split(" · ").map((part, k) => (
+                            <span key={k} className="block">
+                              {part}
+                            </span>
+                          ))
+                        : f.title}
                     </motion.span>
                   </h1>
                   {f.sub && <p className="mx-auto mt-5 max-w-lg text-pretty text-base leading-relaxed text-ink-1 tabular">{f.sub}</p>}

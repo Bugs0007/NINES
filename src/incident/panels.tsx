@@ -20,13 +20,18 @@ export interface Pin {
   where: string;
 }
 
-export function PinButton({ pinned, onPin }: { pinned: boolean; onPin: () => void }) {
+export function PinButton({ pinned, onPin, compact = false }: { pinned: boolean; onPin: () => void; compact?: boolean }) {
   return (
     <button
       onClick={onPin}
       aria-pressed={pinned}
       title={pinned ? "Pinned to the evidence board" : "Pin as evidence"}
-      className={cx("shrink-0 rounded-full px-2 py-0.5 text-xs font-medium transition-colors duration-200", pinned ? "bg-amber-dim text-amber ring-1 ring-amber-3/70" : "text-ink-3 hover:bg-amber-dim/60 hover:text-amber")}
+      className={cx(
+        "inline-flex min-h-10 shrink-0 items-center justify-center rounded-full border px-3.5 font-sans text-[13px] font-medium transition-colors duration-200",
+        // A mouse on a wide screen doesn't need a 40px target, so dense rows stay dense there.
+        compact ? "sm:pointer-fine:min-h-6 sm:pointer-fine:px-2.5 sm:pointer-fine:text-xs" : "sm:pointer-fine:min-h-8 sm:pointer-fine:px-3",
+        pinned ? "border-amber-3/70 bg-amber-dim text-amber" : "border-line-2/80 text-ink-2 hover:border-amber-3/70 hover:bg-amber-dim/50 hover:text-amber",
+      )}
     >
       {pinned ? "Pinned" : "Pin"}
     </button>
@@ -50,89 +55,95 @@ export function Dashboards({ inc, sim, pins, pin }: { inc: Incident; sim: SimHan
   return (
     <div className="flex flex-col gap-4">
       <MetricStrip windows={ws} keys={["p50", "p99", "errors", "rps"]} slo={inc.slo} />
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] xl:items-start">
-        <Panel
-          label={
-            <>
-              Targets <span className="font-mono font-normal text-ink-3">· pigeon-app-tg</span>
-            </>
-          }
-          bodyClassName="px-0 pb-2"
-        >
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[540px] text-left text-xs">
-              <thead className="text-ink-3">
-                <tr>
-                  <th className="px-4 py-2 font-medium">Target</th>
-                  <th className="px-2 font-medium">Health</th>
-                  <th className="px-2 font-medium">req/s</th>
-                  <th className="px-2 font-medium">p99 (60s)</th>
-                  <th className="px-2 font-medium">CPU</th>
-                  <th className="px-2 font-medium">Workers busy</th>
-                  <th className="px-2 font-medium">Queued</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {targets.map((id) => {
-                  const nw = last!.nodes[id]!;
-                  const p99s = series(id, (w) => w.nodes[id]?.p99 ?? 0);
-                  const bad = nw.p99 > 2 || nw.queue > 20;
-                  const key = `dash:${id}`;
-                  const evidence = id === "app-4" && bad ? "target-latency" : undefined;
-                  return (
-                    <tr key={id} className={cx("border-t border-line/60 transition-colors duration-500", bad && "bg-alert-dim/35")}>
-                      <td className={cx("px-4 py-2 font-mono", bad ? "text-alert" : "text-ink-0")}>{id}</td>
-                      <td className="px-2 text-ink-1">
-                        <span className="flex items-center gap-1.5">
-                          <Led tone={nw.up ? (healthy.size === 0 || healthy.has(id) ? "ok" : "warn") : "alert"} />
-                          {nw.up ? (healthy.size === 0 || healthy.has(id) ? "healthy" : "unhealthy") : "down"}
-                        </span>
-                      </td>
-                      <td className="px-2 font-mono tabular text-ink-1">{fmtNum(nw.completed / Math.max(0.5, last!.dt))}</td>
-                      <td className="whitespace-nowrap px-2 font-mono tabular">
-                        <span className={bad ? "text-alert" : "text-ink-1"}>{nw.completed ? fmtLatency(nw.p99) : "—"}</span>
-                        <Sparkline values={p99s} width={60} height={14} tone={bad ? "alert" : "ink"} className="ml-1 inline-block align-middle" fill={false} />
-                      </td>
-                      <td className={cx("px-2 font-mono tabular", id === "app-4" && nw.util < 0.15 && bad ? "text-amber" : "text-ink-1")}>{fmtPct(nw.util, 0)}</td>
-                      <td className="px-2 font-mono tabular text-ink-1">{fmtPct(nw.workerUtil, 0)}</td>
-                      <td className={cx("px-2 font-mono tabular", nw.queue > 20 ? "text-alert" : "text-ink-1")}>{fmtNum(nw.queue)}</td>
-                      <td className="pr-3 text-right">
-                        <PinButton
-                          pinned={pins.some((p) => p.key === key)}
-                          onPin={() => pin({ key, evidence: evidence ?? (id === "app-4" && nw.util < 0.15 ? "cpu-low" : undefined), text: `${id}: p99 ${fmtLatency(nw.p99)}, CPU ${fmtPct(nw.util, 0)}, workers ${fmtPct(nw.workerUtil, 0)}, ${fmtNum(nw.queue)} queued`, where: `dashboard @ ${clockAt(last!.t)}` })}
-                        />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+      <Panel
+        label={
+          <>
+            Targets <span className="font-mono font-normal text-ink-3">· pigeon-app-tg</span>
+          </>
+        }
+        bodyClassName="px-0 pb-2"
+      >
+        <div className="overflow-x-auto">
+          {/* Phones keep what finds the bad box (health, p99, CPU) and the pin; the rest from sm up. */}
+          <table className="w-full text-left text-xs">
+            <thead className="text-ink-2">
+              <tr className="whitespace-nowrap">
+                <th className="py-2 pl-4 pr-2 font-medium">Target</th>
+                <th className="px-2 font-medium">Health</th>
+                <th className="hidden px-2 font-medium sm:table-cell">req/s</th>
+                <th className="px-2 font-medium">
+                  p99<span className="hidden sm:inline"> (60s)</span>
+                </th>
+                <th className="px-2 font-medium">CPU</th>
+                <th className="hidden px-2 font-medium sm:table-cell">Workers busy</th>
+                <th className="hidden px-2 font-medium sm:table-cell">Queued</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {targets.map((id) => {
+                const nw = last!.nodes[id]!;
+                const p99s = series(id, (w) => w.nodes[id]?.p99 ?? 0);
+                const bad = nw.p99 > 2 || nw.queue > 20;
+                const key = `dash:${id}`;
+                const evidence = id === "app-4" && bad ? "target-latency" : undefined;
+                return (
+                  <tr key={id} className={cx("whitespace-nowrap border-t border-line/60 transition-colors duration-500", bad && "bg-alert-dim/35")}>
+                    <td className={cx("py-1.5 pl-4 pr-2 font-mono", bad ? "text-alert" : "text-ink-0")}>{id}</td>
+                    <td className="px-2 text-ink-1">
+                      <span className="flex items-center gap-1.5">
+                        <Led tone={nw.up ? (healthy.size === 0 || healthy.has(id) ? "ok" : "warn") : "alert"} />
+                        {nw.up ? (healthy.size === 0 || healthy.has(id) ? "healthy" : "unhealthy") : "down"}
+                      </span>
+                    </td>
+                    <td className="hidden px-2 font-mono tabular text-ink-1 sm:table-cell">{fmtNum(nw.completed / Math.max(0.5, last!.dt))}</td>
+                    <td className="px-2 font-mono tabular">
+                      <span className={bad ? "text-alert" : "text-ink-1"}>{nw.completed ? fmtLatency(nw.p99) : "—"}</span>
+                      <Sparkline values={p99s} width={60} height={14} tone={bad ? "alert" : "ink"} className="ml-1.5 hidden align-middle sm:inline-block lg:hidden xl:inline-block" fill={false} />
+                    </td>
+                    <td className={cx("px-2 font-mono tabular", id === "app-4" && nw.util < 0.15 && bad ? "text-amber" : "text-ink-1")}>{fmtPct(nw.util, 0)}</td>
+                    <td className="hidden px-2 font-mono tabular text-ink-1 sm:table-cell">{fmtPct(nw.workerUtil, 0)}</td>
+                    <td className={cx("hidden px-2 font-mono tabular sm:table-cell", nw.queue > 20 ? "text-alert" : "text-ink-1")}>{fmtNum(nw.queue)}</td>
+                    <td className="py-1 pl-2 pr-3 text-right">
+                      <PinButton
+                        pinned={pins.some((p) => p.key === key)}
+                        onPin={() => pin({ key, evidence: evidence ?? (id === "app-4" && nw.util < 0.15 ? "cpu-low" : undefined), text: `${id}: p99 ${fmtLatency(nw.p99)}, CPU ${fmtPct(nw.util, 0)}, workers ${fmtPct(nw.workerUtil, 0)}, ${fmtNum(nw.queue)} queued`, where: `dashboard @ ${clockAt(last!.t)}` })}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Panel>
+      <div className={cx("grid grid-cols-1 gap-4", inc.extraSeries.length > 0 && "xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]")}>
+        {inc.extraSeries.length > 0 && (
+          <div className="flex flex-col gap-4">
+            {inc.extraSeries.map((s) => {
+              const vals = ws.slice(-60).map((w) => s.at(w.t));
+              const v = vals[vals.length - 1] ?? 0;
+              const key = `dash:${s.id}`;
+              return (
+                <Panel key={s.id} label={s.label} right={<PinButton pinned={pins.some((p) => p.key === key)} onPin={() => pin({ key, evidence: "db-cron", text: `${s.label} at ${v.toFixed(0)}${s.unit}`, where: "dashboard" })} />} className="xl:flex xl:flex-1 xl:flex-col" bodyClassName="xl:flex xl:flex-1 xl:flex-col">
+                  <div className="flex items-center justify-between gap-3 xl:flex-1 xl:flex-col xl:items-stretch">
+                    <span className={cx("num-display text-3xl font-semibold transition-colors duration-500", v > 65 ? "text-amber" : "text-ink-0")}>
+                      {v.toFixed(0)}
+                      {s.unit}
+                    </span>
+                    <Sparkline values={vals} width={140} height={30} max={100} tone={v > 65 ? "amber" : "ink"} className="xl:hidden" />
+                    <Sparkline values={vals} width={280} height={150} max={100} tone={v > 65 ? "amber" : "ink"} className="hidden h-auto w-full xl:block" />
+                  </div>
+                </Panel>
+              );
+            })}
+          </div>
+        )}
+        <Panel label="Service map" bodyClassName="p-0">
+          <div className="relative h-56 overflow-hidden rounded-b-lg grid-paper xl:h-72">
+            <FlowView nodes={layout.nodes} edges={layout.edges} frame={sim.frame} consumeFinished={sim.consumeFinished} reducedMotion={reduced} sound={false} className="absolute inset-0" />
           </div>
         </Panel>
-        <div className="flex flex-col gap-4">
-          {inc.extraSeries.map((s) => {
-            const vals = ws.slice(-60).map((w) => s.at(w.t));
-            const v = vals[vals.length - 1] ?? 0;
-            const key = `dash:${s.id}`;
-            return (
-              <Panel key={s.id} label={s.label} right={<PinButton pinned={pins.some((p) => p.key === key)} onPin={() => pin({ key, evidence: "db-cron", text: `${s.label} at ${v.toFixed(0)}${s.unit}`, where: "dashboard" })} />}>
-                <div className="flex items-center justify-between gap-3">
-                  <span className={cx("num-display text-3xl font-semibold transition-colors duration-500", v > 65 ? "text-amber" : "text-ink-0")}>
-                    {v.toFixed(0)}
-                    {s.unit}
-                  </span>
-                  <Sparkline values={vals} width={140} height={30} max={100} tone={v > 65 ? "amber" : "ink"} />
-                </div>
-              </Panel>
-            );
-          })}
-          <Panel label="Service map" bodyClassName="p-0">
-            <div className="relative h-48 overflow-hidden rounded-b-lg grid-paper">
-              <FlowView nodes={layout.nodes} edges={layout.edges} frame={sim.frame} consumeFinished={sim.consumeFinished} reducedMotion={reduced} sound={false} className="absolute inset-0" />
-            </div>
-          </Panel>
-        </div>
       </div>
     </div>
   );
@@ -167,23 +178,23 @@ export function Logs({ lines, pins, pin, clock0 }: { lines: LogLine[]; pins: Pin
           <option value="WARN+">Warn+</option>
         </select>
         <span className="text-xs text-ink-3">
-          <span className="tabular">{shown.length}</span> lines
+          <span className="tabular">{shown.length}</span> {shown.length === 1 ? "line" : "lines"}
         </span>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto rounded-md border border-line/70 bg-bg-0/70 p-2 font-mono text-xs leading-relaxed" role="log" aria-label="Logs">
         {shown.map((l, i) => {
           const key = `log:${l.t.toFixed(2)}:${l.host}:${l.text.slice(0, 40)}`;
           return (
-            <div key={`${key}-${i}`} className="group flex flex-wrap items-start gap-x-2.5 rounded-xs px-1.5 py-1 hover:bg-bg-2/70 sm:flex-nowrap sm:py-0.5">
+            <div key={`${key}-${i}`} className="group flex flex-wrap items-center gap-x-2.5 rounded-xs px-1.5 py-1 hover:bg-bg-2/70 sm:flex-nowrap sm:items-start sm:py-0.5">
               <span className="shrink-0 tabular text-ink-3">{clockAt(l.t, clock0)}</span>
               <span className="w-12 shrink-0 text-ink-2">{l.host}</span>
               <span className={cx("w-10 shrink-0", l.level === "ERROR" || l.level === "CRIT" ? "text-alert" : l.level === "WARN" ? "text-amber" : "text-ink-3")}>{l.level}</span>
-              <span className="order-last min-w-0 basis-full break-all text-ink-1 sm:order-none sm:basis-auto sm:flex-1">
+              <span className="order-last min-w-0 basis-full text-ink-1 [overflow-wrap:anywhere] sm:order-none sm:basis-auto sm:flex-1">
                 <span className="text-ink-3">[{l.source}] </span>
                 {highlight(l.text, q)}
               </span>
-              <span className="ml-auto opacity-60 group-hover:opacity-100 sm:ml-0 sm:order-last">
-                <PinButton pinned={pins.some((p) => p.key === key)} onPin={() => pin({ key, evidence: l.evidence, text: `${l.host} ${l.source}: ${l.text}`, where: `logs @ ${clockAt(l.t, clock0)}` })} />
+              <span className="ml-auto sm:order-last sm:ml-0 sm:pointer-fine:opacity-60 sm:pointer-fine:group-focus-within:opacity-100 sm:pointer-fine:group-hover:opacity-100">
+                <PinButton compact pinned={pins.some((p) => p.key === key)} onPin={() => pin({ key, evidence: l.evidence, text: `${l.host} ${l.source}: ${l.text}`, where: `logs @ ${clockAt(l.t, clock0)}` })} />
               </span>
             </div>
           );
@@ -245,14 +256,14 @@ export function Hosts({ inc, state, pins, pin }: { inc: Incident; state: Inciden
           return (
             <div key={i} className="mb-3">
               <div className="flex items-center justify-between gap-2">
-                <span>
+                <span className="min-w-0 [overflow-wrap:anywhere]">
                   <span className="text-phos">ubuntu@{h.host}</span>
                   <span className="text-ink-3">:~$ </span>
                   <span className="text-ink-0">{h.cmd}</span>
                 </span>
                 <PinButton pinned={pins.some((p) => p.key === key)} onPin={() => pin({ key, evidence: h.evidence, text: `${h.host}$ ${h.cmd}\n${h.out}`, where: `terminal @ ${clockAt(h.t, inc.clock0)}` })} />
               </div>
-              <pre className="whitespace-pre-wrap break-all text-ink-1">{h.out}</pre>
+              <pre className="whitespace-pre-wrap text-ink-1 [overflow-wrap:anywhere]">{h.out}</pre>
             </div>
           );
         })}

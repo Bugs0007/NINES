@@ -6,7 +6,7 @@
 import { motion } from "motion/react";
 import { forwardRef, useId, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { sfx } from "@/audio/engine";
-import { spring } from "./motion";
+import { spring, useReducedMotion } from "./motion";
 
 export function cx(...parts: (string | false | null | undefined)[]): string {
   return parts.filter(Boolean).join(" ");
@@ -140,13 +140,13 @@ export function Stat({
   className?: string;
   size?: "sm" | "md" | "lg";
 }) {
+  // Colour alone carries the tone: numbers are read, not shouted (no glow).
   const color = { default: "text-ink-0", ok: "text-phos", warn: "text-amber", alert: "text-alert" }[tone];
-  const glow = { default: "", ok: "glow-phos", warn: "glow-amber", alert: "glow-alert" }[tone];
   const sz = { sm: "text-lg", md: "text-2xl", lg: "text-4xl" }[size];
   return (
     <div className={cx("min-w-0", className)}>
       <div className="eyebrow text-xs text-ink-2">{label}</div>
-      <div className={cx("font-mono font-medium tabular leading-tight", sz, color, glow)}>
+      <div className={cx("font-mono font-medium tabular leading-tight", sz, color)}>
         {value}
         {unit && <span className="ml-1 text-[0.55em] font-normal text-ink-2">{unit}</span>}
       </div>
@@ -258,6 +258,7 @@ export function Segmented<T extends string | number>({
   wrap?: boolean;
 }) {
   const layout = useId();
+  const reduced = useReducedMotion();
   return (
     <div role="radiogroup" aria-label={label} className={cx(wrap ? "grid grid-cols-2 sm:flex" : "inline-flex", "rounded-sm border border-line bg-bg-2/70 p-1", className)}>
       {options.map((o) => {
@@ -276,12 +277,13 @@ export function Segmented<T extends string | number>({
               }
             }}
             className={cx(
-              "relative flex-1 whitespace-nowrap rounded-xs font-medium transition-colors duration-200",
+              "relative flex-1 whitespace-nowrap rounded-xs font-medium transition-colors duration-150",
               size === "sm" ? "h-7 px-2.5 text-[13px]" : "h-9 px-3.5 text-sm",
-              active ? "text-bg-0" : "text-ink-1 hover:text-ink-0",
+              // The new label darkens once the pill has (nearly) arrived; the old one lightens at once, so no label is ever dark on dark.
+              active ? cx("text-bg-0", !reduced && "delay-100") : "text-ink-1 hover:text-ink-0",
             )}
           >
-            {active && <motion.span layoutId={`seg-${layout}`} transition={spring.soft} className="absolute inset-0 rounded-xs bg-amber" />}
+            {active && <motion.span layoutId={`seg-${layout}`} transition={reduced ? { duration: 0 } : spring.snap} className="absolute inset-0 rounded-xs bg-amber" />}
             <span className="relative">{o.label}</span>
           </button>
         );

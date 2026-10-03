@@ -3,14 +3,14 @@
  * Mission rail panels: mechanism captions, challenge brief + Ask the SRE, explain-it-back.
  */
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { askSre, aiStatus, gradeExplanation } from "@/ai/client";
 import type { GradeResult } from "@/ai/schemas";
 import type { Caption, Challenge, Deeper, ExplainBack, Source } from "@/content/schema";
 import { sfx } from "@/audio/engine";
 import { CastLine } from "@/ui/Cast";
 import { Button, Chip, cx } from "@/ui/kit";
-import { spring } from "@/ui/motion";
+import { spring, useReducedMotion } from "@/ui/motion";
 import { evalCond, formatMetric } from "@/widgets/shared";
 import type { ChallengeVerdict } from "@/widgets/types";
 
@@ -206,6 +206,7 @@ export function ChallengePanel({
   attempts,
   onHintUsed,
   situation,
+  children,
 }: {
   challenge: Challenge;
   missionTitle: string;
@@ -213,9 +214,19 @@ export function ChallengePanel({
   attempts: number;
   onHintUsed: (n: number) => void;
   situation: string;
+  /** The runner's own block (forecast, Collect, retry): sits right under the verdict, above Ask the SRE. */
+  children?: ReactNode;
 }) {
   const [hints, setHints] = useState<string[]>([]);
   const [asking, setAsking] = useState(false);
+  const reduced = useReducedMotion();
+  const outcome = useRef<HTMLDivElement>(null);
+  // On desktop the rail scrolls on its own: bring the verdict and what follows it into view when a run ends.
+  useEffect(() => {
+    if (!verdict || typeof window === "undefined" || !window.matchMedia("(min-width: 1024px)").matches) return;
+    const t = setTimeout(() => outcome.current?.scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" }), 120);
+    return () => clearTimeout(t);
+  }, [verdict, reduced]);
   // Live-traffic challenges hold (or break) an SLO; design-and-ship ones (prompts, policies) just pass or don't.
   const live = challenge.conditions.some((c) => ["p99", "errorRate", "sessionLoss"].includes(c.metric));
   const ask = async () => {
@@ -285,19 +296,22 @@ export function ChallengePanel({
           </div>
         )}
       </div>
-      <AnimatePresence>
-        {verdict && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={spring.soft}
-            className={cx("rounded-md border p-4", verdict.won ? "border-phos-3/60 bg-phos-dim/40" : "border-alert-3/60 bg-alert-dim/40")}
-          >
-            <div className={cx("font-display text-2xl font-semibold", verdict.won ? "text-phos" : "text-alert")}>{verdict.won ? (live ? "SLO held." : "Shipped.") : live ? "Outage." : "Not yet."}</div>
-            <div className="mt-1 text-sm leading-relaxed text-ink-1">{verdict.won ? "That's the win. Collect it." : live ? "Replay it slowly and find the first domino, then change one thing." : "Find the condition that failed, then change one thing."}</div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div ref={outcome} className="flex scroll-mb-2 flex-col gap-5 empty:hidden">
+        <AnimatePresence>
+          {verdict && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={spring.soft}
+              className={cx("rounded-md border p-4", verdict.won ? "border-phos-3/60 bg-phos-dim/40" : "border-alert-3/60 bg-alert-dim/40")}
+            >
+              <div className={cx("font-display text-2xl font-semibold", verdict.won ? "text-phos" : "text-alert")}>{verdict.won ? (live ? "SLO held." : "Shipped.") : live ? "Outage." : "Not yet."}</div>
+              <div className="mt-1 text-sm leading-relaxed text-ink-1">{verdict.won ? "That's the win. Collect it." : live ? "Replay it slowly and find the first domino, then change one thing." : "Find the condition that failed, then change one thing."}</div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        {children}
+      </div>
       <div className="rounded-md border border-line/70 px-4 py-2.5">
         <div className="flex items-center justify-between gap-3">
           <span className="eyebrow text-xs text-ink-2">Ask the SRE</span>

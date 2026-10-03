@@ -137,7 +137,7 @@ function QueuePlay({ config: c, scene, onObserve, locked, mode }: WidgetProps<Qu
         highlight={focus === "focus-queue" || focus === "focus-capacity" ? ["api"] : []}
         honestPhysics={HONEST}
       />
-      <div className="flex w-full flex-col gap-4 lg:w-[300px]">
+      <div className="flex w-full flex-col gap-4 lg:w-[280px] 2xl:w-[320px]">
         {!hockey ? <LittlePanel L={L} lam={lam} W={W} focus={focus} /> : <HockeyChart points={ws} S={S0} rho={measuredRho} W={W} focus={focus} />}
         <Panel label="Controls">
           <div className={cx("flex flex-col gap-4", locked && "pointer-events-none opacity-40")}>
@@ -182,9 +182,9 @@ function LittlePanel({ L, lam, W, focus }: { L: number; lam: number; W: number; 
   const predicted = lam * W;
   const holds = L > 0.05 && Math.abs(L - predicted) / Math.max(0.1, L) < 0.1;
   const cell = (label: string, v: string, hot: boolean) => (
-    <motion.div animate={{ scale: hot ? 1.06 : 1 }} transition={spring.snap} className={cx("min-w-0 rounded-md border px-1.5 py-2 text-center transition-colors duration-300", hot ? "border-amber/80 bg-amber-dim/30 shadow-glow-amber" : "border-line/80 bg-bg-2/50")}>
+    <motion.div animate={{ scale: hot ? 1.06 : 1 }} transition={spring.snap} className={cx("@container min-w-0 rounded-md border px-1.5 py-2 text-center transition-colors duration-300", hot ? "border-amber/80 bg-amber-dim/30 shadow-glow-amber" : "border-line/80 bg-bg-2/50")}>
       <div className="eyebrow truncate text-[11px] text-ink-2">{label}</div>
-      <div className="mt-0.5 truncate font-mono text-lg tabular text-ink-0">{v}</div>
+      <div className="mt-0.5 whitespace-nowrap font-mono text-base tabular text-ink-0 @[4.75rem]:text-lg">{v}</div>
     </motion.div>
   );
   return (
@@ -310,7 +310,7 @@ function QueueChallenge({ config: c, onResult, verdict, locked, conditions }: Wi
           "The run is seeded, so the same setup always produces the same result.",
         ]}
       />
-      <div className="flex w-full flex-col gap-4 lg:w-[300px]">
+      <div className="flex w-full flex-col gap-4 lg:w-[280px] 2xl:w-[320px]">
         <Panel label={sizing ? "Gunicorn config" : "Capacity plan"}>
           <div className={cx("flex flex-col gap-4", (running || locked) && "pointer-events-none opacity-50")}>
             {sizing ? (

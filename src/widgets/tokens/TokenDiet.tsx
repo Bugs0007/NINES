@@ -47,7 +47,7 @@ export default function TokenDiet({ config, onResult, conditions, locked, verdic
     <div className="flex h-full min-h-0 flex-col gap-4 lg:flex-row">
       <div className="flex min-h-0 flex-1 flex-col gap-4">
         <Panel label={`${c.title} · ${tokens} tokens`} right={<Chip tone={tokens <= c.budgetTokens ? "ok" : "warn"}>budget {c.budgetTokens}</Chip>} className="min-h-0 flex-1" bodyClassName="max-h-[46dvh] overflow-y-auto lg:max-h-[48dvh]">
-          {tok ? <TokenChips pieces={pieces} animate={false} max={900} /> : <div className="text-xs text-ink-3">Loading tokenizer…</div>}
+          {tok ? <TokenChips pieces={pieces} animate={false} max={900} /> : <div className="text-xs text-ink-2">Loading tokenizer…</div>}
         </Panel>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {DIET_EDITS.map((e) => {
@@ -75,7 +75,7 @@ export default function TokenDiet({ config, onResult, conditions, locked, verdic
           })}
         </div>
       </div>
-      <div className="flex w-full flex-col gap-4 lg:w-[300px]">
+      <div className="flex w-full flex-col gap-4 lg:w-[280px] 2xl:w-[320px]">
         <Panel label="The bill">
           <div className="text-xs tabular text-ink-2">
             {c.requestsPerDay.toLocaleString()} requests/day × ${c.usdPerMTok}/M input tokens

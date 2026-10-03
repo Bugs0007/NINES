@@ -37,9 +37,9 @@ export function CodexCard({ pack, mastery = 1, compact = false, onReplay, classN
             {c.keyNumbers.map((k, i) => {
               const src = pack.sources.find((s) => s.id === k.sourceId);
               return (
-                <div key={i} className="flex items-baseline justify-between gap-4 border-b border-line/50 pb-1.5 text-sm">
-                  <dt className="text-ink-1">{k.label}</dt>
-                  <dd className="shrink-0 font-medium tabular text-ink-0">
+                <div key={i} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 border-b border-line/50 pb-1.5 text-sm">
+                  <dt className="min-w-0 text-ink-1">{k.label}</dt>
+                  <dd className="ml-auto min-w-0 break-words text-right font-medium tabular text-ink-0">
                     {src ? (
                       <a href={src.url} target="_blank" rel="noreferrer" title={src.title} className="hover:text-amber">
                         {k.value}
@@ -58,9 +58,19 @@ export function CodexCard({ pack, mastery = 1, compact = false, onReplay, classN
           <ul className="mt-2 space-y-3 text-sm">
             {c.tradeoffs.map((t, i) => (
               <li key={i}>
-                <div className="text-ink-0">{t.choice}</div>
-                <div className="mt-0.5 text-[13px] text-phos">+ {t.gain}</div>
-                <div className="text-[13px] text-alert">− {t.cost}</div>
+                <div className="font-medium text-ink-0">{t.choice}</div>
+                <div className="mt-1 grid grid-cols-[1rem_minmax(0,1fr)] gap-y-0.5 text-[13px] leading-snug text-ink-1">
+                  <span aria-hidden className="text-phos">+</span>
+                  <span>
+                    <span className="sr-only">Gain: </span>
+                    {t.gain}
+                  </span>
+                  <span aria-hidden className="text-alert/80">−</span>
+                  <span>
+                    <span className="sr-only">Cost: </span>
+                    {t.cost}
+                  </span>
+                </div>
               </li>
             ))}
           </ul>
@@ -69,9 +79,9 @@ export function CodexCard({ pack, mastery = 1, compact = false, onReplay, classN
           <>
             <section>
               <h4 className="eyebrow text-xs text-sky">Where you&apos;ve seen it</h4>
-              <ul className="mt-2 space-y-1.5 text-sm leading-relaxed text-ink-1">
+              <ul className="mt-2 list-disc space-y-1.5 pl-4 text-sm leading-relaxed text-ink-1 marker:text-ink-3">
                 {c.seenIn.map((s, i) => (
-                  <li key={i}>· {s}</li>
+                  <li key={i}>{s}</li>
                 ))}
               </ul>
             </section>

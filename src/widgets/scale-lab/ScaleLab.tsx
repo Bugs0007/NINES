@@ -211,7 +211,7 @@ function Hug({ config: c, onResult, verdict, locked, conditions }: WidgetProps<S
   return (
     <div className="flex h-full min-h-0 flex-col gap-4 lg:flex-row">
       <SimStage className="min-h-[340px] flex-1" sim={ch.sim} nodes={layout.nodes} edges={layout.edges} metrics={["p99", "errors", "rps", "cost"]} slo={slo} highlight={highlight} honestPhysics={HONEST} />
-      <div className="flex w-full flex-col gap-4 lg:w-[300px]">
+      <div className="flex w-full flex-col gap-4 lg:w-[280px] 2xl:w-[320px]">
         <Panel label="Fleet plan">
           <div className={cx("flex flex-col gap-4", (running || locked) && "pointer-events-none opacity-50")}>
             <div>

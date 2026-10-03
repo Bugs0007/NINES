@@ -11,7 +11,7 @@ import { healthFrom, type BuildingHealth } from "@/game/fsrs";
 import { cx } from "@/ui/kit";
 import { useReducedMotion } from "@/ui/motion";
 import { alpha, PALETTE as P } from "@/ui/palette";
-import { blockRect, crossTrace, LOT, mapLayout } from "./layout";
+import { crossTrace, focusFrame, LOT, mapLayout } from "./layout";
 
 export type LotState = "locked" | "blueprint" | "available" | "built";
 
@@ -65,7 +65,9 @@ export function InfraMap({
   const svg = useRef<SVGSVGElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const [view, setView] = useState<View>({ x: -40, y: -40, w: L.width + 80, h: L.height + 80 });
-  const [aspect, setAspect] = useState(1.6);
+  // The map's box in CSS px; null until measured.
+  const [size, setSize] = useState<{ w: number; h: number } | null>(null);
+  const aspect = size ? size.w / size.h : 1.6;
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const drag = useRef<{ x: number; y: number; view: View; moved: boolean; pinch?: number } | null>(null);
 
@@ -85,7 +87,10 @@ export function InfraMap({
     const el = wrap.current!;
     const ro = new ResizeObserver(() => {
       const b = el.getBoundingClientRect();
-      if (b.height > 0) setAspect(b.width / b.height);
+      if (b.width <= 0 || b.height <= 0) return;
+      setSize((s) => (s && Math.abs(s.w - b.width) < 0.5 && Math.abs(s.h - b.height) < 0.5 ? s : { w: b.width, h: b.height }));
+      // Keep the view's shape matched to the box, anchored at its top-left, so the map never letterboxes.
+      setView((v) => ({ ...v, h: v.w * (b.height / b.width) }));
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -93,19 +98,34 @@ export function InfraMap({
 
   const didFocus = useRef(false);
   useEffect(() => {
-    if (didFocus.current) return;
-    const r = focusChapter ? blockRect(focusChapter) : null;
-    if (r && aspect < 1) {
-      // Portrait: fit the block's width and pin it to the top so the city continues below.
-      const w = r.w + 40;
-      const h = w / aspect;
-      setView({ x: r.x - 20, y: r.y - 30, w, h });
-    } else if (r) {
-      // Show the focused block with some of the city around it.
-      fit({ x: r.x - 40, y: r.y - 40, w: Math.max(r.w + 380, 700), h: Math.max(r.h + 200, 360) });
-    } else fit({ x: 0, y: 0, w: L.width, h: L.height });
+    // Wait for the measured box: framing against a guessed aspect leaves the focus off-centre for good.
+    if (didFocus.current || !size) return;
     didFocus.current = true;
-  }, [aspect, focusChapter, fit, L.width, L.height]);
+    const f = focusChapter ? focusFrame(focusChapter) : null;
+    if (!f) {
+      fit({ x: 0, y: 0, w: L.width, h: L.height });
+    } else if (aspect < 1 || size.w < 560) {
+      // Narrow: fit the focused block (at a readable minimum width) and pin its district header near the top.
+      // The city continues below.
+      const w = Math.max(f.block.w + 48, 360);
+      const x = Math.max(f.district.x - 12, f.block.x + f.block.w / 2 - w / 2);
+      setView({ x, y: f.row.y - 16, w, h: w / aspect });
+    } else {
+      // Wide: the whole row of chapters the focus sits in, top-aligned, with room below for the dock.
+      const PAD_X = 48;
+      const PAD_TOP = 52;
+      const PAD_BOTTOM = 56;
+      let w = f.row.w + PAD_X * 2;
+      let h = f.row.h + PAD_TOP + PAD_BOTTOM;
+      if (w / h > aspect) h = w / aspect;
+      else w = h * aspect;
+      setView({ x: f.row.x + f.row.w / 2 - w / 2, y: f.row.y - PAD_TOP, w, h });
+    }
+  }, [size, aspect, focusChapter, fit, L.width, L.height]);
+
+  // Screen px per map unit, and how much to grow labels so they stay readable when zoomed out.
+  const scale = size ? Math.min(size.w / view.w, size.h / view.h) : 1;
+  const k = Math.min(1.5, Math.max(1, 1 / scale));
 
   const toWorld = (cx: number, cy: number, v: View) => {
     const b = svg.current!.getBoundingClientRect();
@@ -189,7 +209,7 @@ export function InfraMap({
         ref={svg}
         viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
         preserveAspectRatio="xMidYMid meet"
-        className="h-full w-full touch-none select-none"
+        className="absolute inset-0 h-full w-full touch-none select-none"
         onWheel={onWheel}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -216,23 +236,33 @@ export function InfraMap({
         {L.districts.map((d) => (
           <g key={d.track} transform={`translate(${d.x},${d.y})`}>
             <rect width={d.w} height={d.h} rx={18} fill={alpha(P.bg1, 0.6)} stroke={alpha(P.line2, 0.7)} />
-            <text x={22} y={30} style={DISPLAY} fontSize={16} fontWeight={600} fill={P.ink1}>
+            <text x={22} y={30} style={DISPLAY} fontSize={16 * k} fontWeight={600} fill={P.ink1}>
               {d.name}
-              <tspan dx={8} style={SANS} fontSize={11} fontWeight={500} fill={P.ink3}>
+              <tspan dx={8 * k} style={SANS} fontSize={12 * k} fontWeight={500} fill={P.ink2}>
                 Track {d.track}
               </tspan>
             </text>
-            {d.blocks.map((b) => (
-              <g key={b.chapter} transform={`translate(${b.x},${b.y})`}>
-                <rect width={b.w} height={b.h} rx={12} fill={alpha(P.bg2, 0.55)} stroke={alpha(P.line2, 0.55)} />
-                <text x={12} y={19} style={DISPLAY} fontSize={12} fontWeight={600} fill={P.ink1}>
-                  <tspan style={SANS} fontSize={10.5} fontWeight={600} fill={P.ink3}>
-                    {b.chapter.toUpperCase()} ·
-                  </tspan>{" "}
-                  {b.title}
-                </text>
-              </g>
-            ))}
+            {d.blocks.map((b) => {
+              const t = titleFit(b.chapter, b.title, b.w, k);
+              return (
+                <g key={b.chapter} transform={`translate(${b.x},${b.y})`}>
+                  <rect width={b.w} height={b.h} rx={12} fill={alpha(P.bg2, 0.55)} stroke={alpha(P.line2, 0.55)} />
+                  <clipPath id={`block-title-${b.chapter}`}>
+                    <rect x={4} y={0} width={b.w - 10} height={30} />
+                  </clipPath>
+                  <text x={12} y={19} style={DISPLAY} fontSize={12 * t.scale} fontWeight={600} fill={P.ink1} clipPath={`url(#block-title-${b.chapter})`}>
+                    {t.code && (
+                      <>
+                        <tspan style={SANS} fontSize={11 * t.scale} fontWeight={600} fill={P.ink2}>
+                          {b.chapter.toUpperCase()} ·
+                        </tspan>{" "}
+                      </>
+                    )}
+                    {b.title}
+                  </text>
+                </g>
+              );
+            })}
           </g>
         ))}
 
@@ -288,7 +318,21 @@ export function InfraMap({
   );
 }
 
-const DISPLAY: React.CSSProperties = { fontFamily: "var(--font-display-face), Georgia, serif", fontVariationSettings: '"SOFT" 100, "WONK" 0' };
+/**
+ * Size a block's title to its block: grow with `k` while it fits, shrink a little when it doesn't,
+ * and drop the chapter code before shrinking further. Widths are estimates; a clip path backs them up.
+ */
+function titleFit(chapter: string, title: string, w: number, k: number): { scale: number; code: boolean } {
+  const avail = w - 24;
+  const codeW = (chapter.length + 3) * 0.48 * 11;
+  const titleW = title.length * 0.58 * 12;
+  const full = codeW + titleW;
+  if (full * k <= avail) return { scale: k, code: true };
+  if (full * 0.85 <= avail) return { scale: avail / full, code: true };
+  return { scale: Math.max(0.75, Math.min(k, avail / titleW)), code: false };
+}
+
+const DISPLAY: React.CSSProperties ={ fontFamily: "var(--font-display-face), Georgia, serif", fontVariationSettings: '"SOFT" 100, "WONK" 0' };
 const SANS: React.CSSProperties = { fontFamily: "var(--font-sans-face), system-ui, sans-serif" };
 const MONO: React.CSSProperties = { fontFamily: "var(--font-mono-face), ui-monospace, monospace" };
 

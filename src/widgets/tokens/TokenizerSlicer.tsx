@@ -3,7 +3,7 @@
  * Tokenizer Slicer: guess the token count, then watch the text split. English vs Telugu vs code vs JSON.
  */
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { sfx } from "@/audio/engine";
 import { magnitudeError } from "@/game/scoring";
 import { Button, Chip, cx, fmtUsd, Panel } from "@/ui/kit";
@@ -27,25 +27,55 @@ export function useTokenizer(): Tok | null {
   return tok;
 }
 
-const CHIP_TONES = ["bg-phos/15 border-phos-3/70", "bg-amber/15 border-amber-3/70", "bg-ink-2/15 border-line-3/80"];
+/** Soft fills only: the tokens read as text first, and the tint shows where one ends and the next begins. */
+const CHIP_TONES = ["bg-phos/10", "bg-amber/10", "bg-sky/10", "bg-lilac/10"];
 
 export function TokenChips({ pieces, animate, max = 400 }: { pieces: string[]; animate: boolean; max?: number }) {
   const reduced = useReducedMotion();
+  const [showWs, setShowWs] = useState(false);
   const shown = pieces.slice(0, max);
+  const chip = (i: number, text: string, key: string | number) => (
+    <motion.span
+      key={key}
+      initial={animate && !reduced ? { opacity: 0, y: -6, scale: 0.8 } : false}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ ...spring.snap, delay: animate && !reduced ? Math.min(1.6, i * 0.035) : 0 }}
+      className={cx("whitespace-pre rounded-[4px] px-[2px] text-ink-1", CHIP_TONES[i % CHIP_TONES.length])}
+    >
+      {text}
+    </motion.span>
+  );
   return (
-    <div className="flex flex-wrap gap-[3px] font-mono text-[13px] leading-tight" aria-label={`${pieces.length} tokens`}>
-      {shown.map((p, i) => (
-        <motion.span
-          key={i}
-          initial={animate && !reduced ? { opacity: 0, y: -6, scale: 0.8 } : false}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ ...spring.snap, delay: animate && !reduced ? Math.min(1.6, i * 0.035) : 0 }}
-          className={cx("whitespace-pre rounded-xs border px-[3px] py-[1px] text-ink-0", CHIP_TONES[i % CHIP_TONES.length])}
-        >
-          {p.replace(/\n/g, "↵").replace(/ /g, "·") || "∅"}
-        </motion.span>
-      ))}
-      {pieces.length > max && <span className="font-mono text-2xs text-ink-3">+{pieces.length - max} more</span>}
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap font-mono text-[13px] leading-relaxed" aria-label={`${pieces.length} tokens`}>
+        {shown.map((p, i) => {
+          if (!p) return chip(i, "∅", i);
+          if (showWs) return chip(i, p.replace(/\n/g, "↵").replace(/ /g, "·"), i);
+          if (!p.includes("\n")) return chip(i, p, i);
+          // Real line breaks: a newline ends the row, a blank line leaves a small gap.
+          const segs = p.split("\n");
+          return (
+            <Fragment key={i}>
+              {segs.map((seg, k) => (
+                <Fragment key={k}>
+                  {k > 0 && <span aria-hidden className={cx("basis-full", k > 1 && !segs[k - 1] ? "h-2" : "h-0")} />}
+                  {seg && chip(i, seg, `${i}-${k}`)}
+                </Fragment>
+              ))}
+            </Fragment>
+          );
+        })}
+        {pieces.length > max && <span className="self-center pl-1 font-mono text-2xs text-ink-2">+{pieces.length - max} more</span>}
+      </div>
+      <button
+        type="button"
+        aria-pressed={showWs}
+        onClick={() => setShowWs((v) => !v)}
+        className="inline-flex min-h-8 items-center gap-1.5 self-start rounded-full px-2 text-xs font-medium text-ink-2 transition-colors hover:text-amber"
+      >
+        <span aria-hidden className={cx("font-mono", showWs ? "text-amber" : "text-ink-3")}>·↵</span>
+        {showWs ? "Hide whitespace" : "Show whitespace"}
+      </button>
     </div>
   );
 }
@@ -146,7 +176,7 @@ export default function TokenizerSlicer({ config, scene, onObserve, locked, mode
           </AnimatePresence>
         </Panel>
       </div>
-      <div className="flex w-full flex-col gap-4 lg:w-[300px]">
+      <div className="flex w-full flex-col gap-4 lg:w-[280px] 2xl:w-[320px]">
         <Panel label="What it costs">
           <div className="text-xs tabular text-ink-2">At ${c.usdPerMTok} per million input tokens</div>
           <div className="mt-1.5 text-sm text-ink-0">

@@ -33,6 +33,20 @@ function humanDuration(s: number): string {
   return `${(s / (86400 * 365)).toFixed(1)} years`;
 }
 
+/** Compact human time for axis ticks and narrow screens: 17 min, 12 d, 4.8 yr. */
+function humanShort(s: number): string {
+  const f = (v: number, u: string) => `${v < 10 && Math.abs(v - Math.round(v)) > 0.05 ? v.toFixed(1) : Math.round(v)} ${u}`;
+  if (s < 60) return f(s, "s");
+  if (s < 3600) return f(s / 60, "min");
+  if (s < 86400) return f(s / 3600, "h");
+  if (s < 86400 * 60) return f(s / 86400, "d");
+  if (s < 86400 * 365 * 2) return f(s / (86400 * 30.4), "mo");
+  return f(s / (86400 * 365), "yr");
+}
+
+/** Label column, gap, track, gap, value column: the axis and grid lines sit exactly over the tracks. */
+const AXIS_INSET = "sm:ml-[calc(32%+0.75rem)] sm:mr-[8.25rem]";
+
 export default function LatencyLadder({ config, mode, scene, calls, onObserve }: WidgetProps<LadderConfig>) {
   const c = LadderConfig.parse(config);
   const reduced = useReducedMotion();
@@ -115,68 +129,86 @@ export default function LatencyLadder({ config, mode, scene, calls, onObserve }:
             </span>
           </span>
         }
-        className="flex-1"
-        bodyClassName="flex h-full flex-col gap-3"
+        className="flex flex-1 flex-col"
+        bodyClassName="flex min-h-0 flex-1 flex-col"
       >
-        {/* axis */}
-        <div className="relative ml-[38%] h-6 sm:ml-[32%]">
-          {ticks.map((t) => (
-            <span key={t.lg} className="absolute top-0 -translate-x-1/2 font-mono text-[11px] text-ink-3" style={{ left: `${x(t.lg)}%` }}>
-              {t.label}
-            </span>
-          ))}
-          <span className="absolute top-3 -translate-x-1/2 whitespace-nowrap text-[11px] font-medium text-amber" style={{ left: `${x(8)}%` }}>
-            ▼ 100 ms feels instant
-          </span>
-        </div>
-        <div className="relative flex flex-1 flex-col justify-around gap-1">
-          {/* grid lines */}
-          <div className="pointer-events-none absolute inset-y-0 left-[38%] right-0 sm:left-[32%]">
-            {ticks.map((t) => (
-              <span key={t.lg} className="absolute inset-y-0 w-px bg-line/70" style={{ left: `${x(t.lg)}%` }} />
+        <div className="my-auto flex flex-col gap-2">
+          {/* axis: tick labels, then the 100 ms marker on its own line, pointing down at its grid line */}
+          <div className={cx("relative h-9", AXIS_INSET)}>
+            {ticks.map((t, k) => (
+              <span
+                key={t.lg}
+                className={cx("absolute top-0 whitespace-nowrap font-mono text-[11px] text-ink-2", k === ticks.length - 1 ? "-translate-x-full sm:-translate-x-1/2" : "-translate-x-1/2")}
+                style={{ left: `${x(t.lg)}%` }}
+              >
+                {human ? humanShort(Math.pow(10, t.lg) / ref.ns) : t.label}
+              </span>
             ))}
-            <span className="absolute inset-y-0 w-px bg-amber/40" style={{ left: `${x(8)}%` }} />
-            {phase !== "idle" && <span className="absolute inset-y-0 w-px bg-phos shadow-[0_0_6px_color-mix(in_srgb,var(--color-phos)_55%,transparent)]" style={{ left: `${Math.min(100, x(clock))}%` }} />}
+            <span className="absolute top-[18px] -translate-x-[calc(100%-0.4rem)] whitespace-nowrap text-[11px] font-medium text-amber" style={{ left: `${x(8)}%` }}>
+              100 ms feels instant ▼
+            </span>
           </div>
-          {order.map((id, i) => {
-            const it = c.items.find((q) => q.id === id)!;
-            const lg = Math.log10(it.ns);
-            const done = finishOrder.includes(id);
-            const pos = finishOrder.indexOf(id);
-            const correct = truth.indexOf(id) === i;
-            const progress = phase === "idle" ? 0 : Math.min(x(lg), x(clock));
-            return (
-              <div key={id} className="relative flex min-h-9 items-center gap-2">
-                <div className="flex w-[38%] items-center gap-2 pr-2 sm:w-[32%]">
-                  <span className="w-4 shrink-0 font-mono text-2xs text-ink-3">{i + 1}</span>
-                  <span className="truncate text-sm text-ink-0" title={it.label}>
-                    {it.label}
-                  </span>
+          <div className="relative flex flex-col gap-2.5 sm:gap-1">
+            {/* grid lines (sm and up; phones get tick marks inside each track) */}
+            <div aria-hidden className="pointer-events-none absolute inset-y-0 left-[calc(32%+0.75rem)] right-[8.25rem] hidden sm:block">
+              {ticks.map((t) => (
+                <span key={t.lg} className="absolute inset-y-0 w-px bg-line/70" style={{ left: `${x(t.lg)}%` }} />
+              ))}
+              <span className="absolute inset-y-0 w-px bg-amber/40" style={{ left: `${x(8)}%` }} />
+              {phase !== "idle" && <span className="absolute inset-y-0 w-px bg-phos/80" style={{ left: `${Math.min(100, x(clock))}%` }} />}
+            </div>
+            {order.map((id, i) => {
+              const it = c.items.find((q) => q.id === id)!;
+              const lg = Math.log10(it.ns);
+              const done = finishOrder.includes(id);
+              const pos = finishOrder.indexOf(id);
+              const correct = truth.indexOf(id) === i;
+              const progress = phase === "idle" ? 0 : Math.min(x(lg), x(clock));
+              return (
+                <div key={id} className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 sm:min-h-9 sm:grid-cols-[32%_minmax(0,1fr)_7.5rem]">
+                  <div className="col-start-1 row-start-1 flex min-w-0 items-baseline gap-2">
+                    <span className="w-4 shrink-0 font-mono text-2xs text-ink-3">{i + 1}</span>
+                    <span className="min-w-0 text-[13px] leading-snug text-ink-0 sm:text-sm">{it.label}</span>
+                  </div>
+                  <div className="relative col-span-2 row-start-2 h-5 sm:col-span-1 sm:col-start-2 sm:row-start-1">
+                    <div aria-hidden className="absolute inset-0 sm:hidden">
+                      {ticks.map((t) => (
+                        <span key={t.lg} className="absolute inset-y-0 w-px bg-line/70" style={{ left: `${x(t.lg)}%` }} />
+                      ))}
+                      <span className="absolute inset-y-0 w-px bg-amber/40" style={{ left: `${x(8)}%` }} />
+                    </div>
+                    <motion.div
+                      className={cx("absolute inset-y-1 left-0 rounded-full", done ? (phase === "done" && !correct ? "bg-amber/60" : "bg-phos/60") : "bg-phos/30")}
+                      animate={{ width: `${progress}%` }}
+                      transition={{ duration: 0.05, ease: "linear" }}
+                    />
+                  </div>
+                  <div className="col-start-2 row-start-1 min-h-5 min-w-[4.75rem] text-right sm:col-start-3 sm:min-w-0">
+                    <AnimatePresence>
+                      {done && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.6 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={spring.bounce}
+                          className="inline-block origin-right whitespace-nowrap font-mono text-xs tabular"
+                        >
+                          {human ? (
+                            <>
+                              <span className="text-ink-0 sm:hidden">{humanShort(it.ns / ref.ns)}</span>
+                              <span className="hidden text-ink-0 sm:inline">{humanDuration(it.ns / ref.ns)}</span>
+                            </>
+                          ) : (
+                            <span className="text-ink-0">{fmtLatency(it.ns / 1e9)}</span>
+                          )}
+                          <span className={cx("ml-2", phase === "done" ? (correct ? "text-phos" : "text-amber") : "text-ink-3")}>#{pos + 1}</span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
-                <div className="relative h-5 flex-1">
-                  <motion.div
-                    className={cx("absolute inset-y-1 left-0 rounded-full", done ? (phase === "done" && !correct ? "bg-amber/60" : "bg-phos/60") : "bg-phos/30")}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.05, ease: "linear" }}
-                  />
-                  <AnimatePresence>
-                    {done && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.6 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={spring.bounce}
-                        className="absolute top-1/2 -translate-y-1/2 whitespace-nowrap pl-2 font-mono text-xs tabular"
-                        style={{ left: `${Math.min(x(lg), 70)}%` }}
-                      >
-                        <span className="text-ink-0">{human ? humanDuration(it.ns / ref.ns) : fmtLatency(it.ns / 1e9)}</span>
-                        <span className={cx("ml-2", phase === "done" ? (correct ? "text-phos" : "text-amber") : "text-ink-3")}>#{pos + 1}</span>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </Panel>
 
@@ -194,7 +226,7 @@ export default function LatencyLadder({ config, mode, scene, calls, onObserve }:
             onChange={(v) => setHuman(v === "human")}
             options={[
               { value: "real", label: "Real time" },
-              { value: "human", label: `If ${ref.label.toLowerCase()} took 1s` },
+              { value: "human", label: `If ${ref.label.replace(/^[A-Z](?=[a-z])/, (m) => m.toLowerCase())} took 1s` },
             ]}
           />
         )}

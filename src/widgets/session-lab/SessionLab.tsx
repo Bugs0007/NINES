@@ -100,7 +100,7 @@ function Lab({ config: c, onObserve, locked, mode: wmode, scene }: WidgetProps<S
         <LossStrip windows={sim.windows} />
         <SimStage className="min-h-[320px] flex-1" sim={sim} nodes={layout.nodes} edges={layout.edges} metrics={["p99", "errors", "rps"]} highlight={scene === "state" ? servers.map((s) => s.id) : scene === "store" ? ["redis"] : []} honestPhysics={HONEST} />
       </div>
-      <div className="flex w-full flex-col gap-4 lg:w-[320px]">
+      <div className="flex w-full flex-col gap-4 lg:w-[280px] 2xl:w-[320px]">
         <Panel label="Where sessions live">
           <div className={cx("flex flex-col gap-2", locked && "pointer-events-none opacity-40")}>
             {MODES.map((m) => (
@@ -162,7 +162,7 @@ function Deploy({ config: c, onResult, verdict, locked, conditions }: WidgetProp
         <LossStrip windows={ch.sim.windows} />
         <SimStage className="min-h-[320px] flex-1" sim={ch.sim} nodes={layout.nodes} edges={layout.edges} metrics={["p99", "errors", "rps", "cost"]} slo={slo} highlight={highlight} honestPhysics={HONEST} />
       </div>
-      <div className="flex w-full flex-col gap-4 lg:w-[300px]">
+      <div className="flex w-full flex-col gap-4 lg:w-[280px] 2xl:w-[320px]">
         <Panel label="Session strategy">
           <div className={cx("flex flex-col gap-2", (running || locked) && "pointer-events-none opacity-50")}>
             {MODES.map((m) => (

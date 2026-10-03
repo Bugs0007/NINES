@@ -196,20 +196,25 @@ export default function LaunchBuilder({ config, onResult, verdict, locked, runLo
 
 function Timeline({ t, duration, active }: { t: number; duration: number; active: boolean }) {
   return (
-    <div className="h-14 rounded-lg border border-line/70 bg-bg-1/75 px-6 shadow-card">
-      <div className="relative h-full">
+    <div className="h-12 rounded-lg border border-line/70 bg-bg-1/75 px-4 shadow-card lg:h-[5.5rem]">
+      <div className="@container relative h-full">
         <div className="absolute inset-x-0 top-1/2 h-px bg-line-2/70" />
         {TIMELINE.map((e, i) => {
           const past = active && t >= e.t;
           const up = i % 2 === 1;
+          const pos = (e.t / duration) * 100;
+          // Labels near the ends hang inward so the story is never cut at the edge of the card.
+          const anchor = pos < 12 ? "left-0 text-left" : pos > 88 ? "right-0 text-right" : "left-1/2 -translate-x-1/2 text-center";
           return (
-            <div key={e.t} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${(e.t / duration) * 100}%` }} title={e.label}>
+            <div key={e.t} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${pos}%` }} title={e.label}>
               <div className={cx("mx-auto h-2.5 w-2.5 rounded-full border transition-colors duration-300", past ? "border-amber bg-amber" : "border-line-3 bg-bg-1")} />
-              <div className={cx("absolute left-1/2 hidden w-[120px] -translate-x-1/2 truncate text-center text-[11px] lg:block", up ? "bottom-3" : "top-3", past ? "text-amber" : "text-ink-3")}>{e.label}</div>
+              <div className={cx("absolute hidden w-[min(140px,24cqw)] text-xs leading-tight transition-colors duration-300 lg:block", anchor, up ? "bottom-4" : "top-4", past ? "text-amber" : "text-ink-2")}>
+                <div className="line-clamp-2">{e.label}</div>
+              </div>
             </div>
           );
         })}
-        {active && <motion.div className="absolute bottom-1 top-1 w-px bg-phos shadow-[0_0_6px_color-mix(in_srgb,var(--color-phos)_55%,transparent)]" style={{ left: `${Math.min(1, t / duration) * 100}%` }} />}
+        {active && <motion.div className="absolute top-1/2 h-5 w-px -translate-y-1/2 bg-phos/80" style={{ left: `${Math.min(1, t / duration) * 100}%` }} />}
       </div>
     </div>
   );

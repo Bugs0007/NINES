@@ -68,12 +68,12 @@ export function MetricStrip({
         return { k, label: "Errors", value: last ? fmtPct(last.errorRate, last.errorRate < 0.1 ? 2 : 1) : "—", series: w.map((x) => x.errorRate), tone: bad ? ("alert" as const) : ("ink" as const), bad, max: 1 };
       }
       case "rps":
-        return { k, label: "Throughput", value: last ? `${fmtNum(last.throughput)}/s` : "—", series: w.map((x) => x.throughput), tone: "ink" as const };
+        return { k, label: "Throughput", short: "Rate", value: last ? `${fmtNum(last.throughput)}/s` : "—", series: w.map((x) => x.throughput), tone: "ink" as const };
       case "cost":
-        return { k, label: "Cost / mo", value: last ? fmtUsd(last.costPerMonth) : "—", series: w.map((x) => x.costPerMonth), tone: "ink" as const };
+        return { k, label: "Cost / mo", short: "Cost", value: last ? fmtUsd(last.costPerMonth) : "—", series: w.map((x) => x.costPerMonth), tone: "ink" as const };
       case "inflight": {
         const v = last && inflightNode ? last.nodes[inflightNode]?.inflight ?? 0 : 0;
-        return { k, label: "In flight (L)", value: last ? v.toFixed(1) : "—", series: w.map((x) => (inflightNode ? x.nodes[inflightNode]?.inflight ?? 0 : 0)), tone: "amber" as const };
+        return { k, label: "In flight (L)", short: "In flight", value: last ? v.toFixed(1) : "—", series: w.map((x) => (inflightNode ? x.nodes[inflightNode]?.inflight ?? 0 : 0)), tone: "amber" as const };
       }
       case "queue": {
         const v = last && inflightNode ? last.nodes[inflightNode]?.queue ?? 0 : 0;
@@ -97,20 +97,31 @@ export function MetricStrip({
   return (
     <div className={cx("grid divide-x divide-line/60 overflow-hidden rounded-lg border border-line/70 bg-bg-1/75 shadow-card", className)} style={{ gridTemplateColumns: `repeat(${keys.length}, minmax(0, 1fr))` }}>
       {tiles.map((t) => (
-        <div key={t.k} className={cx("relative min-w-0 px-2.5 py-2 transition-colors duration-300 sm:px-3", "bad" in t && t.bad && "bg-alert-dim/50")}>
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between sm:gap-3">
-            <div className="min-w-0">
-              <div className="eyebrow truncate text-[11px] text-ink-2 sm:text-xs">{t.label}</div>
-              <div className={cx("mt-0.5 truncate font-mono text-sm tabular sm:text-base", t.tone === "alert" ? "text-alert" : t.tone === "amber" ? "text-amber" : t.tone === "phos" ? "text-phos" : "text-ink-0")}>{t.value}</div>
+        // Each tile is a container: the label and value keep their full width, and the sparkline sits beside them
+        // only when the tile is wide enough, otherwise it drops underneath. Numbers are never cut.
+        <div key={t.k} className={cx("@container relative min-w-0 px-2.5 py-2 transition-colors duration-300 sm:px-3", "bad" in t && t.bad && "bg-alert-dim/50")}>
+          <div className="flex flex-col gap-1.5 @[11rem]:flex-row @[11rem]:items-end @[11rem]:justify-between @[11rem]:gap-3">
+            <div className="min-w-0 shrink-0">
+              <div className="eyebrow truncate text-[11px] text-ink-2 @[7rem]:text-xs">
+                {"short" in t && t.short ? (
+                  <>
+                    <span className="@[7.5rem]:hidden">{t.short}</span>
+                    <span className="hidden @[7.5rem]:inline">{t.label}</span>
+                  </>
+                ) : (
+                  t.label
+                )}
+              </div>
+              <div className={cx("mt-0.5 whitespace-nowrap font-mono text-sm tabular @[8rem]:text-base", t.tone === "alert" ? "text-alert" : t.tone === "amber" ? "text-amber" : t.tone === "phos" ? "text-phos" : "text-ink-0")}>{t.value}</div>
             </div>
             <Sparkline
               values={t.series}
               width={120}
               height={18}
-              className="mt-1.5 block w-full max-w-[120px] sm:mb-1 sm:mt-0 sm:w-[120px] sm:min-w-0 sm:shrink"
-            tone={t.tone === "alert" ? "alert" : t.tone === "amber" ? "amber" : t.tone === "phos" ? "phos" : "ink"}
-            threshold={"threshold" in t ? t.threshold : undefined}
-            max={"max" in t ? t.max : undefined}
+              className="block w-full min-w-0 max-w-[120px] @[11rem]:mb-1 @[11rem]:flex-1"
+              tone={t.tone === "alert" ? "alert" : t.tone === "amber" ? "amber" : t.tone === "phos" ? "phos" : "ink"}
+              threshold={"threshold" in t ? t.threshold : undefined}
+              max={"max" in t ? t.max : undefined}
             />
           </div>
         </div>
@@ -226,10 +237,14 @@ export function SimStage({
           </Chip>
           {overlay}
         </div>
+      </div>
+      {/* Under the canvas, not on it: the chip used to sit on top of nodes on narrow screens. */}
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-3">
+        <NotableTicker notables={sim.notables} className="min-w-0 flex-1" />
         {showHonest && honestPhysics && honestPhysics.length > 0 && (
-          <details ref={hpOpen} className="absolute bottom-3 right-3 max-w-[min(360px,85%)] text-right">
-            <summary className="cursor-pointer list-none rounded-full bg-bg-1/70 px-2.5 py-0.5 text-xs font-medium text-ink-2 transition-colors hover:text-amber">Honest physics</summary>
-            <ul className="mt-1.5 space-y-1.5 rounded-md border border-line-2/80 bg-bg-1/95 p-3 text-left text-[13px] leading-snug text-ink-1 shadow-card">
+          <details ref={hpOpen} className="relative shrink-0 self-end sm:self-auto">
+            <summary className="inline-flex min-h-8 cursor-pointer list-none items-center rounded-full px-3 text-xs font-medium text-ink-2 transition-colors hover:text-amber">Honest physics</summary>
+            <ul className="absolute bottom-full right-0 z-20 mb-1.5 w-[min(360px,calc(100vw-2rem))] space-y-1.5 rounded-md border border-line-2/80 bg-bg-1/95 p-3 text-left text-[13px] leading-snug text-ink-1 shadow-card">
               {honestPhysics.map((h, i) => (
                 <li key={i}>· {h}</li>
               ))}
@@ -237,7 +252,6 @@ export function SimStage({
           </details>
         )}
       </div>
-      <NotableTicker notables={sim.notables} />
     </div>
   );
 }

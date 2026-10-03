@@ -35,7 +35,7 @@ export function Debrief({ pack, lines, firstBuild, stars, nextHref, nextLabel }:
           <h1 className="mt-2 text-balance font-display text-5xl font-semibold leading-[1.05] text-ink-0 sm:text-6xl">{pack.title}</h1>
           <div className="mt-3 flex gap-1.5 text-2xl" aria-label={`${stars} of 2 bonus stars`}>
             {[0, 1].map((i) => (
-              <motion.span key={i} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ ...spring.bounce, delay: 0.6 + i * 0.2 }} className={i < stars ? "text-amber glow-amber" : "text-line-3"}>
+              <motion.span key={i} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ ...spring.bounce, delay: 0.6 + i * 0.2 }} className={i < stars ? "text-amber" : "text-line-3"}>
                 ★
               </motion.span>
             ))}

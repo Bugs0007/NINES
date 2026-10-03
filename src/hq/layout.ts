@@ -172,6 +172,28 @@ export function crossTrace(fromId: string, toId: string): string | null {
   return `M${a.x},${a.y}C${a.x + 80},${a.y} ${b.x - 80},${b.y} ${b.x},${b.y}`;
 }
 
+type Rect = { x: number; y: number; w: number; h: number };
+
+/**
+ * What to frame when the map opens on a chapter: its block, the row of blocks it sits in
+ * (from the district header down when it is the first row), and its district.
+ */
+export function focusFrame(chapter: string): { block: Rect; row: Rect; district: Rect } | null {
+  for (const d of mapLayout().districts) {
+    const b = d.blocks.find((x) => x.chapter === chapter);
+    if (!b) continue;
+    const row = d.blocks.filter((x) => x.y === b.y);
+    const top = b.y === DISTRICT_HEADER ? d.y : d.y + b.y - 14;
+    const bottom = d.y + b.y + Math.max(...row.map((x) => x.h));
+    return {
+      block: { x: d.x + b.x, y: d.y + b.y, w: b.w, h: b.h },
+      row: { x: d.x, y: top, w: d.w, h: bottom - top },
+      district: { x: d.x, y: d.y, w: d.w, h: d.h },
+    };
+  }
+  return null;
+}
+
 /** Absolute rect of a chapter block, for focusing the viewport. */
 export function blockRect(chapter: string): { x: number; y: number; w: number; h: number } | null {
   for (const d of mapLayout().districts) {

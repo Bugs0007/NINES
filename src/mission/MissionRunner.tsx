@@ -161,14 +161,15 @@ export function MissionRunner({ pack, next }: { pack: ConceptPack; next?: { href
   }
 
   const inChallenge = beat === "challenge" || beat === "explain";
-  // On phones the rail stacks under the stage; text-led beats put it first.
-  const textFirst = beat === "predict" || beat === "mechanism" || beat === "explain";
+  // On phones the rail and the stage stack. The rail (what to do) comes first, except once a challenge
+  // has run: then the stage leads, with the verdict and next step under it.
+  const textFirst = beat !== "challenge" || (attempts === 0 && !verdict);
   const widgetRef = inChallenge ? challenge.widget : pack.widget;
   const mode = inChallenge ? "challenge" : beat === "predict" ? "preview" : "play";
 
   return (
     <Frame pack={pack} beatIdx={beatIdx} chapter={node.chapter}>
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_400px] lg:grid-rows-1 lg:gap-5 lg:p-5">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:grid-rows-1 2xl:grid-cols-[minmax(0,1fr)_400px] lg:gap-5 lg:p-5">
         {/* stage: grows with its content on phones, fixed to the viewport on desktop */}
         <div className={cx("relative min-h-[440px] rounded-lg lg:h-[calc(100dvh-96px)] lg:min-h-0 lg:overflow-hidden", textFirst && "order-2 lg:order-none")}>
           <div className={cx("h-full transition-[filter,opacity] duration-500", beat === "predict" && "pointer-events-none opacity-50 blur-[1.5px]")}>
@@ -215,15 +216,14 @@ export function MissionRunner({ pack, next }: { pack: ConceptPack; next?: { href
                 <MechanismPanel captions={pack.mechanism} index={capIdx} onIndex={setCapIdx} onDone={() => setBeat("challenge")} sources={pack.sources} onDeeper={() => setDeeper(true)} />
               )}
               {beat === "challenge" && (
-                <div className="flex flex-col gap-4">
-                  <ChallengePanel
-                    challenge={challenge}
-                    missionTitle={pack.title}
-                    verdict={verdict}
-                    attempts={attempts}
-                    onHintUsed={setHintsUsed}
-                    situation={verdict ? `Last run failed: ${verdict.failed.map((f) => `${f.label} (got ${verdict.metrics[f.metric]?.toFixed(3)})`).join("; ")}` : "Has not run yet."}
-                  />
+                <ChallengePanel
+                  challenge={challenge}
+                  missionTitle={pack.title}
+                  verdict={verdict}
+                  attempts={attempts}
+                  onHintUsed={setHintsUsed}
+                  situation={verdict ? `Last run failed: ${verdict.failed.map((f) => `${f.label} (got ${verdict.metrics[f.metric]?.toFixed(3)})`).join("; ")}` : "Has not run yet."}
+                >
                   {verdict?.won && (
                     <Button variant="go" size="lg" onClick={() => setBeat("explain")}>
                       Collect
@@ -240,7 +240,7 @@ export function MissionRunner({ pack, next }: { pack: ConceptPack; next?: { href
                       Reset the challenge
                     </Button>
                   )}
-                </div>
+                </ChallengePanel>
               )}
               {beat === "explain" && <ExplainPanel concept={pack.title} eb={pack.explainBack} required={explainRequired} onDone={onExplained} />}
             </motion.div>
@@ -271,9 +271,16 @@ function PlayPanel({ pack, calls, revealed }: { pack: ConceptPack; calls: Record
                   Your call: <span className="font-medium text-amber">{describeCall(p, c.value)}</span> · <span className="tabular">{c.confidence}%</span> sure
                 </div>
               )}
-              <div className="mt-2.5 flex items-start gap-2 text-xs leading-snug text-ink-3">
-                <Led tone={done ? "ok" : "warn"} blink={!done} className="mt-[3px]" />
-                <span>{done ? "Revealed" : `Waiting for: ${observeHint(p.observe)}`}</span>
+              <div className="mt-3 flex items-start gap-2 text-[13px] leading-snug text-ink-1">
+                <Led tone={done ? "ok" : "warn"} className="mt-[5px]" />
+                {done ? (
+                  <span className="text-ink-2">Revealed</span>
+                ) : (
+                  <span>
+                    <span className="text-ink-2">Try this: </span>
+                    {observeHint(p.observe)}
+                  </span>
+                )}
               </div>
             </li>
           );
@@ -312,14 +319,19 @@ function Frame({ pack, beatIdx, chapter, children }: { pack: ConceptPack; beatId
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-line/60 bg-bg-0/80 px-4 backdrop-blur-md lg:gap-4 lg:px-6">
-        <Link href="/" className="shrink-0 rounded-full px-2 py-1 text-[13px] font-medium text-ink-2 transition-colors hover:bg-bg-2 hover:text-ink-0" aria-label="Back to HQ">
-          ← HQ
+        <Link
+          href="/"
+          className="-ml-2 grid h-10 w-10 shrink-0 place-items-center rounded-full text-[15px] font-medium text-ink-2 transition-colors hover:bg-bg-2 hover:text-ink-0 lg:ml-0 lg:flex lg:h-auto lg:w-auto lg:px-2 lg:py-1 lg:text-[13px]"
+          aria-label="Back to HQ"
+        >
+          <span aria-hidden>←</span>
+          <span aria-hidden className="hidden lg:inline">&nbsp;HQ</span>
         </Link>
-        <span className="h-4 w-px shrink-0 bg-line-2" />
+        <span className="hidden h-4 w-px shrink-0 bg-line-2 sm:block" />
         <Link href={`/campaign/${chapter}`} className="hidden shrink-0 font-mono text-xs text-ink-3 transition-colors hover:text-amber sm:inline">
           {chapter.toUpperCase()}
         </Link>
-        <span className="min-w-0 truncate font-display text-lg font-semibold text-ink-0">{pack.title}</span>
+        <span className="line-clamp-2 min-w-0 font-display text-[17px] font-semibold leading-tight text-ink-0 lg:line-clamp-1 lg:text-lg">{pack.title}</span>
         {/* Gentle progress: sage dots behind you, a sand pill where you are, quiet labels ahead. */}
         <ol className="ml-auto hidden shrink-0 items-center gap-1 lg:flex" aria-label="Mission progress">
           {BEATS.map((b, i) => (
@@ -338,14 +350,18 @@ function Frame({ pack, beatIdx, chapter, children }: { pack: ConceptPack; beatId
             </li>
           ))}
         </ol>
-        <span className="ml-auto flex shrink-0 items-center gap-2.5 lg:hidden" aria-label={`Step ${beatIdx + 1} of ${BEATS.length}: ${BEATS[beatIdx]?.label ?? ""}`}>
-          <span className="text-xs font-medium text-amber">{BEATS[beatIdx]?.label}</span>
-          <span className="flex items-center gap-1" aria-hidden>
-            {BEATS.map((b, i) => (
-              <span key={b.id} className={cx("h-1.5 rounded-full transition-all duration-500", i === beatIdx ? "w-4 bg-amber" : i < beatIdx ? "w-1.5 bg-phos/80" : "w-1.5 bg-line-3")} />
-            ))}
-          </span>
-        </span>
+        {/* Phones: a hairline of progress along the header's bottom edge, so the title keeps the room. */}
+        <div
+          role="progressbar"
+          aria-label="Mission progress"
+          aria-valuemin={1}
+          aria-valuemax={BEATS.length}
+          aria-valuenow={beatIdx + 1}
+          aria-valuetext={`Step ${beatIdx + 1} of ${BEATS.length}: ${BEATS[beatIdx]?.label ?? ""}`}
+          className="absolute inset-x-0 -bottom-px h-0.5 lg:hidden"
+        >
+          <div className="h-full rounded-r-full bg-phos/70 transition-[width] duration-500 ease-out" style={{ width: `${((beatIdx + 1) / BEATS.length) * 100}%` }} />
+        </div>
       </header>
       <main className="flex min-h-0 flex-1 flex-col">{children}</main>
     </div>

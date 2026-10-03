@@ -142,7 +142,7 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-4 lg:overflow-y-auto lg:pr-1 [scrollbar-gutter:stable]">
         <Panel label="Context policy">
           <div className={cx("flex flex-col gap-4", controlsLocked && "pointer-events-none opacity-50")}>
             <Segmented<HistoryMode>

@@ -77,7 +77,7 @@ export function HQ() {
             <Ticker
               value={liveN}
               format={(v) => `${formatUptime(v)}%`}
-              className={cx("num-display text-[clamp(2.75rem,10vw,4.75rem)] font-semibold leading-none", degraded ? "text-amber glow-amber" : "text-phos glow-phos")}
+              className={cx("num-display text-[clamp(2.75rem,10vw,4.75rem)] font-semibold leading-none", degraded ? "text-amber" : "text-phos")}
             />
             <div className="text-[13px] text-ink-2">
               <span className="tabular font-medium text-ink-1">{liveN.toFixed(2)}</span> nines
@@ -219,9 +219,9 @@ function Legend() {
     ["Blueprint", <span key="b" className="inline-block h-2.5 w-2.5 rounded-[4px] border border-dashed border-line-3" />],
   ];
   return (
-    <div className="pointer-events-none absolute left-4 top-4 hidden flex-col gap-1.5 rounded-md border border-line/70 bg-bg-1/85 px-3 py-2.5 text-xs text-ink-2 shadow-card backdrop-blur-sm sm:flex">
+    <div className="pointer-events-none absolute left-4 top-3 hidden flex-wrap items-center gap-x-4 gap-y-1 rounded-full bg-bg-0/55 px-3 py-1.5 text-xs text-ink-2 backdrop-blur-sm sm:flex">
       {items.map(([l, i]) => (
-        <span key={l} className="flex items-center gap-2">
+        <span key={l} className="flex items-center gap-1.5 whitespace-nowrap">
           {i}
           {l}
         </span>
@@ -324,11 +324,11 @@ function Dock() {
     { href: "/codex", label: "Codex", sub: "Earned cards", dot: "bg-sky" },
   ];
   return (
-    <nav aria-label="Modes" className="sticky bottom-0 z-20 mt-4 grid grid-cols-4 gap-1 border-t border-line/70 bg-bg-0/90 px-2 py-2 backdrop-blur lg:px-8">
+    <nav aria-label="Modes" className="sticky bottom-0 z-20 mt-4 grid grid-cols-4 gap-0.5 border-t border-line/70 bg-bg-0/90 px-1.5 py-1.5 backdrop-blur sm:gap-1 sm:px-2 sm:py-2 lg:px-8">
       {links.map((l) => (
-        <Link key={l.href} href={l.href} className="group flex flex-col items-center justify-center rounded-md px-1 py-2 text-center transition-colors duration-200 hover:bg-bg-2/80">
-          <div className="flex items-center gap-2 font-display text-sm font-semibold leading-tight text-ink-0 transition-colors duration-200 group-hover:text-amber sm:text-lg">
-            <span aria-hidden className={cx("hidden h-1.5 w-1.5 shrink-0 rounded-full sm:inline-block", l.dot)} />
+        <Link key={l.href} href={l.href} className="group flex min-h-12 flex-col items-center justify-center rounded-md px-0.5 py-1.5 text-center transition-colors duration-200 hover:bg-bg-2/80 sm:px-1 sm:py-2">
+          <div className="flex flex-col items-center gap-1.5 whitespace-nowrap text-xs font-medium leading-tight text-ink-0 transition-colors duration-200 group-hover:text-amber sm:flex-row sm:gap-2 sm:font-display sm:text-lg sm:font-semibold">
+            <span aria-hidden className={cx("h-1.5 w-1.5 shrink-0 rounded-full", l.dot)} />
             {l.label}
           </div>
           <div className="mt-0.5 hidden text-xs text-ink-3 sm:block">{l.sub}</div>

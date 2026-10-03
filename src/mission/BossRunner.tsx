@@ -82,6 +82,9 @@ export function BossRunner({ boss }: { boss: BossPack }) {
     }
   };
 
+  // Phones stack the rail and the stage: the brief and forecast lead until the first launch, the explanation after.
+  const textFirst = beat === "explain" || (attempts === 0 && !verdict);
+
   const retry = () => {
     setVerdict(null);
     setReveal(null);
@@ -121,8 +124,8 @@ export function BossRunner({ boss }: { boss: BossPack }) {
       {beat === "debrief" ? (
         <BossDebrief boss={boss} lines={lines} stars={stars} />
       ) : (
-        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-5 lg:p-5">
-          <div className="relative min-h-[520px] rounded-lg lg:h-[calc(100dvh-96px)] lg:min-h-0 lg:overflow-hidden">
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-5 lg:p-5 2xl:grid-cols-[minmax(0,1fr)_380px]">
+          <div className={cx("relative min-h-[520px] rounded-lg lg:h-[calc(100dvh-96px)] lg:min-h-0 lg:overflow-hidden", textFirst && "order-2 lg:order-none")}>
             <Widget
               key={runKey}
               id={ch.widget.id}
@@ -134,28 +137,8 @@ export function BossRunner({ boss }: { boss: BossPack }) {
               runLocked={!forecast}
               locked={beat === "explain"}
             />
-            <AnimatePresence>
-              {reveal && forecast && verdict && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={spring.soft}
-                  className={cx("absolute left-1/2 top-4 z-20 w-[min(92%,440px)] -translate-x-1/2 rounded-lg border bg-bg-1/95 p-5 shadow-lift backdrop-blur", reveal.correct ? "border-phos-3/60" : "border-amber-3/60")}
-                >
-                  <div className={cx("font-display text-2xl font-semibold leading-tight", reveal.correct ? "text-phos" : "text-amber")}>{reveal.correct ? "You knew your own system." : "Your system surprised you."}</div>
-                  <div className="mt-2 text-[13px] tabular leading-relaxed text-ink-1">
-                    Forecast <span className="font-medium text-ink-0">{formatNumeric(forecast.value, boss.forecast.unit)}</span> · actual{" "}
-                    <span className="font-medium text-ink-0">{formatNumeric(reveal.actual, boss.forecast.unit)}</span> · {forecast.confidence}% sure
-                  </div>
-                  <button onClick={() => setReveal(null)} className="-ml-2 mt-3 rounded-full px-2 py-1 text-[13px] font-medium text-ink-2 transition-colors hover:bg-bg-2 hover:text-ink-0">
-                    Dismiss
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
-          <aside className="min-h-0 rounded-lg border border-line/70 bg-bg-1/75 p-5 shadow-card backdrop-blur-[2px] lg:h-[calc(100dvh-96px)] lg:overflow-y-auto lg:p-6">
+          <aside className={cx("min-h-0 rounded-lg border border-line/70 bg-bg-1/75 p-5 shadow-card backdrop-blur-[2px] lg:h-[calc(100dvh-96px)] lg:overflow-y-auto lg:p-6", textFirst && "order-1 lg:order-none")}>
             {beat === "explain" ? (
               <ExplainPanel concept={boss.title} eb={boss.explainBack} required onDone={async (score, how) => {
                 if (how !== "skipped") {
@@ -166,15 +149,14 @@ export function BossRunner({ boss }: { boss: BossPack }) {
                 setBeat("debrief");
               }} />
             ) : (
-              <div className="flex flex-col gap-5">
-                <ChallengePanel
-                  challenge={ch}
-                  missionTitle={boss.title}
-                  verdict={verdict}
-                  attempts={attempts}
-                  onHintUsed={setHints}
-                  situation={verdict ? `Last run: ${verdict.failed.map((f) => `${f.label} failed (got ${formatMetric(f.metric, verdict.metrics[f.metric] ?? NaN)})`).join("; ") || "won"}` : "Designing, has not launched yet."}
-                />
+              <ChallengePanel
+                challenge={ch}
+                missionTitle={boss.title}
+                verdict={verdict}
+                attempts={attempts}
+                onHintUsed={setHints}
+                situation={verdict ? `Last run: ${verdict.failed.map((f) => `${f.label} failed (got ${formatMetric(f.metric, verdict.metrics[f.metric] ?? NaN)})`).join("; ") || "won"}` : "Designing, has not launched yet."}
+              >
                 {!forecast ? (
                   <div className="rounded-md border border-amber-3/50 bg-amber-dim/25 p-4">
                     <div className="eyebrow text-xs text-amber">Forecast your design</div>
@@ -188,6 +170,21 @@ export function BossRunner({ boss }: { boss: BossPack }) {
                       Lock the forecast
                     </Button>
                   </div>
+                ) : reveal && verdict ? (
+                  // The forecast result sits in the rail, under the verdict, instead of over the stage.
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ ...spring.soft, delay: 0.15 }}
+                    className={cx("rounded-md border p-4", reveal.correct ? "border-phos-3/60 bg-phos-dim/30" : "border-amber-3/60 bg-amber-dim/25")}
+                  >
+                    <div className="eyebrow text-xs text-ink-2">Your forecast</div>
+                    <div className={cx("mt-1 font-display text-xl font-semibold leading-snug", reveal.correct ? "text-phos" : "text-amber")}>{reveal.correct ? "You knew your own system." : "Your system surprised you."}</div>
+                    <div className="mt-2 text-[13px] tabular leading-relaxed text-ink-1">
+                      Forecast <span className="font-medium text-ink-0">{formatNumeric(forecast.value, boss.forecast.unit)}</span> · actual{" "}
+                      <span className="font-medium text-ink-0">{formatNumeric(reveal.actual, boss.forecast.unit)}</span> · {forecast.confidence}% sure
+                    </div>
+                  </motion.div>
                 ) : (
                   <Chip tone="warn" className="self-start">
                     <span className="tabular">
@@ -205,7 +202,7 @@ export function BossRunner({ boss }: { boss: BossPack }) {
                     Redesign and try again
                   </Button>
                 )}
-              </div>
+              </ChallengePanel>
             )}
           </aside>
         </div>
@@ -242,7 +239,7 @@ function BossDebrief({ boss, lines, stars }: { boss: BossPack; lines: XpLine[]; 
           </h1>
           <div className="mt-3 flex gap-1.5 text-2xl" aria-label={`${stars} stars`}>
             {[0, 1].map((i) => (
-              <span key={i} className={i < stars ? "text-amber glow-amber" : "text-line-3"}>
+              <span key={i} className={i < stars ? "text-amber" : "text-line-3"}>
                 ★
               </span>
             ))}
