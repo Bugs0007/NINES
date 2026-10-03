@@ -10,6 +10,7 @@ import type { ConceptProgress } from "@/game/db";
 import { healthFrom, type BuildingHealth } from "@/game/fsrs";
 import { cx } from "@/ui/kit";
 import { useReducedMotion } from "@/ui/motion";
+import { alpha, PALETTE as P } from "@/ui/palette";
 import { blockRect, crossTrace, LOT, mapLayout } from "./layout";
 
 export type LotState = "locked" | "blueprint" | "available" | "built";
@@ -199,12 +200,12 @@ export function InfraMap({
       >
         <defs>
           <pattern id="rust" width="6" height="6" patternUnits="userSpaceOnUse">
-            <rect width="6" height="6" fill="rgb(139 102 67 / 0.35)" />
-            <circle cx="1.5" cy="2" r="0.9" fill="rgb(210 155 98 / 0.6)" />
-            <circle cx="4.5" cy="4.6" r="0.7" fill="rgb(130 70 61 / 0.7)" />
+            <rect width="6" height="6" fill={alpha(P.amberDim, 0.95)} />
+            <circle cx="1.5" cy="2" r="0.9" fill={alpha(P.amber3, 0.75)} />
+            <circle cx="4.5" cy="4.6" r="0.7" fill={alpha(P.alert3, 0.7)} />
           </pattern>
           <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="2.4" result="b" />
+            <feGaussianBlur stdDeviation="1.8" result="b" />
             <feMerge>
               <feMergeNode in="b" />
               <feMergeNode in="SourceGraphic" />
@@ -214,15 +215,21 @@ export function InfraMap({
 
         {L.districts.map((d) => (
           <g key={d.track} transform={`translate(${d.x},${d.y})`}>
-            <rect width={d.w} height={d.h} rx={6} fill="rgb(21 29 34 / 0.55)" stroke="#243139" strokeDasharray="6 5" />
-            <text x={22} y={27} className="fill-ink-2 font-mono" fontSize={13} letterSpacing="0.2em">
-              {d.name.toUpperCase()} · TRACK {d.track}
+            <rect width={d.w} height={d.h} rx={18} fill={alpha(P.bg1, 0.6)} stroke={alpha(P.line2, 0.7)} />
+            <text x={22} y={30} style={DISPLAY} fontSize={16} fontWeight={600} fill={P.ink1}>
+              {d.name}
+              <tspan dx={8} style={SANS} fontSize={11} fontWeight={500} fill={P.ink3}>
+                Track {d.track}
+              </tspan>
             </text>
             {d.blocks.map((b) => (
               <g key={b.chapter} transform={`translate(${b.x},${b.y})`}>
-                <rect width={b.w} height={b.h} rx={3} fill="rgb(27 37 43 / 0.75)" stroke="#2f3f48" />
-                <text x={10} y={18} className="fill-ink-1 font-mono" fontSize={10} letterSpacing="0.14em">
-                  {b.chapter.toUpperCase()} · {b.title.toUpperCase()}
+                <rect width={b.w} height={b.h} rx={12} fill={alpha(P.bg2, 0.55)} stroke={alpha(P.line2, 0.55)} />
+                <text x={12} y={19} style={DISPLAY} fontSize={12} fontWeight={600} fill={P.ink1}>
+                  <tspan style={SANS} fontSize={10.5} fontWeight={600} fill={P.ink3}>
+                    {b.chapter.toUpperCase()} ·
+                  </tspan>{" "}
+                  {b.title}
                 </text>
               </g>
             ))}
@@ -237,13 +244,13 @@ export function InfraMap({
           const lit = a.state === "built";
           return (
             <g key={`${e.from}-${e.to}`}>
-              <path d={e.d} fill="none" stroke={lit ? "#3e7a62" : "#243139"} strokeWidth={lit ? 1.6 : 1.2} />
-              {live && !reduced && <path d={e.d} fill="none" stroke="#8fd4b2" strokeWidth={1.6} strokeDasharray="2 14" className="trace-flow" />}
+              <path d={e.d} fill="none" stroke={lit ? alpha(P.phos3, 0.85) : alpha(P.line2, 0.8)} strokeWidth={lit ? 1.5 : 1.1} strokeLinecap="round" strokeLinejoin="round" />
+              {live && !reduced && <path d={e.d} fill="none" stroke={P.phos} strokeOpacity={0.6} strokeWidth={1.5} strokeLinecap="round" strokeDasharray="2 14" className="trace-flow" />}
             </g>
           );
         })}
         {crossLinks.map((d, i) => (
-          <path key={i} d={d} fill="none" stroke="#e8b77d" strokeOpacity={0.6} strokeWidth={1.4} strokeDasharray="4 4" />
+          <path key={i} d={d} fill="none" stroke={P.amber} strokeOpacity={0.55} strokeWidth={1.4} strokeLinecap="round" strokeDasharray="4 5" />
         ))}
 
         {/* lots */}
@@ -252,7 +259,7 @@ export function InfraMap({
         ))}
       </svg>
 
-      <div className="absolute bottom-3 right-3 flex flex-col gap-1">
+      <div className="absolute bottom-4 right-4 flex flex-col gap-1.5">
         {[
           { label: "+", k: 0.7 },
           { label: "−", k: 1.4 },
@@ -264,7 +271,7 @@ export function InfraMap({
               const b = svg.current!.getBoundingClientRect();
               setView((v) => zoomAt(b.left + b.width / 2, b.top + b.height / 2, z.k, v));
             }}
-            className="grid h-9 w-9 place-items-center rounded-sm border border-line-2 bg-bg-1/90 font-mono text-ink-1 hover:border-amber hover:text-amber"
+            className="grid h-9 w-9 place-items-center rounded-full border border-line-2/80 bg-bg-1/90 text-lg leading-none text-ink-1 shadow-card backdrop-blur-sm transition-colors duration-200 hover:border-amber-3 hover:text-amber"
           >
             {z.label}
           </button>
@@ -272,7 +279,7 @@ export function InfraMap({
         <button
           aria-label="Fit the whole map"
           onClick={() => fit({ x: 0, y: 0, w: L.width, h: L.height })}
-          className="grid h-9 w-9 place-items-center rounded-sm border border-line-2 bg-bg-1/90 font-mono text-2xs text-ink-1 hover:border-amber hover:text-amber"
+          className="grid h-9 w-9 place-items-center rounded-full border border-line-2/80 bg-bg-1/90 text-sm text-ink-1 shadow-card backdrop-blur-sm transition-colors duration-200 hover:border-amber-3 hover:text-amber"
         >
           ⤢
         </button>
@@ -280,6 +287,10 @@ export function InfraMap({
     </div>
   );
 }
+
+const DISPLAY: React.CSSProperties = { fontFamily: "var(--font-display-face), Georgia, serif", fontVariationSettings: '"SOFT" 100, "WONK" 0' };
+const SANS: React.CSSProperties = { fontFamily: "var(--font-sans-face), system-ui, sans-serif" };
+const MONO: React.CSSProperties = { fontFamily: "var(--font-mono-face), ui-monospace, monospace" };
 
 function Building({ x, y, node, info, selected, reduced }: { x: number; y: number; node: PlannedNode; info: LotInfo; selected: boolean; reduced: boolean }) {
   const h = LOT / 2;
@@ -292,15 +303,15 @@ function Building({ x, y, node, info, selected, reduced }: { x: number; y: numbe
     ) : incident ? (
       <polygon points={`${x},${y - h} ${x + h},${y + h - 2} ${x - h},${y + h - 2}`} {...(props as React.SVGProps<SVGPolygonElement>)} />
     ) : (
-      <rect x={x - h} y={y - h} width={LOT} height={LOT} rx={2} {...(props as React.SVGProps<SVGRectElement>)} />
+      <rect x={x - h} y={y - h} width={LOT} height={LOT} rx={6} {...(props as React.SVGProps<SVGRectElement>)} />
     );
 
-  const ring = selected ? <rect x={x - h - 6} y={y - h - 6} width={LOT + 12} height={LOT + 12} rx={4} fill="none" stroke="#e8b77d" strokeWidth={1.6} /> : null;
+  const ring = selected ? <rect x={x - h - 6} y={y - h - 6} width={LOT + 12} height={LOT + 12} rx={10} fill={alpha(P.amber, 0.06)} stroke={P.amber} strokeOpacity={0.85} strokeWidth={1.5} /> : null;
 
   if (info.state === "locked") {
     return (
-      <g opacity={0.55}>
-        {shape({ fill: "none", stroke: "#2f3f48", strokeDasharray: "2 3" })}
+      <g opacity={0.6}>
+        {shape({ fill: "none", stroke: P.line2, strokeDasharray: "2 3" })}
         {ring}
       </g>
     );
@@ -308,8 +319,8 @@ function Building({ x, y, node, info, selected, reduced }: { x: number; y: numbe
   if (info.state === "blueprint") {
     return (
       <g>
-        {shape({ fill: "rgb(35 48 56 / 0.4)", stroke: "#42545e", strokeDasharray: "4 3" })}
-        {field && <path d={`M${x - 4},${y + 6}V${y - 7}L${x + 6},${y - 3}L${x - 4},${y + 1}`} fill="none" stroke="#42545e" />}
+        {shape({ fill: alpha(P.bg3, 0.4), stroke: P.line3, strokeOpacity: 0.8, strokeDasharray: "4 3" })}
+        {field && <path d={`M${x - 4},${y + 6}V${y - 7}L${x + 6},${y - 3}L${x - 4},${y + 1}`} fill="none" stroke={P.line3} strokeLinejoin="round" />}
         {ring}
       </g>
     );
@@ -317,16 +328,17 @@ function Building({ x, y, node, info, selected, reduced }: { x: number; y: numbe
   if (info.state === "available") {
     return (
       <g>
-        {shape({ fill: "rgb(56 42 31 / 0.55)", stroke: "#e8b77d", strokeDasharray: "4 3", strokeWidth: 1.4 })}
-        <circle cx={x} cy={y} r={3.2} fill="#e8b77d" className={reduced ? "" : "animate-pulse-soft"} filter="url(#glow)" />
+        {shape({ fill: alpha(P.amberDim, 0.7), stroke: P.amber, strokeOpacity: 0.85, strokeDasharray: "4 3", strokeWidth: 1.4 })}
+        <circle cx={x} cy={y} r={3.2} fill={P.amber} className={reduced ? "" : "animate-pulse-soft"} filter="url(#glow)" />
         {ring}
       </g>
     );
   }
   // built
   const hl = info.health ?? "online";
-  const bodyStroke = hl === "incident" ? "#ec8f80" : hl === "sparks" || hl === "rust" ? "#d29b62" : "#6fbb98";
-  const light = hl === "online" || hl === "flicker" ? "#8fd4b2" : hl === "rust" ? "#e8b77d" : "#ec8f80";
+  const bodyStroke = hl === "incident" ? P.alert2 : hl === "sparks" || hl === "rust" ? P.amber2 : P.phos2;
+  const bodyFill = hl === "rust" || hl === "sparks" ? "url(#rust)" : hl === "incident" ? alpha(P.alertDim, 0.95) : P.bg3;
+  const light = hl === "online" || hl === "flicker" ? P.phos : hl === "rust" ? P.amber : P.alert;
   const lightClass = hl === "flicker" || hl === "sparks" ? (reduced ? "" : "animate-flicker") : "";
   const m = info.mastery ?? 1;
   const floors = m >= 3 ? 3 : m >= 2 ? 3 : 2;
@@ -334,32 +346,32 @@ function Building({ x, y, node, info, selected, reduced }: { x: number; y: numbe
   for (let r = 0; r < floors; r++) {
     for (let c = 0; c < 3; c++) {
       const lit = hl === "online" || (r + c) % 2 === 0;
-      lights.push(<rect key={`${r}-${c}`} x={x - 8 + c * 6} y={y + 6 - r * 7} width={3.5} height={3.5} fill={lit ? light : "#233038"} opacity={lit ? 0.95 : 1} />);
+      lights.push(<rect key={`${r}-${c}`} x={x - 8 + c * 6} y={y + 6 - r * 7} width={3.5} height={3.5} rx={0.8} fill={lit ? light : alpha(P.ink3, 0.28)} opacity={lit ? 0.9 : 1} />);
     }
   }
   return (
     <g>
-      {info.repaired && !reduced && <rect x={x - h - 4} y={y - h - 4} width={LOT + 8} height={LOT + 8} rx={4} fill="none" stroke="#8fd4b2" className="repair-ping" />}
-      {shape({ fill: hl === "rust" || hl === "sparks" ? "url(#rust)" : "#233038", stroke: bodyStroke, strokeWidth: 1.4 })}
+      {info.repaired && !reduced && <rect x={x - h - 4} y={y - h - 4} width={LOT + 8} height={LOT + 8} rx={9} fill="none" stroke={P.phos} className="repair-ping" />}
+      {shape({ fill: bodyFill, stroke: bodyStroke, strokeOpacity: 0.9, strokeWidth: 1.4, strokeLinejoin: "round" })}
       <g className={lightClass} filter={hl === "online" ? "url(#glow)" : undefined}>
         {boss ? <circle cx={x} cy={y} r={5} fill={light} /> : lights}
       </g>
       {m >= 3 && !boss && (
         <g>
-          <line x1={x} y1={y - h} x2={x} y2={y - h - 9} stroke="#8fd4b2" strokeWidth={1.2} />
-          <circle cx={x} cy={y - h - 10} r={2.2} fill="#8fd4b2" className={reduced ? "" : "animate-pulse-soft"} />
+          <line x1={x} y1={y - h} x2={x} y2={y - h - 9} stroke={P.phos2} strokeWidth={1.2} strokeLinecap="round" />
+          <circle cx={x} cy={y - h - 10} r={2.2} fill={P.phos} className={reduced ? "" : "animate-pulse-soft"} />
         </g>
       )}
-      {m >= 2 && !boss && <rect x={x + h - 1} y={y - 4} width={4} height={12} fill="#243139" stroke="#6fbb98" strokeWidth={0.8} />}
+      {m >= 2 && !boss && <rect x={x + h - 1} y={y - 4} width={4} height={12} rx={1.5} fill={P.line} stroke={P.phos2} strokeOpacity={0.8} strokeWidth={0.8} />}
       {hl === "sparks" && !reduced && (
         <g className="sparks">
-          <path d={`M${x + h},${y - h}l5,-5M${x + h + 2},${y - h + 4}l6,-1`} stroke="#e8b77d" strokeWidth={1.2} />
+          <path d={`M${x + h},${y - h}l5,-5M${x + h + 2},${y - h + 4}l6,-1`} stroke={P.amber} strokeOpacity={0.8} strokeWidth={1.2} strokeLinecap="round" />
         </g>
       )}
       {hl === "incident" && (
         <g>
-          <rect x={x + h - 12} y={y - h - 9} width={22} height={11} rx={1.5} fill="#ec8f80" />
-          <text x={x + h - 1} y={y - h - 0.8} textAnchor="middle" fontSize={7.5} fontWeight={700} className="font-mono" fill="#0f1519">
+          <rect x={x + h - 12} y={y - h - 9} width={22} height={11} rx={5.5} fill={P.alert} />
+          <text x={x + h - 1} y={y - h - 0.9} textAnchor="middle" fontSize={7.5} fontWeight={600} style={MONO} fill={P.bg0}>
             INC
           </text>
         </g>

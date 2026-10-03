@@ -5,6 +5,7 @@ import { PACK_BY_ID } from "@/content/packs";
 import { useGame } from "@/game/store";
 import { RichText } from "@/mission/panels";
 import { Button, Panel } from "@/ui/kit";
+import { PageBar } from "@/ui/Shell";
 import { Widget } from "@/widgets/registry";
 import { CodexCard } from "./CodexCard";
 
@@ -17,18 +18,13 @@ export function CodexDetail({ id }: { id: string }) {
   const owned = !!c?.builtAt;
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="flex h-12 items-center gap-3 border-b border-line px-3 lg:px-5">
-        <Link href="/codex" className="eyebrow text-2xs text-ink-2 hover:text-amber">
-          ← Codex
-        </Link>
-        <span className="truncate font-display text-lg font-semibold text-ink-0">{pack.title}</span>
-      </header>
-      <div className="mx-auto grid w-full max-w-6xl gap-4 px-4 py-6">
+      <PageBar backHref="/codex" backLabel="Codex" title={pack.title} />
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 px-4 py-8 lg:px-8">
         {!owned ? (
-          <div className="rounded-sm border border-dashed border-line-2 p-6">
+          <div className="rounded-lg border border-dashed border-line-2/70 p-6 sm:p-8">
             <div className="font-display text-3xl font-semibold text-ink-2">Locked</div>
-            <p className="mt-2 text-ink-1">This card is earned by building {pack.title} in the campaign.</p>
-            <Link href={`/mission/${id}`} className="mt-4 inline-block">
+            <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-ink-1">This card is earned by building {pack.title} in the campaign.</p>
+            <Link href={`/mission/${id}`} className="mt-5 inline-block">
               <Button variant="primary">Go build it</Button>
             </Link>
           </div>
@@ -40,21 +36,21 @@ export function CodexDetail({ id }: { id: string }) {
                 <Widget id={pack.codex.replay.id} config={pack.codex.replay.config} mode="play" scene={pack.codex.replay.scene ?? null} />
               </div>
             )}
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               {pack.deeper.map((d, i) => (
                 <Panel key={i} label={d.title}>
                   <RichText text={d.body} />
                 </Panel>
               ))}
-              <Panel label="interview questions">
-                <ul className="space-y-1.5 text-sm text-ink-1">
+              <Panel label="Interview questions">
+                <ul className="space-y-2 text-sm leading-relaxed text-ink-1">
                   {pack.interview.map((q, i) => (
                     <li key={i}>· {q}</li>
                   ))}
                 </ul>
               </Panel>
-              <Panel label="sources">
-                <ul className="space-y-1 text-sm">
+              <Panel label="Sources">
+                <ul className="space-y-1.5 text-sm">
                   {pack.sources.map((s) => (
                     <li key={s.id}>
                       <a href={s.url} target="_blank" rel="noreferrer" className="text-ink-1 underline decoration-line-3 underline-offset-2 hover:text-amber">

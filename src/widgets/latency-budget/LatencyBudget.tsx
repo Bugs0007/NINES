@@ -14,6 +14,8 @@ import { BudgetConfig, computeWaterfall, type SpanT } from "./spec";
 
 export { BudgetConfig };
 
+const LEGEND = { net: "Network", db: "DB", cache: "Cache", cpu: "CPU" } as const;
+
 const KIND_COLOR: Record<SpanT["kind"], string> = {
   net: "bg-alert/70",
   db: "bg-amber/70",
@@ -51,13 +53,13 @@ export default function LatencyBudget({ config, onResult, conditions, locked, ve
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 lg:flex-row">
-      <div className="flex min-h-0 flex-1 flex-col gap-3">
-        <Panel label={`trace · ${c.title}`} right={<span className="tabular">{fmtLatency(w.total / 1000)} total</span>}>
-          <div className="relative space-y-1.5">
+    <div className="flex h-full min-h-0 flex-col gap-4 lg:flex-row">
+      <div className="flex min-h-0 flex-1 flex-col gap-4">
+        <Panel label={`Trace · ${c.title}`} right={<span className="font-mono tabular">{fmtLatency(w.total / 1000)} total</span>}>
+          <div className="relative mt-4 space-y-2">
             <div className="pointer-events-none absolute inset-y-0" style={{ left: `calc(34% + ${(c.targetMs / scale) * 66}%)` }}>
-              <div className="h-full w-px bg-phos/60" />
-              <span className="absolute -top-4 -translate-x-1/2 whitespace-nowrap font-mono text-[11px] text-phos">target {c.targetMs}ms</span>
+              <div className="h-full w-px bg-phos/50" />
+              <span className="absolute -top-4 -translate-x-1/2 whitespace-nowrap text-[11px] font-medium tabular text-phos">Target {c.targetMs}ms</span>
             </div>
             {c.spans.map((s) => {
               const l = w.laid.find((x) => x.span.id === s.id);
@@ -66,7 +68,7 @@ export default function LatencyBudget({ config, onResult, conditions, locked, ve
                   <div className={cx("line-clamp-2 w-[34%] text-xs leading-tight", l ? "text-ink-0" : "text-ink-3 line-through")} title={s.label}>
                     {s.label}
                   </div>
-                  <div className="relative h-5 flex-1 rounded-xs bg-bg-0">
+                  <div className="relative h-5 flex-1 rounded-full bg-bg-0/70">
                     <AnimatePresence>
                       {l && (
                         <motion.div
@@ -75,7 +77,7 @@ export default function LatencyBudget({ config, onResult, conditions, locked, ve
                           animate={{ opacity: 1, left: `${(l.start / scale) * 100}%`, width: `${Math.max(0.4, (l.ms / scale) * 100)}%` }}
                           exit={{ opacity: 0, scaleX: 0 }}
                           transition={spring.soft}
-                          className={cx("absolute inset-y-0.5 rounded-xs", KIND_COLOR[s.kind])}
+                          className={cx("absolute inset-y-0.5 rounded-full", KIND_COLOR[s.kind])}
                         />
                       )}
                     </AnimatePresence>
@@ -89,15 +91,15 @@ export default function LatencyBudget({ config, onResult, conditions, locked, ve
               );
             })}
           </div>
-          <div className="mt-3 flex flex-wrap gap-3 eyebrow text-[11px] text-ink-2">
+          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-ink-2">
             {(["net", "db", "cache", "cpu"] as const).map((k) => (
               <span key={k} className="flex items-center gap-1.5">
-                <span className={cx("inline-block h-2 w-3 rounded-xs", KIND_COLOR[k])} /> {k === "net" ? "network" : k}
+                <span className={cx("inline-block h-2 w-3 rounded-full", KIND_COLOR[k])} /> {LEGEND[k]}
               </span>
             ))}
           </div>
         </Panel>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {c.fixes.map((f) => {
             const on = chosen.includes(f.id);
             return (
@@ -108,32 +110,32 @@ export default function LatencyBudget({ config, onResult, conditions, locked, ve
                 disabled={locked || shipped}
                 aria-pressed={on}
                 className={cx(
-                  "rounded-sm border p-2.5 text-left transition-colors disabled:cursor-not-allowed",
-                  on ? "border-amber bg-amber-dim/40" : "border-line-2 bg-bg-2 hover:border-line-3",
+                  "rounded-md border p-3.5 text-left transition-colors duration-200 disabled:cursor-not-allowed",
+                  on ? "border-amber/80 bg-amber-dim/40" : "border-line-2/80 bg-bg-1/70 hover:border-line-3",
                 )}
               >
                 <div className="flex items-start justify-between gap-2">
                   <span className="text-sm text-ink-0">{f.label}</span>
                   <Chip tone={on ? "warn" : "muted"}>{f.days}d</Chip>
                 </div>
-                <div className="mt-1 text-xs text-ink-2">{f.detail}</div>
+                <div className="mt-1.5 text-xs leading-snug text-ink-2">{f.detail}</div>
               </motion.button>
             );
           })}
         </div>
       </div>
-      <div className="flex w-full flex-col gap-3 lg:w-[280px]">
-        <Panel label="sprint">
-          <div className="mb-1 flex justify-between font-mono text-2xs text-ink-2">
-            <span>engineering days</span>
-            <span className={cx("tabular", over ? "text-alert" : "text-ink-0")}>
+      <div className="flex w-full flex-col gap-4 lg:w-[280px]">
+        <Panel label="Sprint">
+          <div className="mb-1.5 flex justify-between gap-3 text-xs text-ink-2">
+            <span>Engineering days</span>
+            <span className={cx("font-mono tabular", over ? "text-alert" : "text-ink-0")}>
               {w.days} / {c.days}
             </span>
           </div>
           <Meter value={w.days / c.days} warnAt={0.8} alertAt={1} label="days used" />
-          <div className="mt-3 font-mono text-2xs text-ink-2">
+          <div className="mt-4 border-t border-line/60 pt-3 text-xs text-ink-2">
             p50 page load
-            <div className={cx("text-3xl tabular", w.total <= c.targetMs ? "text-phos glow-phos" : "text-alert")}>{fmtLatency(w.total / 1000)}</div>
+            <div className={cx("num-display mt-1 text-4xl font-semibold transition-colors duration-300", w.total <= c.targetMs ? "text-phos" : "text-alert")}>{fmtLatency(w.total / 1000)}</div>
           </div>
         </Panel>
         <ConditionList conditions={conditions} metrics={shipped ? { latency: w.total / 1000, days: w.days } : undefined} />

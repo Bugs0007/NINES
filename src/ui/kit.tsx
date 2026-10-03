@@ -90,7 +90,10 @@ export const Button = forwardRef<HTMLButtonElement, NButtonProps>(function Butto
       }}
       className={cx(
         "inline-flex select-none items-center justify-center rounded-sm border font-semibold transition-colors duration-200",
-        "disabled:cursor-not-allowed disabled:opacity-40",
+        "disabled:cursor-not-allowed",
+        variant === "primary" || variant === "go" || variant === "danger"
+          ? "disabled:border-line-2 disabled:bg-bg-3 disabled:text-ink-3 disabled:shadow-none"
+          : "disabled:opacity-45",
         styles[variant],
         sizes[size],
         className,
@@ -190,7 +193,11 @@ export function Sparkline({
 }) {
   const id = useId();
   const color = { phos: "#8fd4b2", amber: "#e8b77d", alert: "#ec8f80", ink: "#c5c4bc" }[tone];
-  const hi = max ?? Math.max(1e-9, ...values, threshold ?? 0);
+  const lo = values.length ? Math.min(...values) : 0;
+  const top = values.length ? Math.max(...values) : 0;
+  const flat = max === undefined && threshold === undefined && top - lo < 1e-9;
+  const hi = flat ? top + Math.max(1, Math.abs(top)) : (max ?? Math.max(1e-9, ...values, threshold ?? 0));
+  min = flat ? top - Math.max(1, Math.abs(top)) : min;
   const n = values.length;
   const pts = values.map((v, i) => {
     const x = n <= 1 ? width : (i / (n - 1)) * width;
@@ -208,7 +215,7 @@ export function Sparkline({
         </linearGradient>
       </defs>
       {thY !== null && <line x1={0} x2={width} y1={thY} y2={thY} stroke="#ec8f80" strokeOpacity="0.5" strokeDasharray="3 3" strokeWidth="1" />}
-      {n > 1 && fill && <path d={`${d}L${width},${height}L0,${height}Z`} fill={`url(#g${id})`} />}
+      {n > 1 && fill && !flat && <path d={`${d}L${width},${height}L0,${height}Z`} fill={`url(#g${id})`} />}
       {n > 1 && <path d={d} fill="none" stroke={color} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />}
       {n > 0 && <circle cx={pts[n - 1]![0]} cy={pts[n - 1]![1]} r="2" fill={color} />}
     </svg>

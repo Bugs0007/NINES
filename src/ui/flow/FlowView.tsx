@@ -1,6 +1,6 @@
 "use client";
 /**
- * Flow view: the topology as a control-room schematic with requests as particles.
+ * Flow view: the topology as a quiet schematic with requests as particles.
  *
  * Canvas 2D (DECISIONS D-002). Particles are coloured AND sized by how long the request has been
  * alive, so slowness is visible without colour. Queued requests stack in a lane in front of the
@@ -10,6 +10,7 @@ import { useEffect, useRef, type MutableRefObject } from "react";
 import { sfx } from "@/audio/engine";
 import type { FrameData } from "@/engine/useSim";
 import { VizState, type VizParticle } from "@/engine/types";
+import { alpha, canvasFont, PALETTE } from "@/ui/palette";
 
 export type FlowKind = "client" | "lb" | "server" | "db" | "cache";
 
@@ -53,23 +54,45 @@ const H = 600;
 const NODE_W = 116;
 const NODE_H = 58;
 
-// latency colour ramp: phos -> amber -> alert, on log(age)
-const RAMP: [number, number, number][] = [
-  [92, 242, 154],
-  [180, 230, 110],
-  [255, 181, 71],
-  [255, 130, 60],
-  [255, 90, 78],
-];
+const rgbOf = (hex: string): [number, number, number] => {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+};
+
+// latency colour ramp: sage -> sand -> coral, on log(age)
+const RAMP: [number, number, number][] = [PALETTE.phos, PALETTE.amber, PALETTE.alert].map(rgbOf);
 const BUCKETS = 12;
-const BUCKET_COLORS = Array.from({ length: BUCKETS }, (_, i) => {
+const BUCKET_RGB = Array.from({ length: BUCKETS }, (_, i) => {
   const x = (i / (BUCKETS - 1)) * (RAMP.length - 1);
   const a = RAMP[Math.floor(x)]!;
   const b = RAMP[Math.min(RAMP.length - 1, Math.floor(x) + 1)]!;
   const f = x - Math.floor(x);
-  const c = a.map((v, k) => Math.round(v + (b[k]! - v) * f));
-  return `rgb(${c[0]},${c[1]},${c[2]})`;
+  return a.map((v, k) => Math.round(v + (b[k]! - v) * f)) as [number, number, number];
 });
+const BUCKET_COLORS = BUCKET_RGB.map(([r, g, b]) => `rgb(${r},${g},${b})`);
+
+/** A soft round halo per colour bucket, drawn once and stamped behind each particle. */
+const GLOW_PX = 32;
+function glowSprites(): HTMLCanvasElement[] {
+  return BUCKET_RGB.map(([r, g, b]) => {
+    const c = document.createElement("canvas");
+    c.width = c.height = GLOW_PX;
+    const x = c.getContext("2d")!;
+    const h = GLOW_PX / 2;
+    const grd = x.createRadialGradient(h, h, 0, h, h, h);
+    grd.addColorStop(0, `rgb(${r} ${g} ${b} / 0.34)`);
+    grd.addColorStop(0.45, `rgb(${r} ${g} ${b} / 0.12)`);
+    grd.addColorStop(1, `rgb(${r} ${g} ${b} / 0)`);
+    x.fillStyle = grd;
+    x.fillRect(0, 0, GLOW_PX, GLOW_PX);
+    return c;
+  });
+}
+
+/** Node names read in sentence case; identifiers (app-1, ALB, m7i.large) stay as written. */
+function displayLabel(l: string): string {
+  return /^[a-z][a-z ]*$/.test(l) ? l[0]!.toUpperCase() + l.slice(1) : l;
+}
 
 /** 10ms -> bucket 0, ~3s -> last bucket. */
 function bucketOf(ageS: number): number {
@@ -129,9 +152,7 @@ export function FlowView({
     let cssW = 0,
       cssH = 0,
       dpr = 1;
-    let fontMono = "monospace";
-    const fam = getComputedStyle(document.documentElement).getPropertyValue("--font-mono-face").trim();
-    if (fam) fontMono = fam;
+    const sprites = glowSprites();
 
     const host = wrap.current!;
     const resize = () => {
@@ -238,16 +259,16 @@ export function FlowView({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, cssW, cssH);
 
-      // ---- edges
-      ctx.lineWidth = 1;
+      // ---- edges: soft solid curves, quieter than the traffic on them
+      ctx.lineWidth = 1.25;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = alpha(PALETTE.line3, 0.5);
       for (const e of es) {
         const a = nm.get(e.from);
         const b = nm.get(e.to);
         if (!a || !b) continue;
         const [x1, y1] = toScreen(a.x, a.y, t);
         const [x2, y2] = toScreen(b.x, b.y, t);
-        ctx.strokeStyle = "rgba(66,84,94,0.55)";
-        ctx.setLineDash([3, 4]);
         ctx.beginPath();
         if (t.p) {
           const my = (y1 + y2) / 2;
@@ -260,7 +281,6 @@ export function FlowView({
         }
         ctx.stroke();
       }
-      ctx.setLineDash([]);
 
       // ---- particle targets
       const groups = new Map<string, { queued: VizParticle[]; svc: VizParticle[] }>();
@@ -368,82 +388,99 @@ export function FlowView({
         const cpuUtil = inst && n.cores ? inst.busyCores / n.cores : 0;
         const util = Math.max(workUtil, cpuUtil);
         const hot = util > 0.9 || (inst?.queue ?? 0) > (n.workers ?? 4);
-        // body
-        ctx.fillStyle = up ? "rgba(27,37,43,0.92)" : "rgba(58,35,32,0.9)";
-        ctx.strokeStyle = !up ? "#ec8f80" : sel === n.id ? "#e8b77d" : hot ? "rgba(232,183,125,0.85)" : "rgba(66,84,94,0.9)";
-        ctx.lineWidth = sel === n.id ? 1.6 : 1;
-        roundRect(ctx, x - hw, y - hh, hw * 2, hh * 2, 3);
+        const rad = Math.min(hh, Math.max(4, 9 * s));
+        const selected = sel === n.id;
+        // body: a soft card, its border warming only when something needs attention
+        ctx.fillStyle = up ? alpha(PALETTE.bg2, 0.94) : alpha(PALETTE.alertDim, 0.92);
+        ctx.strokeStyle = !up ? alpha(PALETTE.alert, 0.75) : selected ? PALETTE.amber : hot ? alpha(PALETTE.amber, 0.6) : alpha(PALETTE.line3, 0.6);
+        ctx.lineWidth = selected ? 1.6 : 1;
+        roundRect(ctx, x - hw, y - hh, hw * 2, hh * 2, rad);
         ctx.fill();
         ctx.stroke();
-        // kind glyph strip
+        // Small screens: the card keeps its name and slots; the sub line and count would only collide.
+        const compact = s < 0.83;
+        // label, led by a small dot in the node's kind colour
+        const fs = Math.max(10, 12.5 * s);
+        const padX = 9 * s;
+        const top = y - hh + 6 * s;
+        const dotR = Math.max(2, 3 * s);
         ctx.fillStyle = kindColor(n.kind, up);
-        ctx.fillRect(x - hw, y - hh, 3, hh * 2);
-        // label
-        const fs = Math.max(8, 12 * s);
-        ctx.font = `600 ${fs}px ${fontMono}`;
-        ctx.fillStyle = up ? "#e4dfd5" : "#ec8f80";
+        ctx.beginPath();
+        ctx.arc(x - hw + padX + dotR, top + fs * 0.55, dotR, 0, Math.PI * 2);
+        ctx.fill();
+        const tx = x - hw + padX + dotR * 2 + 5 * s;
+        ctx.font = canvasFont("sans", fs, 600);
+        ctx.fillStyle = up ? PALETTE.ink0 : PALETTE.alert;
         ctx.textBaseline = "top";
-        ctx.fillText(n.label.toUpperCase(), x - hw + 8 * s, y - hh + 5 * s, hw * 2 - 12 * s);
-        if (n.sub) {
-          ctx.font = `${Math.max(7, 9.5 * s)}px ${fontMono}`;
-          ctx.fillStyle = "#8f9790";
-          ctx.fillText(n.sub, x - hw + 8 * s, y - hh + 5 * s + fs + 2 * s, hw * 2 - 12 * s);
+        ctx.fillText(displayLabel(n.label), tx, top, x + hw - padX - tx);
+        if (n.sub && !compact) {
+          ctx.font = canvasFont("sans", Math.max(8, 10 * s), 500);
+          ctx.fillStyle = PALETTE.ink2;
+          ctx.fillText(n.sub, x - hw + padX, top + fs + 3 * s, hw * 2 - padX * 2);
         }
         // worker slots: filled = busy (exact count from the sim, not just sampled particles)
         if (n.workers && n.workers <= 96 && up) {
           const sg = slotGeom(n, x, y, s);
           const busy = inst ? Math.min(sg.count, inst.busyWorkers) : 0;
+          const full = busy >= sg.count;
+          ctx.lineWidth = 0.8;
+          ctx.fillStyle = full ? alpha(PALETTE.alert, 0.3) : alpha(PALETTE.phos, 0.26);
+          ctx.strokeStyle = full ? alpha(PALETTE.alert, 0.5) : alpha(PALETTE.line3, 0.5);
           for (let i = 0; i < sg.count; i++) {
             const [sx, sy] = sg.at(i);
-            const r = sg.cell / 2 - 0.8;
-            if (i < busy) {
-              ctx.fillStyle = busy >= sg.count ? "rgba(236,143,128,0.35)" : "rgba(143,212,178,0.22)";
-              ctx.fillRect(sx - r, sy - r, r * 2, r * 2);
-            }
-            ctx.strokeStyle = busy >= sg.count ? "rgba(236,143,128,0.55)" : "rgba(66,84,94,0.8)";
-            ctx.lineWidth = 0.8;
+            const r = sg.cell / 2 - 0.9;
+            if (i < busy) ctx.fillRect(sx - r, sy - r, r * 2, r * 2);
             ctx.strokeRect(sx - r, sy - r, r * 2, r * 2);
           }
-          ctx.font = `${Math.max(7, 9 * s)}px ${fontMono}`;
-          ctx.fillStyle = busy >= sg.count ? "#ec8f80" : "#8f9790";
-          ctx.textBaseline = "bottom";
-          ctx.textAlign = "right";
-          ctx.fillText(`${busy}/${sg.count}`, x + hw - 5 * s, sg.y0 - 1);
-          ctx.textAlign = "left";
+          if (!compact) {
+            ctx.font = canvasFont("mono", Math.max(8, 9.5 * s), 500);
+            ctx.fillStyle = full ? PALETTE.alert : PALETTE.ink2;
+            ctx.textBaseline = "bottom";
+            ctx.textAlign = "right";
+            ctx.fillText(`${busy}/${sg.count}`, x + hw - padX, sg.y0 - 2);
+            ctx.textAlign = "left";
+          }
         }
-        // utilization bar along the top edge
+        // utilization: a slim rounded bar just above the card
         if (n.workers || n.cores) {
-          const bw = hw * 2 - 6;
-          ctx.fillStyle = "rgba(36,49,57,0.9)";
-          ctx.fillRect(x - hw + 3, y - hh - 4, bw, 2.5);
-          ctx.fillStyle = util > 0.9 ? "#ec8f80" : util > 0.7 ? "#e8b77d" : "#8fd4b2";
-          ctx.fillRect(x - hw + 3, y - hh - 4, bw * Math.min(1, util), 2.5);
+          const bx = x - hw + rad;
+          const bw = hw * 2 - rad * 2;
+          const by = y - hh - 6;
+          ctx.fillStyle = alpha(PALETTE.line2, 0.8);
+          roundRect(ctx, bx, by, bw, 3, 1.5);
+          ctx.fill();
+          const uw = bw * Math.min(1, util);
+          if (uw > 0.5) {
+            ctx.fillStyle = util > 0.9 ? PALETTE.alert : util > 0.7 ? PALETTE.amber : PALETTE.phos;
+            roundRect(ctx, bx, by, Math.max(3, uw), 3, 1.5);
+            ctx.fill();
+          }
         }
         if (!up) {
-          ctx.strokeStyle = "rgba(236,143,128,0.8)";
+          ctx.strokeStyle = alpha(PALETTE.alert, 0.75);
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(x - 10 * s, y - 10 * s);
-          ctx.lineTo(x + 10 * s, y + 10 * s);
-          ctx.moveTo(x + 10 * s, y - 10 * s);
-          ctx.lineTo(x - 10 * s, y + 10 * s);
+          ctx.moveTo(x - 9 * s, y - 9 * s);
+          ctx.lineTo(x + 9 * s, y + 9 * s);
+          ctx.moveTo(x + 9 * s, y - 9 * s);
+          ctx.lineTo(x - 9 * s, y + 9 * s);
           ctx.stroke();
         }
         if (hl?.includes(n.id)) {
-          const pulse = rm ? 1 : 0.6 + 0.4 * Math.sin(now / 180);
-          ctx.strokeStyle = `rgba(232,183,125,${pulse})`;
+          const pulse = rm ? 0.85 : 0.55 + 0.3 * Math.sin(now / 420);
+          ctx.strokeStyle = alpha(PALETTE.amber, pulse);
           ctx.lineWidth = 2;
-          roundRect(ctx, x - hw - 6, y - hh - 8, hw * 2 + 12, hh * 2 + 14, 5);
+          roundRect(ctx, x - hw - 6, y - hh - 11, hw * 2 + 12, hh * 2 + 17, rad + 5);
           ctx.stroke();
         }
         const ov = overflow.get(n.id);
         if (ov) {
-          ctx.font = `600 ${Math.max(8, 10 * s)}px ${fontMono}`;
-          ctx.fillStyle = "#ec8f80";
+          ctx.font = canvasFont("sans", Math.max(9, 11 * s), 600);
+          ctx.fillStyle = PALETTE.alert;
           ctx.textBaseline = "bottom";
           const label = `${ov} queued`;
-          if (t.p) ctx.fillText(label, x - hw, y - hh - 8);
-          else ctx.fillText(label, Math.max(4, x - hw - 60 * s), y - hh - 8);
+          if (t.p) ctx.fillText(label, x - hw, y - hh - 12);
+          else ctx.fillText(label, Math.max(4, x - hw - 60 * s), y - hh - 12);
         }
       }
 
@@ -461,12 +498,11 @@ export function FlowView({
         if (!list.length) continue;
         ctx.fillStyle = BUCKET_COLORS[b]!;
         if (!lowQuality || parts.size < 600) {
-          ctx.globalAlpha = 0.16;
+          const spr = sprites[b]!;
           for (const q of list) {
-            const r = size(q.age) * 2.2;
-            ctx.fillRect(q.x - r, q.y - r, r * 2, r * 2);
+            const r = size(q.age) * 2.6;
+            ctx.drawImage(spr, q.x - r, q.y - r, r * 2, r * 2);
           }
-          ctx.globalAlpha = 1;
         }
         for (const q of list) {
           const r = size(q.age) / 2;
@@ -475,7 +511,7 @@ export function FlowView({
       }
       ctx.globalCompositeOperation = "source-over";
       // orphans: hollow, dim red: the client gave up but the server is still working
-      ctx.strokeStyle = "rgba(236,143,128,0.55)";
+      ctx.strokeStyle = alpha(PALETTE.alert, 0.55);
       ctx.lineWidth = 1;
       for (const q of orphans) {
         const r = size(q.age) / 2 + 0.5;
@@ -491,7 +527,7 @@ export function FlowView({
           continue;
         }
         const k = age / 0.45;
-        ctx.strokeStyle = bt.ok ? `rgba(143,212,178,${0.6 * (1 - k)})` : `rgba(236,143,128,${0.8 * (1 - k)})`;
+        ctx.strokeStyle = bt.ok ? alpha(PALETTE.phos, 0.5 * (1 - k)) : alpha(PALETTE.alert, 0.7 * (1 - k));
         ctx.lineWidth = 1.2;
         if (bt.ok) {
           ctx.beginPath();
@@ -538,14 +574,14 @@ function slotGeom(n: FlowNode, x: number, y: number, s: number) {
 }
 
 function kindColor(k: FlowKind, up: boolean): string {
-  if (!up) return "#ec8f80";
+  if (!up) return PALETTE.alert;
   switch (k) {
     case "client":
-      return "#657069";
+      return PALETTE.ink3;
     case "lb":
-      return "#8f9790";
+      return PALETTE.ink2;
     default:
-      return "#6fbb98";
+      return PALETTE.phos2;
   }
 }
 

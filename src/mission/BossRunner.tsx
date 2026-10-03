@@ -14,16 +14,18 @@ import { useGame, useRank } from "@/game/store";
 import { CastLine } from "@/ui/Cast";
 import { Cinematic } from "@/ui/Cinematic";
 import { Button, Chip, cx } from "@/ui/kit";
-import { GlitchText, spring, Ticker } from "@/ui/motion";
+import { spring, Ticker } from "@/ui/motion";
 import { Slider } from "@/ui/Slider";
 import { Widget } from "@/widgets/registry";
 import { evalCond, formatMetric } from "@/widgets/shared";
 import type { ChallengeVerdict } from "@/widgets/types";
 import { ChallengePanel, ExplainPanel, RichText } from "./panels";
-import { ConfidencePicker, formatNumeric } from "./PredictPanel";
+import { ConfidencePicker, formatNumeric, WAITING_PRIMARY } from "./PredictPanel";
 import type { XpLine } from "./Debrief";
 import { useMusic } from "@/audio/useMusic";
 import { HonestNotes } from "@/ui/HonestNotes";
+import { SectionIntro } from "@/intro/SectionIntro";
+import { bossIntro } from "@/intro/specs";
 
 type Beat = "intro" | "fight" | "explain" | "debrief";
 
@@ -88,22 +90,26 @@ export function BossRunner({ boss }: { boss: BossPack }) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-40 flex h-12 items-center gap-3 border-b border-alert-3/60 bg-bg-0/90 px-3 backdrop-blur lg:px-4">
-        <Link href={`/campaign/${node.chapter}`} className="eyebrow text-2xs text-ink-2 hover:text-amber">
-          ← {node.chapter.toUpperCase()}
+      <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-alert-3/35 bg-bg-0/80 px-4 backdrop-blur-md lg:gap-4 lg:px-6">
+        <Link href={`/campaign/${node.chapter}`} className="shrink-0 rounded-full px-2 py-1 text-[13px] font-medium text-ink-2 transition-colors hover:bg-bg-2 hover:text-ink-0">
+          ← <span className="font-mono text-xs">{node.chapter.toUpperCase()}</span>
         </Link>
-        <span className="h-4 w-px bg-line-2" />
-        <span className="eyebrow text-2xs text-alert">boss</span>
-        <span className="truncate font-display text-lg font-semibold text-ink-0">{boss.title.replace(/^Boss: /, "")}</span>
-        {verdict && <Chip tone={verdict.won ? "ok" : "alert"}>{verdict.won ? "survived" : `attempt ${attempts + (verdict.won ? 0 : 0)}`}</Chip>}
+        <span className="h-4 w-px shrink-0 bg-line-2" />
+        <Chip tone="alert" className="shrink-0">
+          Boss
+        </Chip>
+        <span className="min-w-0 truncate font-display text-lg font-semibold text-ink-0">{boss.title.replace(/^Boss: /, "")}</span>
+        {verdict && (
+          <Chip tone={verdict.won ? "ok" : "alert"} className="ml-auto shrink-0">
+            {verdict.won ? "Survived" : <span className="tabular">Attempt {attempts + (verdict.won ? 0 : 0)}</span>}
+          </Chip>
+        )}
       </header>
 
       <AnimatePresence>
-        {beat === "intro" && (
-          <Cinematic
-            tone="alert"
-            sound="alarm"
-            frames={[{ kind: "title", kicker: "Boss incident", title: boss.title.replace(/^Boss: /, ""), sub: boss.hook.alert?.detail, tone: "alert", stencil: true }, ...boss.intro.map((line) => ({ kind: "line" as const, line }))]}
+        {beat === "intro" && bossIntro(boss.id) && (
+          <SectionIntro
+            spec={bossIntro(boss.id)!}
             onDone={() => {
               void markSeen(`intro:${boss.id}`);
               setBeat("fight");
@@ -115,8 +121,8 @@ export function BossRunner({ boss }: { boss: BossPack }) {
       {beat === "debrief" ? (
         <BossDebrief boss={boss} lines={lines} stars={stars} />
       ) : (
-        <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 p-3 lg:grid-cols-[minmax(0,1fr)_360px] lg:p-4">
-          <div className="relative min-h-[520px] lg:h-[calc(100dvh-88px)] lg:min-h-0 lg:overflow-hidden">
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-5 lg:p-5">
+          <div className="relative min-h-[520px] rounded-lg lg:h-[calc(100dvh-96px)] lg:min-h-0 lg:overflow-hidden">
             <Widget
               key={runKey}
               id={ch.widget.id}
@@ -135,20 +141,21 @@ export function BossRunner({ boss }: { boss: BossPack }) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
                   transition={spring.soft}
-                  className={cx("absolute left-1/2 top-3 z-20 w-[min(92%,420px)] -translate-x-1/2 rounded-sm border bg-bg-1/95 p-3 shadow-2xl backdrop-blur", reveal.correct ? "border-phos-3" : "border-amber-3")}
+                  className={cx("absolute left-1/2 top-4 z-20 w-[min(92%,440px)] -translate-x-1/2 rounded-lg border bg-bg-1/95 p-5 shadow-lift backdrop-blur", reveal.correct ? "border-phos-3/60" : "border-amber-3/60")}
                 >
-                  <div className={cx("font-display text-2xl font-semibold", reveal.correct ? "text-phos" : "text-amber")}>{reveal.correct ? "You knew your own system." : "Your system surprised you."}</div>
-                  <div className="mt-1 font-mono text-xs text-ink-1">
-                    forecast {formatNumeric(forecast.value, boss.forecast.unit)} · actual {formatNumeric(reveal.actual, boss.forecast.unit)} · {forecast.confidence}% sure
+                  <div className={cx("font-display text-2xl font-semibold leading-tight", reveal.correct ? "text-phos" : "text-amber")}>{reveal.correct ? "You knew your own system." : "Your system surprised you."}</div>
+                  <div className="mt-2 text-[13px] tabular leading-relaxed text-ink-1">
+                    Forecast <span className="font-medium text-ink-0">{formatNumeric(forecast.value, boss.forecast.unit)}</span> · actual{" "}
+                    <span className="font-medium text-ink-0">{formatNumeric(reveal.actual, boss.forecast.unit)}</span> · {forecast.confidence}% sure
                   </div>
-                  <button onClick={() => setReveal(null)} className="mt-2 eyebrow text-2xs text-ink-2 hover:text-amber">
-                    dismiss
+                  <button onClick={() => setReveal(null)} className="-ml-2 mt-3 rounded-full px-2 py-1 text-[13px] font-medium text-ink-2 transition-colors hover:bg-bg-2 hover:text-ink-0">
+                    Dismiss
                   </button>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
-          <aside className="min-h-0 rounded-sm border border-line bg-bg-1/80 p-4 lg:h-[calc(100dvh-88px)] lg:overflow-y-auto">
+          <aside className="min-h-0 rounded-lg border border-line/70 bg-bg-1/75 p-5 shadow-card backdrop-blur-[2px] lg:h-[calc(100dvh-96px)] lg:overflow-y-auto lg:p-6">
             {beat === "explain" ? (
               <ExplainPanel concept={boss.title} eb={boss.explainBack} required onDone={async (score, how) => {
                 if (how !== "skipped") {
@@ -159,7 +166,7 @@ export function BossRunner({ boss }: { boss: BossPack }) {
                 setBeat("debrief");
               }} />
             ) : (
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-5">
                 <ChallengePanel
                   challenge={ch}
                   missionTitle={boss.title}
@@ -169,21 +176,23 @@ export function BossRunner({ boss }: { boss: BossPack }) {
                   situation={verdict ? `Last run: ${verdict.failed.map((f) => `${f.label} failed (got ${formatMetric(f.metric, verdict.metrics[f.metric] ?? NaN)})`).join("; ") || "won"}` : "Designing, has not launched yet."}
                 />
                 {!forecast ? (
-                  <div className="rounded-sm border border-amber-3 bg-amber-dim/20 p-3">
-                    <div className="eyebrow text-2xs text-amber">Forecast your design</div>
-                    <p className="mt-1 text-sm text-ink-0">{boss.forecast.prompt}</p>
-                    <div className="mt-2 text-center font-mono text-2xl tabular text-amber">{touched ? formatNumeric(fv, boss.forecast.unit) : "?"}</div>
-                    <Slider label="forecast" value={fv} min={boss.forecast.min} max={boss.forecast.max} log onChange={(v) => { setTouched(true); setFv(v); }} hideValue />
-                    <div className="mt-2">
+                  <div className="rounded-md border border-amber-3/50 bg-amber-dim/25 p-4">
+                    <div className="eyebrow text-xs text-amber">Forecast your design</div>
+                    <p className="mt-1.5 text-sm leading-relaxed text-ink-0">{boss.forecast.prompt}</p>
+                    <div className={cx("num-display my-3 text-center text-4xl font-semibold", touched ? "text-amber" : "text-ink-3")}>{touched ? formatNumeric(fv, boss.forecast.unit) : "?"}</div>
+                    <Slider label="Forecast" value={fv} min={boss.forecast.min} max={boss.forecast.max} log onChange={(v) => { setTouched(true); setFv(v); }} hideValue />
+                    <div className="mt-4">
                       <ConfidencePicker value={conf} onChange={setConf} />
                     </div>
-                    <Button className="mt-3 w-full" variant="primary" sound="latch" disabled={!touched || !conf} onClick={() => setForecast({ value: fv, confidence: conf! })}>
+                    <Button className={cx("mt-4 w-full", WAITING_PRIMARY)} variant="primary" size="lg" sound="latch" disabled={!touched || !conf} onClick={() => setForecast({ value: fv, confidence: conf! })}>
                       Lock the forecast
                     </Button>
                   </div>
                 ) : (
-                  <Chip tone="warn">
-                    forecast: {formatNumeric(forecast.value, boss.forecast.unit)} · {forecast.confidence}%
+                  <Chip tone="warn" className="self-start">
+                    <span className="tabular">
+                      Forecast: {formatNumeric(forecast.value, boss.forecast.unit)} · {forecast.confidence}%
+                    </span>
                   </Chip>
                 )}
                 {verdict?.won && (
@@ -222,40 +231,42 @@ function BossDebrief({ boss, lines, stars }: { boss: BossPack; lines: XpLine[]; 
   const rank = useRank();
   const total = lines.reduce((s, l) => s + l.xp, 0);
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-8 lg:grid-cols-2">
-      <div className="flex flex-col gap-4">
+    <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-8 px-4 py-10 lg:grid-cols-2 lg:gap-10 lg:px-8 lg:py-14">
+      <div className="flex flex-col gap-6">
         <div>
-          <div className="eyebrow text-2xs text-phos">Boss survived</div>
-          <h1 className="font-display text-6xl font-semibold leading-none text-ink-0">
-            <GlitchText text={boss.title.replace(/^Boss: /, "")} />
+          <div className="eyebrow text-[13px] text-phos">Boss survived</div>
+          <h1 className="mt-2 text-balance font-display text-5xl font-semibold leading-[1.05] text-ink-0 sm:text-6xl">
+            <motion.span className="inline-block" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: "easeOut" }}>
+              {boss.title.replace(/^Boss: /, "")}
+            </motion.span>
           </h1>
-          <div className="mt-2 text-2xl" aria-label={`${stars} stars`}>
+          <div className="mt-3 flex gap-1.5 text-2xl" aria-label={`${stars} stars`}>
             {[0, 1].map((i) => (
-              <span key={i} className={i < stars ? "text-amber glow-amber" : "text-ink-3"}>
+              <span key={i} className={i < stars ? "text-amber glow-amber" : "text-line-3"}>
                 ★
               </span>
             ))}
           </div>
         </div>
-        <ul className="space-y-1.5">
+        <ul className="rounded-lg border border-line/70 bg-bg-1/75 px-5 py-2 shadow-card">
           {lines.map((l, i) => (
-            <li key={i} className="flex justify-between border-b border-line pb-1.5 font-mono text-sm">
-              <span className="text-ink-1">{l.label}</span>
-              <span className="tabular text-phos">+{l.xp}</span>
+            <li key={i} className="flex items-baseline justify-between gap-4 border-b border-line/60 py-3 text-sm">
+              <span className="min-w-0 text-ink-1">{l.label}</span>
+              <span className="shrink-0 font-medium tabular text-phos">+{l.xp}</span>
             </li>
           ))}
-          <li className="flex justify-between pt-1 font-mono">
-            <span className="text-ink-0">Total</span>
-            <Ticker value={total} format={(v) => `+${Math.round(v)} XP`} className="tabular text-phos glow-phos" />
+          <li className="flex items-baseline justify-between gap-4 py-3.5">
+            <span className="text-sm font-semibold text-ink-0">Total</span>
+            <Ticker value={total} format={(v) => `+${Math.round(v)} XP`} className="num-display text-2xl font-semibold text-phos" />
           </li>
         </ul>
-        <div className="rounded-sm border border-line p-3">
-          <div className="eyebrow text-2xs text-ink-2">
+        <div className="rounded-lg border border-line/70 bg-bg-1/75 p-5 shadow-card">
+          <div className="eyebrow text-xs text-ink-2">
             {rank.tierName} {rank.sub}
           </div>
-          <Ticker value={rank.nines} format={(v) => `${formatUptime(v)}%`} className="font-mono text-4xl tabular text-phos glow-phos" />
+          <Ticker value={rank.nines} format={(v) => `${formatUptime(v)}%`} className="num-display mt-2 block text-4xl font-semibold text-phos" />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <Link href="/">
             <Button variant="primary" size="lg">
               Back to HQ
@@ -263,10 +274,16 @@ function BossDebrief({ boss, lines, stars }: { boss: BossPack; lines: XpLine[]; 
           </Link>
         </div>
       </div>
-      <div className="flex flex-col gap-3">
-        <div className="eyebrow text-2xs text-amber">What actually saved you</div>
-        {boss.debrief.map((c) => (
-          <motion.div key={c.id} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} className="rounded-sm border border-line bg-bg-1 p-3">
+      <div className="flex flex-col gap-4">
+        <div className="eyebrow text-[13px] text-amber">What actually saved you</div>
+        {boss.debrief.map((c, i) => (
+          <motion.div
+            key={c.id}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...spring.soft, delay: 0.1 + i * 0.08 }}
+            className="rounded-lg border border-line/70 bg-bg-1/75 p-5 shadow-card"
+          >
             <RichText text={c.text} />
           </motion.div>
         ))}

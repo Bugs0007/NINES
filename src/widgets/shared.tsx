@@ -7,16 +7,16 @@ import type { WidgetProps } from "./types";
 export function ConditionList({ conditions, metrics }: { conditions?: WidgetProps["conditions"]; metrics?: Record<string, number> }) {
   if (!conditions?.length) return null;
   return (
-    <Panel label="win conditions">
-      <ul className="space-y-1.5">
+    <Panel label="Win conditions">
+      <ul className="space-y-2">
         <AnimatePresence initial={false}>
           {conditions.map((cond, i) => {
             const v = metrics?.[cond.metric];
             const pass = v === undefined ? null : evalCond(v, cond.op, cond.value);
             return (
-              <motion.li key={i} layout className="flex items-center justify-between gap-2 text-sm">
+              <motion.li key={i} layout className="flex items-center justify-between gap-3 text-sm">
                 <span className="text-ink-1">{cond.label}</span>
-                <span className={cx("font-mono text-xs tabular", pass === null ? "text-ink-3" : pass ? "text-phos" : "text-alert")}>
+                <span className={cx("shrink-0 font-mono text-xs tabular", pass === null ? "text-ink-3" : pass ? "text-phos" : "text-alert")}>
                   {v === undefined ? "—" : formatMetric(cond.metric, v)} {pass === null ? "" : pass ? "✓" : "✗"}
                 </span>
               </motion.li>

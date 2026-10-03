@@ -14,6 +14,7 @@ import { useSim } from "@/engine/useSim";
 import { Chip, cx, fmtLatency, fmtNum, fmtPct, fmtUsd, Meter, Panel } from "@/ui/kit";
 import { Slider } from "@/ui/Slider";
 import { spring } from "@/ui/motion";
+import { alpha, PALETTE } from "@/ui/palette";
 import type { FlowEdge, FlowNode } from "@/ui/flow/FlowView";
 import { ChallengeControls, useReplayHighlight, useSimChallenge, useSloAlarm } from "../sim/challenge";
 import { SimStage } from "../sim/SimStage";
@@ -124,7 +125,7 @@ function QueuePlay({ config: c, scene, onObserve, locked, mode }: WidgetProps<Qu
   const focus = scene ?? null;
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 lg:flex-row">
+    <div className="flex h-full min-h-0 flex-col gap-4 lg:flex-row">
       <SimStage
         className="min-h-[300px] flex-1"
         sim={sim}
@@ -136,24 +137,24 @@ function QueuePlay({ config: c, scene, onObserve, locked, mode }: WidgetProps<Qu
         highlight={focus === "focus-queue" || focus === "focus-capacity" ? ["api"] : []}
         honestPhysics={HONEST}
       />
-      <div className="flex w-full flex-col gap-3 lg:w-[300px]">
+      <div className="flex w-full flex-col gap-4 lg:w-[300px]">
         {!hockey ? <LittlePanel L={L} lam={lam} W={W} focus={focus} /> : <HockeyChart points={ws} S={S0} rho={measuredRho} W={W} focus={focus} />}
-        <Panel label="controls">
-          <div className={cx("flex flex-col gap-3", locked && "pointer-events-none opacity-40")}>
+        <Panel label="Controls">
+          <div className={cx("flex flex-col gap-4", locked && "pointer-events-none opacity-40")}>
             {!hockey ? (
               <>
-                <Slider label="arrivals (λ)" value={rps} min={1} max={c.rpsMax} step={1} onChange={setRps} format={(v) => `${v} req/s`} zone={{ from: Math.min(c.rpsMax, capacity), to: c.rpsMax, tone: "alert" }} />
-                <Slider label="time per request (DB wait)" value={slow} min={0.5} max={3} step={0.25} onChange={setSlow} format={(v) => fmtLatency(S0 * v)} />
-                <Slider label="gunicorn workers" value={workers} min={1} max={16} step={1} onChange={setWorkers} format={(v) => `${v}`} />
-                <div className="flex items-center justify-between font-mono text-2xs text-ink-2">
-                  <span>capacity = workers ÷ time per request</span>
-                  <span className={cx("tabular", rps > capacity ? "text-alert" : "text-phos")}>{fmtNum(capacity)}/s</span>
+                <Slider label="Arrivals (λ)" value={rps} min={1} max={c.rpsMax} step={1} onChange={setRps} format={(v) => `${v} req/s`} zone={{ from: Math.min(c.rpsMax, capacity), to: c.rpsMax, tone: "alert" }} />
+                <Slider label="Time per request (DB wait)" value={slow} min={0.5} max={3} step={0.25} onChange={setSlow} format={(v) => fmtLatency(S0 * v)} />
+                <Slider label="Gunicorn workers" value={workers} min={1} max={16} step={1} onChange={setWorkers} format={(v) => `${v}`} />
+                <div className="flex items-center justify-between gap-3 border-t border-line/60 pt-3 text-xs text-ink-2">
+                  <span>Capacity = workers ÷ time per request</span>
+                  <span className={cx("shrink-0 font-mono text-sm tabular", rps > capacity ? "text-alert" : "text-phos")}>{fmtNum(capacity)}/s</span>
                 </div>
               </>
             ) : (
               <>
                 <Slider
-                  label="load (utilization ρ)"
+                  label="Load (utilization ρ)"
                   value={rho}
                   min={0.05}
                   max={0.98}
@@ -167,7 +168,7 @@ function QueuePlay({ config: c, scene, onObserve, locked, mode }: WidgetProps<Qu
                     { value: 0.9, label: "90" },
                   ]}
                 />
-                <p className="text-xs text-ink-2">Service time is fixed at {fmtLatency(S0)} on average. Only the arrival rate changes.</p>
+                <p className="text-[13px] leading-snug text-ink-2">Service time is fixed at {fmtLatency(S0)} on average. Only the arrival rate changes.</p>
               </>
             )}
           </div>
@@ -181,24 +182,24 @@ function LittlePanel({ L, lam, W, focus }: { L: number; lam: number; W: number; 
   const predicted = lam * W;
   const holds = L > 0.05 && Math.abs(L - predicted) / Math.max(0.1, L) < 0.1;
   const cell = (label: string, v: string, hot: boolean) => (
-    <motion.div animate={{ scale: hot ? 1.06 : 1 }} transition={spring.snap} className={cx("rounded-sm border px-1.5 py-1.5 text-center", hot ? "border-amber shadow-glow-amber" : "border-line-2")}>
-      <div className="eyebrow text-[11px] text-ink-2">{label}</div>
-      <div className="font-mono text-lg tabular text-ink-0">{v}</div>
+    <motion.div animate={{ scale: hot ? 1.06 : 1 }} transition={spring.snap} className={cx("min-w-0 rounded-md border px-1.5 py-2 text-center transition-colors duration-300", hot ? "border-amber/80 bg-amber-dim/30 shadow-glow-amber" : "border-line/80 bg-bg-2/50")}>
+      <div className="eyebrow truncate text-[11px] text-ink-2">{label}</div>
+      <div className="mt-0.5 truncate font-mono text-lg tabular text-ink-0">{v}</div>
     </motion.div>
   );
   return (
-    <Panel label="little's law · live" right={<Chip tone={holds ? "ok" : "warn"}>{holds ? "holds" : "unstable"}</Chip>}>
-      <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-1.5">
+    <Panel label="Little's law · live" right={<Chip tone={holds ? "ok" : "warn"}>{holds ? "holds" : "unstable"}</Chip>}>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1.5">
         {cell("L in flight", L.toFixed(1), focus === "focus-L")}
-        <span className="font-display text-2xl text-ink-2">=</span>
+        <span className="font-display text-xl text-ink-3">=</span>
         {cell("λ /s", lam.toFixed(1), focus === "focus-lambda")}
-        <span className="font-display text-2xl text-ink-2">×</span>
+        <span className="font-display text-xl text-ink-3">×</span>
         {cell("W", fmtLatency(W), focus === "focus-W")}
       </div>
-      <div className="mt-2 font-mono text-2xs text-ink-2">
-        λ × W = <span className="tabular text-amber">{predicted.toFixed(1)}</span> · measured L = <span className="tabular text-amber">{L.toFixed(1)}</span>
+      <div className="mt-3 text-xs text-ink-2">
+        λ × W = <span className="font-mono tabular text-amber">{predicted.toFixed(1)}</span> · measured L = <span className="font-mono tabular text-amber">{L.toFixed(1)}</span>
       </div>
-      {!holds && L > 0.05 && <div className="mt-1 text-xs text-amber">Over capacity the queue grows every second, so there is no steady W to plug in.</div>}
+      {!holds && L > 0.05 && <div className="mt-2 text-xs leading-snug text-amber">Over capacity the queue grows every second, so there is no steady W to plug in.</div>}
     </Panel>
   );
 }
@@ -206,7 +207,7 @@ function LittlePanel({ L, lam, W, focus }: { L: number; lam: number; W: number; 
 function HockeyChart({ points, S, rho, W, focus }: { points: WindowMetrics[]; S: number; rho: number; W: number; focus: string | null }) {
   const w = 300;
   const h = 190;
-  const pad = { l: 34, r: 8, t: 10, b: 24 };
+  const pad = { l: 36, r: 8, t: 10, b: 26 };
   const maxY = 20; // in multiples of S
   const x = (r: number) => pad.l + r * (w - pad.l - pad.r);
   const y = (m: number) => h - pad.b - (Math.min(maxY, m) / maxY) * (h - pad.t - pad.b);
@@ -222,35 +223,35 @@ function HockeyChart({ points, S, rho, W, focus }: { points: WindowMetrics[]; S:
     if (Number.isFinite(m) && m > 0) trail.push([r, m]);
   }
   return (
-    <Panel label="the hockey stick" right={<span className="tabular">W ÷ S = {(W / S || 0).toFixed(1)}×</span>}>
+    <Panel label="The hockey stick" right={<span className="font-mono tabular">W ÷ S = {(W / S || 0).toFixed(1)}×</span>}>
       <svg viewBox={`0 0 ${w} ${h}`} className="w-full" role="img" aria-label="Average latency against utilization, measured points over the theoretical curve">
         {[0.5, 0.7, 0.9].map((r) => (
           <g key={r}>
-            <line x1={x(r)} x2={x(r)} y1={pad.t} y2={h - pad.b} stroke="#243139" />
-            <text x={x(r)} y={h - 8} fill="#8f9790" fontSize="9" textAnchor="middle" fontFamily="var(--font-mono)">
+            <line x1={x(r)} x2={x(r)} y1={pad.t} y2={h - pad.b} stroke={PALETTE.line} />
+            <text x={x(r)} y={h - 8} fill={PALETTE.ink2} fontSize="12" textAnchor="middle" fontFamily="var(--font-mono)">
               {r * 100}%
             </text>
           </g>
         ))}
         {[1, 5, 10, 20].map((m) => (
           <g key={m}>
-            <line x1={pad.l} x2={w - pad.r} y1={y(m)} y2={y(m)} stroke="#243139" />
-            <text x={pad.l - 4} y={y(m) + 3} fill="#8f9790" fontSize="9" textAnchor="end" fontFamily="var(--font-mono)">
+            <line x1={pad.l} x2={w - pad.r} y1={y(m)} y2={y(m)} stroke={PALETTE.line} />
+            <text x={pad.l - 5} y={y(m) + 4} fill={PALETTE.ink2} fontSize="12" textAnchor="end" fontFamily="var(--font-mono)">
               {m}×
             </text>
           </g>
         ))}
-        <rect x={x(0.8)} y={pad.t} width={x(0.98) - x(0.8)} height={h - pad.t - pad.b} fill="rgb(236 143 128 / 0.07)" />
-        <path d={theory} fill="none" stroke={focus === "curve" ? "#e8b77d" : "#657069"} strokeWidth={focus === "curve" ? 2 : 1.5} strokeDasharray={focus === "curve" ? "0" : "4 3"} />
+        <rect x={x(0.8)} y={pad.t} width={x(0.98) - x(0.8)} height={h - pad.t - pad.b} fill={alpha(PALETTE.alert, 0.07)} rx={4} />
+        <path d={theory} fill="none" stroke={focus === "curve" ? PALETTE.amber : PALETTE.ink3} strokeWidth={focus === "curve" ? 2 : 1.5} strokeDasharray={focus === "curve" ? "0" : "4 3"} />
         {trail.map(([r, m], i) => (
-          <circle key={i} cx={x(r)} cy={y(m)} r={1.8} fill="#8fd4b2" opacity={0.25 + (0.6 * i) / Math.max(1, trail.length)} />
+          <circle key={i} cx={x(r)} cy={y(m)} r={2} fill={PALETTE.phos} opacity={0.25 + (0.6 * i) / Math.max(1, trail.length)} />
         ))}
-        {rho > 0 && <circle cx={x(rho)} cy={y(W / S)} r={4.5} fill="#8fd4b2" stroke="#0f1519" strokeWidth={1.5} />}
+        {rho > 0 && <circle cx={x(rho)} cy={y(W / S)} r={4.5} fill={PALETTE.phos} stroke={PALETTE.bg1} strokeWidth={1.5} />}
       </svg>
-      <div className="mt-1 flex justify-between font-mono text-[11px] text-ink-3">
+      <div className="mt-2 flex flex-wrap justify-between gap-x-3 gap-y-0.5 text-[11px] text-ink-3">
         <span>x: busy %</span>
         <span>y: latency ÷ service time</span>
-        <span>dashed: M/M/1</span>
+        <span>Dashed: M/M/1</span>
       </div>
     </Panel>
   );
@@ -291,7 +292,7 @@ function QueueChallenge({ config: c, onResult, verdict, locked, conditions }: Wi
   const offered = sizing ? c.rps * S : ((c.peakRps ?? 140) * S) / Math.max(1, built.cores);
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 lg:flex-row">
+    <div className="flex h-full min-h-0 flex-col gap-4 lg:flex-row">
       <SimStage
         className="min-h-[300px] flex-1"
         sim={ch.sim}
@@ -309,48 +310,48 @@ function QueueChallenge({ config: c, onResult, verdict, locked, conditions }: Wi
           "The run is seeded, so the same setup always produces the same result.",
         ]}
       />
-      <div className="flex w-full flex-col gap-3 lg:w-[300px]">
-        <Panel label={sizing ? "gunicorn config" : "capacity plan"}>
-          <div className={cx("flex flex-col gap-3", (running || locked) && "pointer-events-none opacity-50")}>
+      <div className="flex w-full flex-col gap-4 lg:w-[300px]">
+        <Panel label={sizing ? "Gunicorn config" : "Capacity plan"}>
+          <div className={cx("flex flex-col gap-4", (running || locked) && "pointer-events-none opacity-50")}>
             {sizing ? (
               <>
-                <Slider label="workers" value={choice} min={1} max={c.maxWorkers ?? 60} step={1} onChange={setChoice} format={(v) => `${v}`} />
+                <Slider label="Workers" value={choice} min={1} max={c.maxWorkers ?? 60} step={1} onChange={setChoice} format={(v) => `${v}`} />
                 <div>
-                  <div className="mb-1 flex justify-between font-mono text-2xs text-ink-2">
-                    <span>memory</span>
-                    <span className={cx("tabular", memOk ? "text-ink-1" : "text-alert")}>
+                  <div className="mb-1.5 flex justify-between gap-3 text-xs text-ink-2">
+                    <span>Memory</span>
+                    <span className={cx("font-mono tabular", memOk ? "text-ink-1" : "text-alert")}>
                       {built.memGiB.toFixed(1)} / {c.ramGiB} GiB
                     </span>
                   </div>
                   <Meter value={built.memGiB / (c.ramGiB ?? 8)} warnAt={0.75} alertAt={0.9} label="memory used" />
-                  <div className="mt-1 font-mono text-[11px] text-ink-3">
+                  <div className="mt-1.5 text-xs leading-snug text-ink-3">
                     {c.workerMb} MB per worker + {c.reservedGiB} GiB for OS, nginx, page cache
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2 font-mono text-2xs text-ink-2">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-3 border-t border-line/60 pt-3 text-xs text-ink-2">
                   <div>
-                    traffic <span className="block text-sm tabular text-ink-0">{c.rps} req/s</span>
+                    Traffic <span className="mt-0.5 block font-mono text-sm tabular text-ink-0">{c.rps} req/s</span>
                   </div>
                   <div>
-                    avg time / req <span className="block text-sm tabular text-ink-0">{fmtLatency(S)}</span>
+                    Avg time / req <span className="mt-0.5 block font-mono text-sm tabular text-ink-0">{fmtLatency(S)}</span>
                   </div>
                 </div>
               </>
             ) : (
               <>
                 <Slider label="vCPUs (1 worker each)" value={choice} min={1} max={c.maxCores ?? 12} step={1} onChange={setChoice} format={(v) => `${v}`} />
-                <div className="grid grid-cols-2 gap-2 font-mono text-2xs text-ink-2">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-3 border-t border-line/60 pt-3 text-xs text-ink-2">
                   <div>
-                    peak traffic <span className="block text-sm tabular text-ink-0">{c.peakRps} req/s</span>
+                    Peak traffic <span className="mt-0.5 block font-mono text-sm tabular text-ink-0">{c.peakRps} req/s</span>
                   </div>
                   <div>
-                    avg service <span className="block text-sm tabular text-ink-0">{fmtLatency(S)}</span>
+                    Avg service <span className="mt-0.5 block font-mono text-sm tabular text-ink-0">{fmtLatency(S)}</span>
                   </div>
                   <div>
-                    peak busy (est.) <span className={cx("block text-sm tabular", offered >= 1 ? "text-alert" : offered > 0.8 ? "text-amber" : "text-ink-0")}>{fmtPct(Math.min(offered, 9.99), 0)}</span>
+                    Peak busy (est.) <span className={cx("mt-0.5 block font-mono text-sm tabular", offered >= 1 ? "text-alert" : offered > 0.8 ? "text-amber" : "text-ink-0")}>{fmtPct(Math.min(offered, 9.99), 0)}</span>
                   </div>
                   <div>
-                    cost <span className="block text-sm tabular text-ink-0">{fmtUsd(built.costPerMonth)}/mo</span>
+                    Cost <span className="mt-0.5 block font-mono text-sm tabular text-ink-0">{fmtUsd(built.costPerMonth)}/mo</span>
                   </div>
                 </div>
               </>

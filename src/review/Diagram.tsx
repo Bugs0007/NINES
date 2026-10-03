@@ -2,13 +2,15 @@
 /**
  * Mini architecture diagram for spot-the-flaw reviews. Tap a node or an edge.
  */
+import type { CSSProperties } from "react";
 import type { Diagram as DiagramT } from "@/content/schema";
 import { cx } from "@/ui/kit";
+import { alpha, PALETTE } from "@/ui/palette";
 
-const CELL_W = 150;
-const CELL_H = 74;
-const NODE_W = 124;
-const NODE_H = 42;
+const CELL_W = 160;
+const CELL_H = 86;
+const NODE_W = 140;
+const NODE_H = 56;
 
 const KIND_TAG: Record<string, string> = {
   client: "users",
@@ -23,15 +25,22 @@ const KIND_TAG: Record<string, string> = {
   llm: "LLM",
 };
 
+type Tone = "none" | "picked" | "ok" | "bad";
+
+const STROKE: Record<Tone, string> = { none: PALETTE.line3, picked: PALETTE.amber, ok: PALETTE.phos, bad: PALETTE.alert };
+const FILL: Record<Tone, string> = { none: alpha(PALETTE.bg2, 0.96), picked: alpha(PALETTE.amberDim, 0.95), ok: alpha(PALETTE.phosDim, 0.95), bad: alpha(PALETTE.alertDim, 0.95) };
+
 export function MiniDiagram({ d, picked, answer, reveal, onPick }: { d: DiagramT; picked: string | null; answer?: string; reveal: boolean; onPick: (id: string) => void }) {
   const cols = Math.max(...d.nodes.map((n) => n.col)) + 1;
   const rows = Math.max(...d.nodes.map((n) => n.row)) + 1;
   const W = cols * CELL_W;
   const H = rows * CELL_H;
   const pos = new Map(d.nodes.map((n) => [n.id, { x: n.col * CELL_W + CELL_W / 2, y: n.row * CELL_H + CELL_H / 2 }]));
-  const tone = (id: string) => (reveal ? (id === answer ? "ok" : id === picked ? "bad" : "none") : id === picked ? "picked" : "none");
+  const tone = (id: string): Tone => (reveal ? (id === answer ? "ok" : id === picked ? "bad" : "none") : id === picked ? "picked" : "none");
+  // On phones the diagram keeps a readable size and scrolls inside its frame instead of shrinking its labels.
+  const minW = { "--diagram-min-w": `${Math.round(W * 0.9)}px` } as CSSProperties;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full max-w-full" role="group" aria-label="Architecture diagram: tap the flawed part">
+    <svg viewBox={`0 0 ${W} ${H}`} style={minW} className="block h-auto w-full min-w-(--diagram-min-w) sm:min-w-0" role="group" aria-label="Architecture diagram: tap the flawed part">
       {d.edges.map((e) => {
         const a = pos.get(e.from)!;
         const b = pos.get(e.to)!;
@@ -41,14 +50,14 @@ export function MiniDiagram({ d, picked, answer, reveal, onPick }: { d: DiagramT
         const my = (a.y + b.y) / 2;
         return (
           <g key={id}>
-            <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={t === "ok" ? "#8fd4b2" : t === "bad" ? "#ec8f80" : t === "picked" ? "#e8b77d" : "#42545e"} strokeWidth={t === "none" ? 1.5 : 3} />
+            <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={STROKE[t]} strokeOpacity={t === "none" ? 0.9 : 1} strokeWidth={t === "none" ? 1.5 : 3} strokeLinecap="round" />
             <line
               x1={a.x}
               y1={a.y}
               x2={b.x}
               y2={b.y}
               stroke="transparent"
-              strokeWidth={18}
+              strokeWidth={20}
               className="cursor-pointer outline-none focus-visible:stroke-amber/40"
               onClick={() => !reveal && onPick(id)}
               {...keyPick(reveal ? null : () => onPick(id))}
@@ -56,7 +65,7 @@ export function MiniDiagram({ d, picked, answer, reveal, onPick }: { d: DiagramT
               aria-label={`Connection ${e.from} to ${e.to}${e.label ? `, ${e.label}` : ""}`}
             />
             {e.label && (
-              <text x={mx} y={my - 5} textAnchor="middle" fontSize={10} className="pointer-events-none fill-ink-1 font-mono">
+              <text x={mx} y={my - 7} textAnchor="middle" fontSize={12} fill={PALETTE.ink1} stroke={PALETTE.bg0} strokeWidth={4} paintOrder="stroke" className="pointer-events-none font-sans tabular">
                 {e.label}
               </text>
             )}
@@ -69,7 +78,7 @@ export function MiniDiagram({ d, picked, answer, reveal, onPick }: { d: DiagramT
         return (
           <g
             key={n.id}
-            className="cursor-pointer outline-none [&:focus-visible>rect]:stroke-amber"
+            className="cursor-pointer outline-none [&:focus-visible>rect]:stroke-amber [&:hover>rect]:brightness-125"
             onClick={() => !reveal && onPick(n.id)}
             {...keyPick(reveal ? null : () => onPick(n.id))}
             role="button"
@@ -80,16 +89,16 @@ export function MiniDiagram({ d, picked, answer, reveal, onPick }: { d: DiagramT
               y={p.y - NODE_H / 2}
               width={NODE_W}
               height={NODE_H}
-              rx={3}
-              fill={t === "ok" ? "rgb(28 56 48 / 0.9)" : t === "bad" ? "rgb(58 35 32 / 0.9)" : "rgb(27 37 43 / 0.95)"}
-              stroke={t === "ok" ? "#8fd4b2" : t === "bad" ? "#ec8f80" : t === "picked" ? "#e8b77d" : "#42545e"}
+              rx={10}
+              fill={FILL[t]}
+              stroke={STROKE[t]}
+              strokeOpacity={t === "none" ? 0.8 : 1}
               strokeWidth={t === "none" ? 1 : 2}
+              className="transition-[filter] duration-200"
             />
-            <text x={p.x - NODE_W / 2 + 7} y={p.y - 6} fontSize={8.5} className={cx("fill-ink-3 eyebrow")} letterSpacing="0.1em">
-              {KIND_TAG[n.kind] ?? n.kind}
-            </text>
-            <foreignObject x={p.x - NODE_W / 2 + 5} y={p.y - 3} width={NODE_W - 10} height={NODE_H / 2 + 2}>
-              <div className="truncate text-[11px] leading-tight text-ink-0">{n.label}</div>
+            <foreignObject x={p.x - NODE_W / 2 + 9} y={p.y - NODE_H / 2 + 6} width={NODE_W - 18} height={NODE_H - 10}>
+              <div className={cx("text-[12.5px] font-medium leading-none", t === "ok" ? "text-phos" : t === "bad" ? "text-alert" : t === "picked" ? "text-amber" : "text-ink-2")}>{KIND_TAG[n.kind] ?? n.kind}</div>
+              <div className="mt-1 line-clamp-2 text-[14px] leading-[1.2] text-ink-0">{n.label}</div>
             </foreignObject>
           </g>
         );
@@ -104,19 +113,21 @@ export function GraphOption({ points, selected, state, label, onClick }: { point
   const max = Math.max(...points);
   const min = Math.min(0, ...points);
   const d = points.map((v, i) => `${i ? "L" : "M"}${((i / (points.length - 1)) * (w - 8) + 4).toFixed(1)},${(h - 4 - ((v - min) / (max - min || 1)) * (h - 8)).toFixed(1)}`).join("");
+  const stroke = state === "ok" ? PALETTE.phos : state === "bad" ? PALETTE.alert : selected ? PALETTE.amber : PALETTE.ink1;
   return (
     <button
       onClick={onClick}
       aria-pressed={selected}
       className={cx(
-        "flex flex-col items-start gap-1 rounded-sm border p-2 text-left transition-colors",
-        state === "ok" ? "border-phos bg-phos-dim/40" : state === "bad" ? "border-alert bg-alert-dim/40" : selected ? "border-amber bg-amber-dim/40" : "border-line-2 bg-bg-2 hover:border-line-3",
+        "flex flex-col items-start gap-2 rounded-md border p-3 text-left transition-colors duration-200",
+        state === "ok" ? "border-phos-3 bg-phos-dim/40" : state === "bad" ? "border-alert-3 bg-alert-dim/40" : selected ? "border-amber-3 bg-amber-dim/50" : "border-line-2/80 bg-bg-2/60 hover:border-line-3 hover:bg-bg-2",
       )}
     >
-      <svg viewBox={`0 0 ${w} ${h}`} className="h-11 w-full" aria-hidden>
-        <path d={d} fill="none" stroke={state === "ok" ? "#8fd4b2" : state === "bad" ? "#ec8f80" : selected ? "#e8b77d" : "#c5c4bc"} strokeWidth={2} />
+      <svg viewBox={`0 0 ${w} ${h}`} className="h-12 w-full" aria-hidden>
+        <line x1={4} x2={w - 4} y1={h - 4} y2={h - 4} stroke={PALETTE.line2} strokeWidth={1} />
+        <path d={d} fill="none" stroke={stroke} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
       </svg>
-      <span className="text-xs text-ink-1">{label}</span>
+      <span className={cx("text-[13px] leading-snug", selected || state !== "none" ? "text-ink-0" : "text-ink-1")}>{label}</span>
     </button>
   );
 }

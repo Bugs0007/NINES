@@ -160,23 +160,24 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className={cx("sticky top-0 z-40 flex h-12 items-center gap-3 border-b px-3 backdrop-blur lg:px-4", burning ? "border-alert-3 bg-alert-dim/80" : "border-line bg-bg-0/90")}>
-        <Link href="/incident" className="eyebrow text-2xs text-ink-2 hover:text-amber">
+      <header className={cx("sticky top-0 z-40 flex h-14 items-center gap-3 border-b px-4 backdrop-blur transition-colors duration-700 lg:gap-4 lg:px-8", burning ? "border-alert-3/50 bg-alert-dim/75" : "border-line/60 bg-bg-0/85")}>
+        <Link href="/incident" aria-label="Back to the incident list" className="-ml-1.5 grid h-8 w-8 shrink-0 place-items-center rounded-full text-[15px] text-ink-2 transition-colors hover:bg-bg-2 hover:text-amber">
           ←
         </Link>
         <Chip tone={recovered !== null ? "ok" : "alert"} className="shrink-0 whitespace-nowrap">{inc.severity}</Chip>
-        <span className="truncate font-display text-lg font-semibold text-ink-0">
-          {inc.code} · {inc.title}
+        <span className="min-w-0 truncate font-display text-lg font-semibold text-ink-0">
+          <span className="hidden font-mono text-[13px] font-normal text-ink-2 sm:inline">{inc.code} · </span>
+          {inc.title}
         </span>
-        <span className="ml-auto hidden font-mono text-2xs text-ink-1 sm:inline">
+        <span className="ml-auto hidden shrink-0 font-mono text-xs tabular text-ink-1 md:inline">
           {clockAt(sim.t, inc.clock0)} IST · page +{Math.floor(sincePage / 60)}m{String(Math.floor(sincePage % 60)).padStart(2, "0")}s
         </span>
-        <Segmented size="sm" label="Speed" value={speed} onChange={setSpeed} options={[{ value: 1, label: "1×" }, { value: 2, label: "2×" }, { value: 4, label: "4×" }]} />
+        <Segmented size="sm" label="Speed" value={speed} onChange={setSpeed} options={[{ value: 1, label: "1×" }, { value: 2, label: "2×" }, { value: 4, label: "4×" }]} className="ml-auto shrink-0 md:ml-0" />
       </header>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 p-3 lg:grid-cols-[minmax(0,1fr)_360px] lg:p-4">
-        <div className="flex min-h-0 flex-col gap-2 lg:h-[calc(100dvh-88px)]">
-          <div className="flex gap-1 overflow-x-auto no-scrollbar" role="tablist" aria-label="War room tools">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-5 lg:px-8 lg:py-5">
+        <div className="flex min-h-0 min-w-0 flex-col gap-3 lg:h-[calc(100dvh-96px)]">
+          <div className="flex shrink-0 gap-1 self-start overflow-x-auto rounded-full border border-line/70 bg-bg-1/70 p-1 no-scrollbar max-w-full" role="tablist" aria-label="War room tools">
             {(
               [
                 ["dash", "Dashboards"],
@@ -186,7 +187,7 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
                 ["timeline", "Timeline"],
               ] as [Tab, string][]
             ).map(([id, label]) => (
-              <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={cx("h-9 shrink-0 rounded-xs border px-3 eyebrow text-2xs", tab === id ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1 hover:border-line-3")}>
+              <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={cx("h-8 shrink-0 rounded-full px-2.5 text-[13px] font-semibold transition-colors duration-200 sm:px-3.5", tab === id ? "bg-amber text-bg-0" : "text-ink-2 hover:bg-bg-2 hover:text-ink-0")}>
                 {label}
               </button>
             ))}
@@ -200,44 +201,44 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
           </div>
         </div>
 
-        <aside className="flex min-h-0 flex-col gap-3 rounded-sm border border-line bg-bg-1/80 p-3 lg:h-[calc(100dvh-88px)] lg:overflow-y-auto">
+        <aside className="flex min-h-0 min-w-0 flex-col gap-6 rounded-lg border border-line/80 bg-bg-1/75 p-4 shadow-card lg:h-[calc(100dvh-96px)] lg:overflow-y-auto lg:p-5">
           <Status last={last} failed={failedSincePage} recovered={recovered} inc={inc} />
           <section>
-            <div className="mb-1 flex items-center justify-between eyebrow text-2xs text-ink-2">
+            <div className="mb-2 flex items-center justify-between eyebrow text-xs text-ink-2">
               <span>Evidence board</span>
-              <span>{pins.length}</span>
+              <span className="font-mono tabular text-ink-3">{pins.length}</span>
             </div>
             {pins.length === 0 ? (
-              <p className="text-xs text-ink-3">Pin log lines, command output, dashboard rows, or traces that support your theory.</p>
+              <p className="text-[13px] leading-relaxed text-ink-3">Pin log lines, command output, dashboard rows, or traces that support your theory.</p>
             ) : (
-              <ul className="space-y-1">
+              <ul className="space-y-2">
                 {pins.map((p) => (
-                  <li key={p.key} className="group rounded-sm border border-line-2 bg-bg-2 p-1.5">
+                  <li key={p.key} className="group rounded-md border border-line-2/70 bg-bg-2/60 p-2.5">
                     <div className="flex items-start justify-between gap-2">
-                      <pre className="whitespace-pre-wrap break-all font-mono text-[11px] text-ink-1">{p.text.length > 160 ? `${p.text.slice(0, 160)}…` : p.text}</pre>
-                      <button onClick={() => pin(p)} className="font-mono text-[11px] text-ink-3 hover:text-alert" aria-label="Unpin">
+                      <pre className="min-w-0 whitespace-pre-wrap break-all font-mono text-xs leading-relaxed text-ink-1">{p.text.length > 160 ? `${p.text.slice(0, 160)}…` : p.text}</pre>
+                      <button onClick={() => pin(p)} className="-mr-1 -mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs text-ink-3 transition-colors hover:bg-alert-dim hover:text-alert" aria-label="Unpin">
                         ✕
                       </button>
                     </div>
-                    <div className="font-mono text-[11px] text-ink-3">{p.where}</div>
+                    <div className="mt-1 text-xs text-ink-3">{p.where}</div>
                   </li>
                 ))}
               </ul>
             )}
           </section>
           <section>
-            <div className="mb-1 eyebrow text-2xs text-ink-2">Hypothesis</div>
-            <div className="flex flex-col gap-1">
+            <div className="mb-2 eyebrow text-xs text-ink-2">Hypothesis</div>
+            <div className="flex flex-col gap-1.5">
               {inc.hypotheses.map((h) => (
-                <button key={h.id} onClick={() => setHyp(h.id)} aria-pressed={hyp === h.id} className={cx("rounded-sm border px-2 py-1.5 text-left text-xs", hyp === h.id ? "border-amber bg-amber-dim/50 text-ink-0" : "border-line-2 text-ink-1 hover:border-line-3")}>
+                <button key={h.id} onClick={() => setHyp(h.id)} aria-pressed={hyp === h.id} className={cx("rounded-md border px-3 py-2 text-left text-[13px] leading-snug transition-colors duration-200", hyp === h.id ? "border-amber/70 bg-amber-dim/50 text-ink-0" : "border-line-2/70 text-ink-1 hover:border-line-3 hover:bg-bg-2/60")}>
                   {h.label}
                 </button>
               ))}
             </div>
           </section>
           <section>
-            <div className="mb-1 eyebrow text-2xs text-ink-2">Actions</div>
-            <div className="flex flex-col gap-1">
+            <div className="mb-2 eyebrow text-xs text-ink-2">Actions</div>
+            <div className="flex flex-col gap-1.5">
               {inc.mitigations.map((m) => {
                 const done = applied.some((a) => a.id === m.id);
                 return (
@@ -245,31 +246,31 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
                     <button
                       disabled={done}
                       onClick={() => (confirm === m.id ? apply(m.id) : setConfirm(m.id))}
-                      className={cx("w-full rounded-sm border px-2 py-1.5 text-left text-xs", done ? "border-line text-ink-3" : confirm === m.id ? "border-alert bg-alert-dim/60 text-ink-0" : "border-line-2 text-ink-1 hover:border-line-3")}
+                      className={cx("w-full rounded-md border px-3 py-2 text-left text-[13px] leading-snug transition-colors duration-200", done ? "border-line/70 text-ink-3" : confirm === m.id ? "border-alert/70 bg-alert-dim/60 text-ink-0" : "border-line-2/70 text-ink-1 hover:border-line-3 hover:bg-bg-2/60")}
                     >
-                      <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center justify-between gap-3">
                         <span>{m.label}</span>
-                        <span className="shrink-0 font-mono text-[11px] text-ink-3">{done ? "done" : confirm === m.id ? "tap to confirm" : `~${m.takesS}s`}</span>
+                        <span className={cx("shrink-0 text-xs", confirm === m.id && !done ? "font-medium text-alert" : "font-mono tabular text-ink-3")}>{done ? "Done" : confirm === m.id ? "Tap to confirm" : `~${m.takesS}s`}</span>
                       </div>
-                      {confirm === m.id && <div className="mt-0.5 text-[11px] text-ink-2">{m.detail}</div>}
+                      {confirm === m.id && <div className="mt-1.5 text-xs leading-relaxed text-ink-2">{m.detail}</div>}
                     </button>
                   </div>
                 );
               })}
             </div>
           </section>
-          <section className="rounded-sm border border-line p-2">
-            <div className="flex items-center justify-between">
-              <span className="eyebrow text-2xs text-ink-2">Ask the SRE</span>
+          <section className="rounded-md border border-line/70 bg-bg-2/30 p-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="eyebrow text-xs text-ink-2">Ask the SRE</span>
               <Button size="sm" variant="ghost" onClick={ask} disabled={hints.length >= 3}>
                 {hints.length ? "Narrower" : "Nudge me"}
               </Button>
             </div>
             {hints.map((h, i) => (
-              <CastLine key={i} line={{ speaker: "meera", line: h }} compact typewriter={i === hints.length - 1} className="mt-1" />
+              <CastLine key={i} line={{ speaker: "meera", line: h }} compact typewriter={i === hints.length - 1} className="mt-2" />
             ))}
           </section>
-          <Button variant={recovered !== null ? "go" : "secondary"} size="lg" disabled={recovered === null || !hyp} onClick={() => setPhase("postmortem")}>
+          <Button variant={recovered !== null ? "go" : "secondary"} size="lg" disabled={recovered === null || !hyp} onClick={() => setPhase("postmortem")} className="mt-auto shrink-0">
             {recovered === null ? "Recover checkout first" : !hyp ? "Pick a hypothesis" : "Resolve and write the postmortem"}
           </Button>
         </aside>
@@ -280,20 +281,20 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
 
 function Status({ last, failed, recovered, inc }: { last?: WindowMetrics; failed: number; recovered: number | null; inc: Incident }) {
   return (
-    <section className={cx("rounded-sm border p-2.5", recovered !== null ? "border-phos-3 bg-phos-dim/30" : "border-alert-3 bg-alert-dim/40")}>
-      <div className="flex items-center gap-2 eyebrow text-2xs">
+    <section className={cx("rounded-md border p-4 transition-colors duration-700", recovered !== null ? "border-phos-3/60 bg-phos-dim/30" : "border-alert-3/60 bg-alert-dim/35")}>
+      <div className="flex items-center gap-2.5 text-sm font-semibold">
         <Led tone={recovered !== null ? "ok" : "alert"} blink={recovered === null} />
-        <span className={recovered !== null ? "text-phos" : "text-alert"}>{recovered !== null ? `recovered at ${clockAt(recovered, inc.clock0)}` : "burning"}</span>
+        <span className={recovered !== null ? "text-phos" : "text-alert"}>{recovered !== null ? <>Recovered at <span className="font-mono tabular">{clockAt(recovered, inc.clock0)}</span></> : "Burning"}</span>
       </div>
-      <div className="mt-1 grid grid-cols-3 gap-2 font-mono text-2xs text-ink-2">
-        <div>
-          errors<span className={cx("block text-base tabular", (last?.errorRate ?? 0) > inc.slo.errorRate ? "text-alert" : "text-phos")}>{last ? fmtPct(last.errorRate, 1) : "—"}</span>
+      <div className="mt-3 grid grid-cols-3 gap-3 text-xs leading-tight text-ink-2">
+        <div className="min-w-0">
+          Errors<span className={cx("mt-1 block font-mono text-lg tabular", (last?.errorRate ?? 0) > inc.slo.errorRate ? "text-alert" : "text-phos")}>{last ? fmtPct(last.errorRate, 1) : "—"}</span>
         </div>
-        <div>
-          p99<span className="block text-base tabular text-ink-0">{last?.ok ? fmtLatency(last.p99) : "—"}</span>
+        <div className="min-w-0">
+          p99<span className="mt-1 block font-mono text-lg tabular text-ink-0">{last?.ok ? fmtLatency(last.p99) : "—"}</span>
         </div>
-        <div>
-          failed since page<span className="block text-base tabular text-ink-0">{failed.toLocaleString()}</span>
+        <div className="min-w-0">
+          Failed since page<span className="mt-1 block font-mono text-lg tabular text-ink-0">{failed.toLocaleString()}</span>
         </div>
       </div>
     </section>
@@ -355,34 +356,34 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
 
   if (score) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-8">
-        <div className="eyebrow text-2xs text-phos">{inc.code} resolved</div>
-        <h1 className="font-display text-6xl font-semibold leading-none text-ink-0">{inc.title}</h1>
-        <ul className="mt-6 space-y-1.5">
+      <div className="mx-auto w-full max-w-3xl px-4 pb-16 pt-10 lg:pt-14">
+        <div className="eyebrow text-xs text-phos">{inc.code} resolved</div>
+        <h1 className="mt-2 font-display text-4xl font-semibold leading-tight text-ink-0 sm:text-5xl">{inc.title}</h1>
+        <ul className="mt-8 divide-y divide-line/60 rounded-lg border border-line/80 bg-bg-1/75 shadow-card">
           {score.parts.map(([label, v], i) => (
-            <motion.li key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ ...spring.soft, delay: i * 0.1 }} className="flex justify-between border-b border-line pb-1.5 font-mono text-sm">
-              <span className="text-ink-1">{label}</span>
-              <span className={cx("tabular", v > 0 ? "text-phos" : v < 0 ? "text-alert" : "text-ink-3")}>{v > 0 ? `+${v}` : v}</span>
+            <motion.li key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ ...spring.soft, delay: i * 0.1 }} className="flex items-baseline justify-between gap-4 px-5 py-3">
+              <span className="text-[15px] text-ink-1">{label}</span>
+              <span className={cx("shrink-0 font-mono text-sm tabular", v > 0 ? "text-phos" : v < 0 ? "text-alert" : "text-ink-3")}>{v > 0 ? `+${v}` : v}</span>
             </motion.li>
           ))}
-          <li className="flex justify-between pt-1 font-mono">
-            <span className="text-ink-0">Total</span>
-            <Ticker value={score.xp} format={(v) => `+${Math.round(v)} XP`} className="tabular text-phos glow-phos" />
+          <li className="flex items-baseline justify-between gap-4 px-5 py-4">
+            <span className="font-semibold text-ink-0">Total</span>
+            <Ticker value={score.xp} format={(v) => `+${Math.round(v)} XP`} className="num-display text-3xl font-semibold text-phos" />
           </li>
         </ul>
         {score.gap && (
-          <div className="mt-4 rounded-sm border border-amber-3 bg-amber-dim/30 p-3 text-sm">
-            <span className="eyebrow text-2xs text-amber">Postmortem gap</span>
-            <div className="text-ink-0">{score.gap}</div>
+          <div className="mt-5 rounded-lg border border-amber-3/60 bg-amber-dim/25 p-5">
+            <div className="eyebrow text-xs text-amber">Postmortem gap</div>
+            <div className="mt-1.5 text-[15px] leading-relaxed text-ink-0">{score.gap}</div>
           </div>
         )}
-        <div className="mt-4 rounded-sm border border-line p-3">
-          <div className="eyebrow text-2xs text-ink-2">What actually happened</div>
-          <p className="mt-1 text-sm text-ink-0">{inc.postmortem.exemplar}</p>
+        <div className="mt-5 rounded-lg border border-line/80 bg-bg-1/75 p-5 shadow-card">
+          <div className="eyebrow text-xs text-ink-2">What actually happened</div>
+          <p className="mt-2 max-w-prose text-[15px] leading-relaxed text-ink-0">{inc.postmortem.exemplar}</p>
         </div>
-        <HonestNotes className="mt-4" notes={inc.honestPhysics ?? []} />
-        <CastLine className="mt-4" line={{ speaker: "meera", line: rootOk ? "Good. Now go fix the launch template before it does this again." : "Mitigated isn't understood. Read the real cause and come back to this one." }} />
-        <div className="mt-6 flex gap-2">
+        <HonestNotes className="mt-5" notes={inc.honestPhysics ?? []} />
+        <CastLine className="mt-6" line={{ speaker: "meera", line: rootOk ? "Good. Now go fix the launch template before it does this again." : "Mitigated isn't understood. Read the real cause and come back to this one." }} />
+        <div className="mt-8 flex flex-wrap gap-3">
           <Link href="/">
             <Button variant="primary" size="lg">
               Back to HQ
@@ -399,11 +400,11 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-8">
-      <div className="eyebrow text-2xs text-amber">{inc.code} · postmortem</div>
-      <h1 className="font-display text-5xl font-semibold leading-none text-ink-0">Three lines</h1>
-      <p className="mt-2 text-sm text-ink-1">Blameless, specific, short. What someone reading this in six months needs.</p>
-      <div className="mt-5 flex flex-col gap-3">
+    <div className="mx-auto w-full max-w-2xl px-4 pb-16 pt-10 lg:pt-14">
+      <div className="eyebrow text-xs text-alert">{inc.code} · postmortem</div>
+      <h1 className="mt-2 font-display text-4xl font-semibold leading-tight text-ink-0 sm:text-5xl">Three lines</h1>
+      <p className="mt-3 text-[15px] leading-relaxed text-ink-1">Blameless, specific, short. What someone reading this in six months needs.</p>
+      <div className="mt-8 flex flex-col gap-5">
         {(
           [
             ["what", "What happened (impact, duration, what stopped it)"],
@@ -411,26 +412,26 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
             ["prevent", "Prevention (what stops this class of incident)"],
           ] as const
         ).map(([k, label]) => (
-          <label key={k} className="flex flex-col gap-1">
-            <span className="eyebrow text-2xs text-ink-2">{label}</span>
-            <textarea value={lines[k]} onChange={(e) => setLines((l) => ({ ...l, [k]: e.target.value }))} rows={2} className="rounded-sm border border-line-2 bg-bg-0 p-2.5 text-sm text-ink-0 outline-none focus:border-amber" />
+          <label key={k} className="flex flex-col gap-2">
+            <span className="text-[13px] font-medium text-ink-1">{label}</span>
+            <textarea value={lines[k]} onChange={(e) => setLines((l) => ({ ...l, [k]: e.target.value }))} rows={2} className="rounded-md border border-line-2 bg-bg-2/60 p-3.5 text-[15px] leading-relaxed text-ink-0 outline-none transition-colors focus:border-amber/80" />
           </label>
         ))}
         {!needSelf ? (
-          <Button variant="primary" size="lg" disabled={!ready || grading} onClick={submit}>
+          <Button variant="primary" size="lg" disabled={!ready || grading} onClick={submit} className="sm:self-start">
             {grading ? "Grading…" : "File the postmortem"}
           </Button>
         ) : (
-          <div className="rounded-sm border border-line-2 p-3">
-            <div className="text-sm text-ink-1">No Claude key: grade yourself against the rubric.</div>
-            <p className="mt-1 text-sm text-ink-0">{inc.postmortem.exemplar}</p>
-            <ul className="mt-2 space-y-2">
+          <div className="rounded-lg border border-line/80 bg-bg-1/75 p-5 shadow-card sm:p-6">
+            <div className="text-sm text-ink-2">No Claude key: grade yourself against the rubric.</div>
+            <p className="mt-2 text-[15px] leading-relaxed text-ink-0">{inc.postmortem.exemplar}</p>
+            <ul className="mt-4 space-y-4">
               {inc.postmortem.rubric.map((r) => (
                 <li key={r.id}>
-                  <div className="text-sm text-ink-0">{r.criterion}</div>
-                  <div className="mt-1 flex gap-1">
+                  <div className="text-sm leading-relaxed text-ink-0">{r.criterion}</div>
+                  <div className="mt-2 flex gap-1.5">
                     {(["met", "partial", "missed"] as const).map((v) => (
-                      <button key={v} onClick={() => setSelf((s) => ({ ...s, [r.id]: v }))} className={cx("h-8 flex-1 rounded-xs border eyebrow text-2xs", self[r.id] === v ? "border-amber text-amber" : "border-line-2 text-ink-2")}>
+                      <button key={v} onClick={() => setSelf((s) => ({ ...s, [r.id]: v }))} className={cx("h-9 flex-1 rounded-full border text-[13px] font-medium capitalize transition-colors", self[r.id] === v ? "border-amber/70 bg-amber-dim/60 text-amber" : "border-line-2/80 text-ink-2 hover:border-line-3 hover:text-ink-1")}>
                         {v}
                       </button>
                     ))}
@@ -439,7 +440,7 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
               ))}
             </ul>
             <Button
-              className="mt-3"
+              className="mt-5"
               variant="primary"
               disabled={Object.keys(self).length < inc.postmortem.rubric.length}
               onClick={() => finish((inc.postmortem.rubric.reduce((s, r) => s + (self[r.id] === "met" ? 1 : self[r.id] === "partial" ? 0.5 : 0), 0) / inc.postmortem.rubric.length) * 0.75, "self")}
@@ -450,8 +451,9 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
         )}
       </div>
       <AnimatePresence />
-      <div className="mt-6 font-mono text-[11px] text-ink-3">
-        failed checkouts during the incident: {failed.toLocaleString()} · time to mitigate: {recovered === null ? "—" : `${Math.round(recovered - inc.pageAt)}s`}
+      <div className="mt-8 text-xs leading-relaxed text-ink-3">
+        Failed checkouts during the incident: <span className="font-mono tabular text-ink-2">{failed.toLocaleString()}</span> · time to mitigate:{" "}
+        <span className="font-mono tabular text-ink-2">{recovered === null ? "—" : `${Math.round(recovered - inc.pageAt)}s`}</span>
       </div>
     </div>
   );

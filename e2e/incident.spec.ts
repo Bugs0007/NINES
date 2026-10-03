@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { skipIntro } from "./helpers";
 
 test("incident room: the fourth box", async ({ page }, info) => {
   test.setTimeout(300_000);
@@ -7,6 +8,7 @@ test("incident room: the fourth box", async ({ page }, info) => {
   await page.getByRole("button", { name: /chapter 1 done/i }).click();
   await expect(page.getByText(/seeded/)).toBeVisible();
   await page.goto("/incident");
+  await skipIntro(page);
   await shot("0-list");
   await page.getByRole("button", { name: /take the page/i }).click();
   await page.waitForTimeout(1500);

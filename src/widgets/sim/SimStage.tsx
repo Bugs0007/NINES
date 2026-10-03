@@ -65,19 +65,19 @@ export function MetricStrip({
       }
       case "errors": {
         const bad = !!(last && last.errorRate > (slo?.errorRate ?? 0.01));
-        return { k, label: "errors", value: last ? fmtPct(last.errorRate, last.errorRate < 0.1 ? 2 : 1) : "—", series: w.map((x) => x.errorRate), tone: bad ? ("alert" as const) : ("ink" as const), bad, max: 1 };
+        return { k, label: "Errors", value: last ? fmtPct(last.errorRate, last.errorRate < 0.1 ? 2 : 1) : "—", series: w.map((x) => x.errorRate), tone: bad ? ("alert" as const) : ("ink" as const), bad, max: 1 };
       }
       case "rps":
-        return { k, label: "throughput", value: last ? `${fmtNum(last.throughput)}/s` : "—", series: w.map((x) => x.throughput), tone: "ink" as const };
+        return { k, label: "Throughput", value: last ? `${fmtNum(last.throughput)}/s` : "—", series: w.map((x) => x.throughput), tone: "ink" as const };
       case "cost":
-        return { k, label: "cost / mo", value: last ? fmtUsd(last.costPerMonth) : "—", series: w.map((x) => x.costPerMonth), tone: "ink" as const };
+        return { k, label: "Cost / mo", value: last ? fmtUsd(last.costPerMonth) : "—", series: w.map((x) => x.costPerMonth), tone: "ink" as const };
       case "inflight": {
         const v = last && inflightNode ? last.nodes[inflightNode]?.inflight ?? 0 : 0;
-        return { k, label: "in flight (L)", value: last ? v.toFixed(1) : "—", series: w.map((x) => (inflightNode ? x.nodes[inflightNode]?.inflight ?? 0 : 0)), tone: "amber" as const };
+        return { k, label: "In flight (L)", value: last ? v.toFixed(1) : "—", series: w.map((x) => (inflightNode ? x.nodes[inflightNode]?.inflight ?? 0 : 0)), tone: "amber" as const };
       }
       case "queue": {
         const v = last && inflightNode ? last.nodes[inflightNode]?.queue ?? 0 : 0;
-        return { k, label: "queued", value: last ? v.toFixed(0) : "—", series: w.map((x) => (inflightNode ? x.nodes[inflightNode]?.queue ?? 0 : 0)), tone: v > 5 ? ("alert" as const) : ("ink" as const) };
+        return { k, label: "Queued", value: last ? v.toFixed(0) : "—", series: w.map((x) => (inflightNode ? x.nodes[inflightNode]?.queue ?? 0 : 0)), tone: v > 5 ? ("alert" as const) : ("ink" as const) };
       }
       case "util": {
         const pick = (x: WindowMetrics) => {
@@ -90,25 +90,29 @@ export function MetricStrip({
           return u;
         };
         const v = last ? pick(last) : 0;
-        return { k, label: "busy", value: last ? fmtPct(v, 0) : "—", series: w.map(pick), tone: v > 0.9 ? ("alert" as const) : v > 0.75 ? ("amber" as const) : ("phos" as const), max: 1 };
+        return { k, label: "Busy", value: last ? fmtPct(v, 0) : "—", series: w.map(pick), tone: v > 0.9 ? ("alert" as const) : v > 0.75 ? ("amber" as const) : ("phos" as const), max: 1 };
       }
     }
   });
   return (
-    <div className={cx("grid gap-px overflow-hidden rounded-sm border border-line bg-line", className)} style={{ gridTemplateColumns: `repeat(${keys.length}, minmax(0, 1fr))` }}>
+    <div className={cx("grid divide-x divide-line/60 overflow-hidden rounded-lg border border-line/70 bg-bg-1/75 shadow-card", className)} style={{ gridTemplateColumns: `repeat(${keys.length}, minmax(0, 1fr))` }}>
       {tiles.map((t) => (
-        <div key={t.k} className={cx("relative min-w-0 bg-bg-1 px-2 py-1.5", "bad" in t && t.bad && "bg-alert-dim/60")}>
-          <div className="eyebrow text-[11px] text-ink-2">{t.label}</div>
-          <div className={cx("font-mono text-sm tabular sm:text-base", t.tone === "alert" ? "text-alert glow-alert" : t.tone === "amber" ? "text-amber" : t.tone === "phos" ? "text-phos" : "text-ink-0")}>{t.value}</div>
-          <Sparkline
-            values={t.series}
-            width={120}
-            height={18}
-            className="mt-0.5 w-full"
+        <div key={t.k} className={cx("relative min-w-0 px-2.5 py-2 transition-colors duration-300 sm:px-3", "bad" in t && t.bad && "bg-alert-dim/50")}>
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between sm:gap-3">
+            <div className="min-w-0">
+              <div className="eyebrow truncate text-[11px] text-ink-2 sm:text-xs">{t.label}</div>
+              <div className={cx("mt-0.5 truncate font-mono text-sm tabular sm:text-base", t.tone === "alert" ? "text-alert" : t.tone === "amber" ? "text-amber" : t.tone === "phos" ? "text-phos" : "text-ink-0")}>{t.value}</div>
+            </div>
+            <Sparkline
+              values={t.series}
+              width={120}
+              height={18}
+              className="mt-1.5 block w-full max-w-[120px] sm:mb-1 sm:mt-0 sm:w-[120px] sm:min-w-0 sm:shrink"
             tone={t.tone === "alert" ? "alert" : t.tone === "amber" ? "amber" : t.tone === "phos" ? "phos" : "ink"}
             threshold={"threshold" in t ? t.threshold : undefined}
             max={"max" in t ? t.max : undefined}
-          />
+            />
+          </div>
         </div>
       ))}
     </div>
@@ -118,7 +122,7 @@ export function MetricStrip({
 export function NotableTicker({ notables, className }: { notables: NotableEvent[]; className?: string }) {
   const last = notables.slice(-3).reverse();
   return (
-    <div className={cx("min-h-[1.5rem] overflow-hidden font-mono text-2xs", className)} aria-live="polite">
+    <div className={cx("min-h-[1.5rem] overflow-hidden px-1 text-[13px]", className)} aria-live="polite">
       <AnimatePresence initial={false}>
         {last.map((e) => (
           <motion.div
@@ -129,7 +133,7 @@ export function NotableTicker({ notables, className }: { notables: NotableEvent[
             transition={spring.snap}
             className="flex items-center gap-2 truncate text-ink-1"
           >
-            <span className="text-ink-3">t+{e.t.toFixed(0)}s</span>
+            <span className="w-12 shrink-0 font-mono text-xs tabular text-ink-3">t+{e.t.toFixed(0)}s</span>
             <Led tone={toneOf(e.kind)} />
             <span className="truncate">{e.detail}</span>
           </motion.div>
@@ -201,9 +205,9 @@ export function SimStage({
   useLoadSound(sim.windows, loadNodes, sound);
   const hpOpen = useRef<HTMLDetailsElement>(null);
   return (
-    <div className={cx("flex min-h-0 flex-col gap-2", className)}>
+    <div className={cx("flex min-h-0 flex-col gap-3", className)}>
       <MetricStrip windows={sim.windows} keys={metrics} slo={slo} utilNode={utilNode} inflightNode={inflightNode} />
-      <div className={cx("relative min-h-[240px] flex-1 overflow-hidden rounded-sm border border-line grid-paper", flowClassName)}>
+      <div className={cx("relative min-h-[240px] flex-1 overflow-hidden rounded-lg border border-line/70 grid-paper", flowClassName)}>
         <FlowView
           nodes={nodes}
           edges={edges}
@@ -216,16 +220,16 @@ export function SimStage({
           sound={sound}
           className="absolute inset-0"
         />
-        <div className="pointer-events-none absolute left-2 top-2 flex flex-col items-start gap-1">
-          <Chip tone="muted">
-            <span className="text-ink-3">sim</span> t+{sim.t.toFixed(0)}s
+        <div className="pointer-events-none absolute left-3 top-3 flex flex-col items-start gap-1.5">
+          <Chip tone="muted" className="bg-bg-1/70">
+            <span className="text-ink-3">Sim</span> <span className="font-mono tabular">t+{sim.t.toFixed(0)}s</span>
           </Chip>
           {overlay}
         </div>
         {showHonest && honestPhysics && honestPhysics.length > 0 && (
-          <details ref={hpOpen} className="absolute bottom-2 right-2 max-w-[min(360px,80%)] text-right">
-            <summary className="cursor-pointer list-none eyebrow text-2xs text-ink-2 hover:text-amber">Honest physics</summary>
-            <ul className="mt-1 space-y-1 rounded-sm border border-line-2 bg-bg-1/95 p-2 text-left text-xs text-ink-1">
+          <details ref={hpOpen} className="absolute bottom-3 right-3 max-w-[min(360px,85%)] text-right">
+            <summary className="cursor-pointer list-none rounded-full bg-bg-1/70 px-2.5 py-0.5 text-xs font-medium text-ink-2 transition-colors hover:text-amber">Honest physics</summary>
+            <ul className="mt-1.5 space-y-1.5 rounded-md border border-line-2/80 bg-bg-1/95 p-3 text-left text-[13px] leading-snug text-ink-1 shadow-card">
               {honestPhysics.map((h, i) => (
                 <li key={i}>· {h}</li>
               ))}

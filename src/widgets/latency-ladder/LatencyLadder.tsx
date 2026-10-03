@@ -103,17 +103,20 @@ export default function LatencyLadder({ config, mode, scene, calls, onObserve }:
   const clockNs = Math.pow(10, clock);
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3">
+    <div className="flex h-full min-h-0 flex-col gap-4">
       <Panel
-        label="the race · log scale"
+        label="The race · log scale"
         right={
-          <span className="tabular">
-            clock {phase === "idle" ? "0" : fmtLatency(clockNs / 1e9)}
-            {human && ` · ×${(1e9 / ref.ns).toExponential(0).replace("e+", "e")}`}
+          <span>
+            Clock{" "}
+            <span className="font-mono tabular text-ink-1">
+              {phase === "idle" ? "0" : fmtLatency(clockNs / 1e9)}
+              {human && ` · ×${(1e9 / ref.ns).toExponential(0).replace("e+", "e")}`}
+            </span>
           </span>
         }
         className="flex-1"
-        bodyClassName="flex h-full flex-col gap-2"
+        bodyClassName="flex h-full flex-col gap-3"
       >
         {/* axis */}
         <div className="relative ml-[38%] h-6 sm:ml-[32%]">
@@ -122,7 +125,7 @@ export default function LatencyLadder({ config, mode, scene, calls, onObserve }:
               {t.label}
             </span>
           ))}
-          <span className="absolute top-3 -translate-x-1/2 font-mono text-[11px] text-amber" style={{ left: `${x(8)}%` }}>
+          <span className="absolute top-3 -translate-x-1/2 whitespace-nowrap text-[11px] font-medium text-amber" style={{ left: `${x(8)}%` }}>
             ▼ 100 ms feels instant
           </span>
         </div>
@@ -130,10 +133,10 @@ export default function LatencyLadder({ config, mode, scene, calls, onObserve }:
           {/* grid lines */}
           <div className="pointer-events-none absolute inset-y-0 left-[38%] right-0 sm:left-[32%]">
             {ticks.map((t) => (
-              <span key={t.lg} className="absolute inset-y-0 w-px bg-line" style={{ left: `${x(t.lg)}%` }} />
+              <span key={t.lg} className="absolute inset-y-0 w-px bg-line/70" style={{ left: `${x(t.lg)}%` }} />
             ))}
-            <span className="absolute inset-y-0 w-px bg-amber/50" style={{ left: `${x(8)}%` }} />
-            {phase !== "idle" && <span className="absolute inset-y-0 w-px bg-phos shadow-[0_0_8px_rgb(143_212_178/0.8)]" style={{ left: `${Math.min(100, x(clock))}%` }} />}
+            <span className="absolute inset-y-0 w-px bg-amber/40" style={{ left: `${x(8)}%` }} />
+            {phase !== "idle" && <span className="absolute inset-y-0 w-px bg-phos shadow-[0_0_6px_color-mix(in_srgb,var(--color-phos)_55%,transparent)]" style={{ left: `${Math.min(100, x(clock))}%` }} />}
           </div>
           {order.map((id, i) => {
             const it = c.items.find((q) => q.id === id)!;
@@ -152,7 +155,7 @@ export default function LatencyLadder({ config, mode, scene, calls, onObserve }:
                 </div>
                 <div className="relative h-5 flex-1">
                   <motion.div
-                    className={cx("absolute inset-y-0 left-0 rounded-xs", done ? (phase === "done" && !correct ? "bg-amber/70" : "bg-phos/70") : "bg-phos/35")}
+                    className={cx("absolute inset-y-1 left-0 rounded-full", done ? (phase === "done" && !correct ? "bg-amber/60" : "bg-phos/60") : "bg-phos/30")}
                     animate={{ width: `${progress}%` }}
                     transition={{ duration: 0.05, ease: "linear" }}
                   />
@@ -190,21 +193,21 @@ export default function LatencyLadder({ config, mode, scene, calls, onObserve }:
             value={human ? "human" : "real"}
             onChange={(v) => setHuman(v === "human")}
             options={[
-              { value: "real", label: "real time" },
-              { value: "human", label: `if ${ref.label.toLowerCase()} took 1s` },
+              { value: "real", label: "Real time" },
+              { value: "human", label: `If ${ref.label.toLowerCase()} took 1s` },
             ]}
           />
         )}
         {predicted && phase === "done" && (
           <Chip tone={order.every((id, i) => truth[i] === id) ? "ok" : "warn"}>
-            your order: {order.filter((id, i) => truth[i] === id).length}/{order.length} in place
+            Your order: {order.filter((id, i) => truth[i] === id).length}/{order.length} in place
           </Chip>
         )}
       </div>
       <AnimatePresence>
         {scene === "physics" && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="rounded-sm border border-amber-3 bg-amber-dim/30 p-3 text-sm text-ink-1">
-            <span className="eyebrow text-2xs text-amber">physics check</span>
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="rounded-md border border-amber-3/70 bg-amber-dim/30 px-4 py-3 text-sm leading-relaxed text-ink-1">
+            <span className="eyebrow text-xs text-amber">Physics check</span>
             <div className="mt-1">
               Light in fiber ≈ 200 km per millisecond. Mumbai → Virginia is ~13,000 km each way, so the best possible round trip is ~130 ms before a single router, queue, or handshake.
             </div>

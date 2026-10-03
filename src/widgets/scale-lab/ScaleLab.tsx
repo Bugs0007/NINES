@@ -87,8 +87,8 @@ function Compare({ config: c, onObserve, locked, mode, scene }: WidgetProps<Scal
   const smallLayout = fleetLayout({ servers: smallServers, session: "none" });
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3">
-      <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-2">
+    <div className="flex h-full min-h-0 flex-col gap-4">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-2">
         <Side
           title="Scale up"
           sub={`1 × ${big.name} · ${big.vcpu} vCPU · ${fmtUsd(monthly(big.usdPerHour))}/mo`}
@@ -120,10 +120,10 @@ function Compare({ config: c, onObserve, locked, mode, scene }: WidgetProps<Scal
           locked={locked}
         />
       </div>
-      <Panel label="traffic (same on both sides)">
+      <Panel label="Traffic (same on both sides)">
         <div className={cx(locked && "pointer-events-none opacity-40")}>
           <Slider
-            label="how busy the 8 vCPUs are"
+            label="How busy the 8 vCPUs are"
             value={load}
             min={0.2}
             max={0.95}
@@ -162,20 +162,20 @@ function Side({
   locked?: boolean;
 }) {
   return (
-    <div className="flex min-h-[360px] flex-col gap-2">
-      <div className="flex items-end justify-between gap-2">
-        <div>
+    <div className="flex min-h-[360px] flex-col gap-3">
+      <div className="flex items-end justify-between gap-3">
+        <div className="min-w-0">
           <div className="font-display text-2xl font-semibold leading-none text-ink-0">{title}</div>
-          <div className="font-mono text-[11px] text-ink-2">{sub}</div>
+          <div className="mt-1.5 text-xs tabular text-ink-2">{sub}</div>
         </div>
-        <div className="text-right font-mono text-2xs text-ink-2">
+        <div className="shrink-0 text-right text-xs text-ink-2">
           p99 (8s avg)
-          <div className="text-lg tabular text-ink-0">{tail ? fmtLatency(tail) : "—"}</div>
+          <div className="font-mono text-lg tabular text-ink-0">{tail ? fmtLatency(tail) : "—"}</div>
         </div>
       </div>
       <SimStage sim={sim} nodes={layout.nodes} edges={layout.edges} metrics={["p99", "errors", "util"]} className="flex-1" highlight={highlight} sound={false} honestPhysics={HONEST} />
       <Button variant="danger" size="sm" onClick={onKill} disabled={killed || locked}>
-        {killed ? "dead" : killLabel}
+        {killed ? "Dead" : killLabel}
       </Button>
     </div>
   );
@@ -209,13 +209,13 @@ function Hug({ config: c, onResult, verdict, locked, conditions }: WidgetProps<S
   useSloAlarm(ch.sim.windows, slo, ch.phase === "running");
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 lg:flex-row">
+    <div className="flex h-full min-h-0 flex-col gap-4 lg:flex-row">
       <SimStage className="min-h-[340px] flex-1" sim={ch.sim} nodes={layout.nodes} edges={layout.edges} metrics={["p99", "errors", "rps", "cost"]} slo={slo} highlight={highlight} honestPhysics={HONEST} />
-      <div className="flex w-full flex-col gap-3 lg:w-[300px]">
-        <Panel label="fleet plan">
-          <div className={cx("flex flex-col gap-3", (running || locked) && "pointer-events-none opacity-50")}>
+      <div className="flex w-full flex-col gap-4 lg:w-[300px]">
+        <Panel label="Fleet plan">
+          <div className={cx("flex flex-col gap-4", (running || locked) && "pointer-events-none opacity-50")}>
             <div>
-              <div className="mb-1.5 eyebrow text-2xs text-ink-2">instance type</div>
+              <div className="mb-2 eyebrow text-xs text-ink-2">Instance type</div>
               <Segmented
                 size="sm"
                 label="Instance type"
@@ -224,22 +224,22 @@ function Hug({ config: c, onResult, verdict, locked, conditions }: WidgetProps<S
                 options={c.instances.map((name) => ({ value: name, label: name.replace("m7i.", ""), hint: `${instance(name).vcpu} vCPU` }))}
               />
             </div>
-            <Slider label="how many" value={count} min={1} max={8} step={1} onChange={setCount} format={(v) => `${v} × ${inst}`} />
-            <div className="grid grid-cols-2 gap-2 font-mono text-2xs text-ink-2">
+            <Slider label="How many" value={count} min={1} max={8} step={1} onChange={setCount} format={(v) => `${v} × ${inst}`} />
+            <div className="grid grid-cols-2 gap-x-3 gap-y-3 border-t border-line/60 pt-3 text-xs text-ink-2">
               <div>
-                vCPUs<span className="block text-sm tabular text-ink-0">{vcpu}</span>
+                vCPUs<span className="mt-0.5 block font-mono text-sm tabular text-ink-0">{vcpu}</span>
               </div>
               <div>
-                cost / mo<span className="block text-sm tabular text-ink-0">{fmtUsd(cost)}</span>
+                Cost / mo<span className="mt-0.5 block font-mono text-sm tabular text-ink-0">{fmtUsd(cost)}</span>
               </div>
               <div>
-                peak busy<span className={cx("block text-sm tabular", peakBusy > 0.85 ? "text-alert" : peakBusy > 0.7 ? "text-amber" : "text-ink-0")}>{Math.round(peakBusy * 100)}%</span>
+                Peak busy<span className={cx("mt-0.5 block font-mono text-sm tabular", peakBusy > 0.85 ? "text-alert" : peakBusy > 0.7 ? "text-amber" : "text-ink-0")}>{Math.round(peakBusy * 100)}%</span>
               </div>
               <div>
-                if one dies<span className={cx("block text-sm tabular", n1Busy > 0.9 ? "text-alert" : n1Busy > 0.75 ? "text-amber" : "text-ink-0")}>{Number.isFinite(n1Busy) ? `${Math.round(n1Busy * 100)}%` : "outage"}</span>
+                If one dies<span className={cx("mt-0.5 block font-mono text-sm tabular", n1Busy > 0.9 ? "text-alert" : n1Busy > 0.75 ? "text-amber" : "text-ink-0")}>{Number.isFinite(n1Busy) ? `${Math.round(n1Busy * 100)}%` : "outage"}</span>
               </div>
             </div>
-            <div className="font-mono text-[11px] text-ink-3">
+            <div className="text-xs leading-snug text-ink-3">
               {INSTANCES.find((x) => x.name === inst)?.memGiB} GiB each · workers = (2 × vCPU) + 1 · the app retries a failed request once
             </div>
           </div>

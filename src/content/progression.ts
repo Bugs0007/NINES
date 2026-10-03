@@ -2,10 +2,12 @@
  * What's playable: a node is available when all its prerequisites are built (bosses: all prereqs built).
  */
 import { CHAPTERS, GRAPH, NODE_BY_ID, type PlannedNode } from "./graph";
+import { INCIDENT_BY_ID } from "@/incident";
 import { BOSS_BY_ID, PACK_BY_ID } from "./packs";
 
+/** Built in this release: a concept pack, a boss, or an incident scenario. */
 export function isPlayable(id: string): boolean {
-  return PACK_BY_ID.has(id) || BOSS_BY_ID.has(id);
+  return PACK_BY_ID.has(id) || BOSS_BY_ID.has(id) || INCIDENT_BY_ID.has(id);
 }
 
 export function hrefFor(n: PlannedNode): string {

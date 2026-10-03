@@ -11,7 +11,7 @@ import type { ConceptPack, Prediction } from "@/content/schema";
 import { getNode } from "@/content/graph";
 import { challengeXp, explainXp, predictionXp, type Confidence } from "@/game/scoring";
 import { useGame } from "@/game/store";
-import { Button, Chip, cx } from "@/ui/kit";
+import { Button, cx, Led } from "@/ui/kit";
 import { spring } from "@/ui/motion";
 import { Widget } from "@/widgets/registry";
 import { evalCond } from "@/widgets/shared";
@@ -21,6 +21,7 @@ import { HookScreen } from "./HookScreen";
 import { ChallengePanel, DeeperSheet, ExplainPanel, MechanismPanel } from "./panels";
 import { describeCall, judge, PredictPanel, type Call } from "./PredictPanel";
 import { RevealOverlay } from "./RevealOverlay";
+import { CONCEPT_LEARNING } from "@/content/learning";
 
 type Beat = "hook" | "predict" | "play" | "mechanism" | "challenge" | "explain" | "debrief";
 const BEATS: { id: Beat; label: string }[] = [
@@ -147,7 +148,7 @@ export function MissionRunner({ pack, next }: { pack: ConceptPack; next?: { href
   if (beat === "hook") {
     return (
       <Frame pack={pack} beatIdx={beatIdx} chapter={node.chapter}>
-        <HookScreen hook={pack.hook} title={pack.title} kicker={`${node.chapter.toUpperCase()} · mission`} onGo={() => setBeat("predict")} />
+        <HookScreen hook={pack.hook} title={pack.title} kicker={`Chapter ${node.chapter.toUpperCase()} · Mission`} objective={CONCEPT_LEARNING[pack.id]} onGo={() => setBeat("predict")} />
       </Frame>
     );
   }
@@ -167,10 +168,10 @@ export function MissionRunner({ pack, next }: { pack: ConceptPack; next?: { href
 
   return (
     <Frame pack={pack} beatIdx={beatIdx} chapter={node.chapter}>
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 p-3 lg:grid-cols-[minmax(0,1fr)_380px] lg:grid-rows-1 lg:p-4">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_400px] lg:grid-rows-1 lg:gap-5 lg:p-5">
         {/* stage: grows with its content on phones, fixed to the viewport on desktop */}
-        <div className={cx("relative min-h-[440px] rounded-sm lg:h-[calc(100dvh-88px)] lg:min-h-0 lg:overflow-hidden", textFirst && "order-2 lg:order-none")}>
-          <div className={cx("h-full transition-[filter,opacity] duration-300", beat === "predict" && "pointer-events-none opacity-60 blur-[1px]")}>
+        <div className={cx("relative min-h-[440px] rounded-lg lg:h-[calc(100dvh-96px)] lg:min-h-0 lg:overflow-hidden", textFirst && "order-2 lg:order-none")}>
+          <div className={cx("h-full transition-[filter,opacity] duration-500", beat === "predict" && "pointer-events-none opacity-50 blur-[1.5px]")}>
             <Widget
               key={`${inChallenge ? "ch" : "play"}-${runKey}`}
               id={widgetRef.id}
@@ -187,7 +188,10 @@ export function MissionRunner({ pack, next }: { pack: ConceptPack; next?: { href
           </div>
           {beat === "predict" && (
             <div className="pointer-events-none absolute inset-0 grid place-items-center">
-              <Chip tone="warn">make your call first →</Chip>
+              <span className="rounded-full border border-amber-3/50 bg-bg-1/90 px-4 py-2 text-[13px] font-medium text-amber shadow-lift">
+                Make your call first <span className="lg:hidden">↑</span>
+                <span className="hidden lg:inline">→</span>
+              </span>
             </div>
           )}
           <AnimatePresence>
@@ -202,7 +206,7 @@ export function MissionRunner({ pack, next }: { pack: ConceptPack; next?: { href
         </div>
 
         {/* rail */}
-        <aside className={cx("min-h-0 rounded-sm border border-line bg-bg-1/80 p-4 lg:h-[calc(100dvh-88px)] lg:overflow-y-auto", textFirst && "order-1 lg:order-none")}>
+        <aside className={cx("min-h-0 rounded-lg border border-line/70 bg-bg-1/75 p-5 shadow-card backdrop-blur-[2px] lg:h-[calc(100dvh-96px)] lg:overflow-y-auto lg:p-6", textFirst && "order-1 lg:order-none")}>
           <AnimatePresence mode="wait">
             <motion.div key={beat + predIdx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={spring.soft}>
               {beat === "predict" && <PredictPanel p={pack.predictions[predIdx]!} index={predIdx} total={pack.predictions.length} onLock={(c) => lock(pack.predictions[predIdx]!, c)} />}
@@ -250,22 +254,27 @@ export function MissionRunner({ pack, next }: { pack: ConceptPack; next?: { href
 
 function PlayPanel({ pack, calls, revealed }: { pack: ConceptPack; calls: Record<string, Call>; revealed: string[] }) {
   return (
-    <div className="flex flex-col gap-4">
-      <div className="eyebrow text-2xs text-amber">Play</div>
-      <p className="text-[15px] leading-snug text-ink-1">Your calls are locked. Now make it happen in the sim and see who was right.</p>
-      <ul className="space-y-2">
+    <div className="flex flex-col gap-5">
+      <div>
+        <div className="eyebrow text-xs text-amber">Play</div>
+        <p className="mt-2 text-[15px] leading-relaxed text-ink-1">Your calls are locked. Now make it happen in the sim and see who was right.</p>
+      </div>
+      <ul className="space-y-3">
         {pack.predictions.map((p) => {
           const c = calls[p.id];
           const done = revealed.includes(p.id);
           return (
-            <li key={p.id} className={cx("rounded-sm border p-2.5", done ? "border-line" : "border-amber-3 bg-amber-dim/20")}>
-              <div className="text-sm text-ink-0">{p.prompt}</div>
+            <li key={p.id} className={cx("rounded-md border p-4 transition-colors duration-300", done ? "border-line/70 bg-bg-2/40" : "border-amber-3/50 bg-amber-dim/25")}>
+              <div className="text-sm leading-relaxed text-ink-0">{p.prompt}</div>
               {c && (
-                <div className="mt-1 font-mono text-2xs text-ink-2">
-                  your call: <span className="text-amber">{describeCall(p, c.value)}</span> · {c.confidence}% sure
+                <div className="mt-2 text-[13px] text-ink-2">
+                  Your call: <span className="font-medium text-amber">{describeCall(p, c.value)}</span> · <span className="tabular">{c.confidence}%</span> sure
                 </div>
               )}
-              <div className="mt-1 eyebrow text-[11px] text-ink-3">{done ? "revealed" : `waiting for: ${observeHint(p.observe)}`}</div>
+              <div className="mt-2.5 flex items-start gap-2 text-xs leading-snug text-ink-3">
+                <Led tone={done ? "ok" : "warn"} blink={!done} className="mt-[3px]" />
+                <span>{done ? "Revealed" : `Waiting for: ${observeHint(p.observe)}`}</span>
+              </div>
             </li>
           );
         })}
@@ -302,24 +311,40 @@ function observeHint(e: string) {
 function Frame({ pack, beatIdx, chapter, children }: { pack: ConceptPack; beatIdx: number; chapter: string; children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-40 flex h-12 items-center gap-3 border-b border-line bg-bg-0/90 px-3 backdrop-blur lg:px-4">
-        <Link href="/" className="eyebrow text-2xs text-ink-2 hover:text-amber" aria-label="Back to HQ">
+      <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-line/60 bg-bg-0/80 px-4 backdrop-blur-md lg:gap-4 lg:px-6">
+        <Link href="/" className="shrink-0 rounded-full px-2 py-1 text-[13px] font-medium text-ink-2 transition-colors hover:bg-bg-2 hover:text-ink-0" aria-label="Back to HQ">
           ← HQ
         </Link>
-        <span className="h-4 w-px bg-line-2" />
-        <Link href={`/campaign/${chapter}`} className="hidden eyebrow text-2xs text-ink-2 hover:text-amber sm:inline">
+        <span className="h-4 w-px shrink-0 bg-line-2" />
+        <Link href={`/campaign/${chapter}`} className="hidden shrink-0 font-mono text-xs text-ink-3 transition-colors hover:text-amber sm:inline">
           {chapter.toUpperCase()}
         </Link>
-        <span className="truncate font-display text-lg font-semibold tracking-tight text-ink-0">{pack.title}</span>
-        <ol className="ml-auto hidden items-center gap-1 md:flex" aria-label="Mission progress">
+        <span className="min-w-0 truncate font-display text-lg font-semibold text-ink-0">{pack.title}</span>
+        {/* Gentle progress: sage dots behind you, a sand pill where you are, quiet labels ahead. */}
+        <ol className="ml-auto hidden shrink-0 items-center gap-1 lg:flex" aria-label="Mission progress">
           {BEATS.map((b, i) => (
-            <li key={b.id} className={cx("rounded-xs px-1.5 py-0.5 eyebrow text-[11px]", i === beatIdx ? "bg-amber text-bg-0" : i < beatIdx ? "text-phos" : "text-ink-3")}>
-              {b.label}
+            <li key={b.id} className="flex items-center gap-1">
+              {i > 0 && <span aria-hidden className={cx("h-px w-3 rounded-full transition-colors duration-500", i <= beatIdx ? "bg-phos-3" : "bg-line-2")} />}
+              <span
+                aria-current={i === beatIdx ? "step" : undefined}
+                className={cx(
+                  "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors duration-500",
+                  i === beatIdx ? "bg-amber-dim text-amber ring-1 ring-inset ring-amber-3/60" : i < beatIdx ? "text-ink-2" : "text-ink-3",
+                )}
+              >
+                <span aria-hidden className={cx("h-1.5 w-1.5 rounded-full", i === beatIdx ? "bg-amber" : i < beatIdx ? "bg-phos" : "bg-line-3")} />
+                {b.label}
+              </span>
             </li>
           ))}
         </ol>
-        <span className="ml-auto eyebrow text-[11px] text-ink-2 md:hidden">
-          {BEATS[beatIdx]?.label} · {beatIdx + 1}/{BEATS.length}
+        <span className="ml-auto flex shrink-0 items-center gap-2.5 lg:hidden" aria-label={`Step ${beatIdx + 1} of ${BEATS.length}: ${BEATS[beatIdx]?.label ?? ""}`}>
+          <span className="text-xs font-medium text-amber">{BEATS[beatIdx]?.label}</span>
+          <span className="flex items-center gap-1" aria-hidden>
+            {BEATS.map((b, i) => (
+              <span key={b.id} className={cx("h-1.5 rounded-full transition-all duration-500", i === beatIdx ? "w-4 bg-amber" : i < beatIdx ? "w-1.5 bg-phos/80" : "w-1.5 bg-line-3")} />
+            ))}
+          </span>
         </span>
       </header>
       <main className="flex min-h-0 flex-1 flex-col">{children}</main>

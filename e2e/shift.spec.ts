@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { skipIntro } from "./helpers";
 
 async function answerCurrent(page: Page, shot: (n: string) => Promise<unknown>, k: number) {
   const chip = (await page.locator("main").innerText()).toLowerCase();
@@ -42,6 +43,7 @@ test("daily shift with decayed services", async ({ page }, info) => {
   await page.getByRole("button", { name: /mixed decay/i }).click();
   await expect(page.getByText(/seeded/)).toBeVisible();
   await page.goto("/shift");
+  await skipIntro(page);
   await expect(page.getByRole("heading", { name: /clocking in/i })).toBeVisible();
   await shot("0-brief");
   await page.getByRole("button", { name: /^start$/i }).click();
