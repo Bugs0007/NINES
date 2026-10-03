@@ -15,6 +15,7 @@ A game that teaches system design, AI engineering, and dev fundamentals. Read `R
 | Calibrate a challenge | edit and run `npx tsx scripts/calibrate.ts` (sims), `scripts/ctx.mts` (Context Tetris), `scripts/tok.mts` (tokenizer) |
 | Every screen at both widths | `npx playwright test e2e/tour.spec.ts` (fails on any sideways scroll) |
 | Renderer perf (needs a GPU) | `npx playwright test e2e/perf.spec.ts` (stress page: `/dev/perf?n=2000`) |
+| Preview a section intro | `/dev/intro?id=chapter:a1` (also `chapter:b1`, `section:shift`, `section:incident`, `section:codex`, `boss:boss-the-bill`) |
 | Regenerate app icons | `npx tsx scripts/gen-icons.mts` (from `src/app/icon.svg`) |
 
 Windows + OneDrive notes: installs are slow here. If Vitest dies with "Cannot find native binding" run `npm i --no-save @rolldown/binding-win32-x64-msvc`. Fonts are committed in `src/fonts/` because `next/font/google` can't fetch on this network.
@@ -25,7 +26,8 @@ Windows + OneDrive notes: installs are slow here. If Vitest dies with "Cannot fi
 src/
   app/            Next.js routes (App Router). /mission/[id], /api/claude/*, /dev/widget/[id]
   engine/         Pure TS discrete-event sim. sim.ts (core), host.ts + sim.worker.ts (worker), useSim.ts (React)
-  content/        graph.ts (whole curriculum), schema.ts (Zod + lint), packs/*.ts, verifiers.ts, scenarios.ts
+  content/        graph.ts (whole curriculum), schema.ts (Zod + lint), packs/*.ts, verifiers.ts, scenarios.ts,
+                  learning.ts (what each concept/chapter/section teaches and why), prices.ts (the lessons' price sheet)
   widgets/        Interactive widgets. registry.tsx (id -> component), manifest.ts (metrics/observes/scenes)
   mission/        Mission Runner, Boss Runner, and their panels (hook, predict, reveal, mechanism, challenge, explain, debrief)
   hq/             HQ: uptime headline, infrastructure map (decay states), dock
@@ -35,6 +37,8 @@ src/
   codex/          Codex cards, search, calibration profile
   incident/       Incident Room scenarios and war-room panels
   settings/       Settings page
+  intro/          Section intros: SectionIntro (frame), scenes.tsx (animated SVG scenes), specs.ts, useIntro
+  learn/          The "How NINES teaches" page (/learn)
   game/           Dexie db, Zustand store, FSRS, rank (nines), scoring
   audio/          Web Audio engine (sfx singleton), useMusic() for the generative score
   ui/             Design system: kit.tsx, motion.tsx, Slider, Cast, flow/FlowView (canvas particles)
@@ -58,21 +62,23 @@ e2e/              Playwright flows and screenshot specs
 - Lists show only content that exists in the build; unbuilt content appears only as blueprints on the HQ map (D-015).
 - Commits end with the `Co-Authored-By` line from the session instructions.
 
-## Design tokens (`src/app/globals.css`, Tailwind v4 `@theme`)
+## Design tokens ("Dusk": spec in `DESIGN.md`, tokens in `src/app/globals.css`, canvas mirrors in `src/ui/palette.ts`)
 
 | Token | Use |
 |---|---|
-| `bg-0 … bg-3` | Near-black blue-green surfaces, darkest to raised |
-| `line`, `line-2`, `line-3` | Hairlines and borders |
-| `ink-0 … ink-3` | Text: primary, secondary, muted, disabled |
-| `phos` (+ `-2`, `-3`, `-dim`) | Healthy, success, live data |
-| `amber` (+ `-2`, `-3`, `-dim`) | Data accent, focus, interactive, attention |
-| `alert` (+ `-2`, `-3`, `-dim`) | Failure, alarms |
-| `font-display` | Big Shoulders Display: headlines, big numbers (uppercase, extrabold) |
-| `font-sans` | IBM Plex Sans: UI copy |
-| `font-mono` | IBM Plex Mono: numbers, labels, logs (`tabular` for figures) |
-| `shadow-glow-*` / `glow-*` | Glow only on live data and key states |
-| `rack-label` | `[ LABEL ]` bracketed panel headers |
+| `bg-0 … bg-3` | Blue-slate surfaces, page to raised |
+| `line`, `line-2`, `line-3` | Hairlines and borders (cards usually at `/60`–`/80`) |
+| `ink-0 … ink-3` | Text: parchment primary, secondary, muted, disabled |
+| `phos` (sage) | Healthy, success, live and good |
+| `amber` (sand) | Interactive, primary action, focus, attention |
+| `alert` (coral) | Failure, alarms, destructive |
+| `sky` / `lilac` | Information and memory / the AI track |
+| `font-display` | Fraunces: headings and big readouts (`font-semibold`, sentence case; `num-display` for numbers) |
+| `font-sans` | Figtree: everything you read; small labels use `eyebrow` |
+| `font-mono` | IBM Plex Mono: only live numbers, code, logs, IDs (`tabular`) |
+| `shadow-card` / `shadow-glow-*` | Soft lift; glow variants are a faint halo, not neon |
+
+Never: ALL-CAPS, letter-spaced labels, `[ bracket ]` labels, mono prose, text under 11px, hard-coded hex (use tokens or `PALETTE`).
 
 Motion presets live in `src/ui/motion.tsx` (`spring.snap`, `soft`, `heavy`, `bounce`). Always go through `useReducedMotion()` (it respects the in-app override).
 
@@ -86,7 +92,7 @@ Motion presets live in `src/ui/motion.tsx` (`spring.snap`, `soft`, `heavy`, `bou
    - React to `scene` (a mechanism caption's named scene) with highlights or animation.
    - Put pure spec builders in `spec.ts` next to the widget so verifiers can reuse them.
    - Register the component in `src/widgets/registry.tsx` and its metrics/observes/scenes in `src/widgets/manifest.ts`.
-3. Write `src/content/packs/<id>.ts` with `definePack({...})`. Required: hook (1-2 cast lines), ≥1 prediction (each with an `observe` event), widget, 2-6 mechanism captions (≤60 words), ≥1 challenge, explain-back rubric, ≥6 reviews across ≥3 formats, Codex card, interview angles, sources. Add `deeper` sections and `honestPhysics`.
+3. Add the concept's `canDo` / `why` / `keyIdea` to `src/content/learning.ts` (a test requires it for every built node). Write `src/content/packs/<id>.ts` with `definePack({...})`. Required: hook (1-2 cast lines), ≥1 prediction (each with an `observe` event), widget, 2-6 mechanism captions (≤60 words), ≥1 challenge, explain-back rubric, ≥6 reviews across ≥3 formats, Codex card, interview angles, sources. Add `deeper` sections and `honestPhysics`.
 4. Calibrate the challenge with `scripts/calibrate.ts`, then add `verify` blocks that pin the claims (e.g. "24 workers fails, 28 wins"). Add verifier functions in `src/content/verifiers.ts` if needed, and `tune` scenarios in `src/content/scenarios.ts`.
 5. Import the pack in `src/content/packs/index.ts`.
 6. `npm test` must be green (lint + verification). Then play it end to end (`/mission/<id>`) and extend `e2e/` if the flow is new.
@@ -100,3 +106,4 @@ Motion presets live in `src/ui/motion.tsx` (`spring.snap`, `soft`, `heavy`, `bou
 - The ledger is `.nines/usage.json`; the monthly cap is `NINES_MONTHLY_BUDGET_USD` (default $5). Free tier: 30 requests/min, 8,000 tokens/min; a 429 falls back to offline behaviour.
 - Groq caches matching prompt prefixes automatically on gpt-oss (cached tokens at half price): keep system prompts stable and first, volatile content last.
 - Every feature must work without a key (self-graded rubric, scripted hints). The offline tokenizer (o200k) is exact for gpt-oss.
+- A per-browser switch turns the coach off (`localStorage['nines:ai'] = 'off'`, in Settings). The e2e suite starts every context with it off (`e2e/ai-off.storage.json`), so tests never call the live provider.
