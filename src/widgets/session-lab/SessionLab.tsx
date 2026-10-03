@@ -44,12 +44,12 @@ function LossStrip({ windows }: { windows: WindowMetrics[] }) {
   const series = windows.slice(-60).map(lossOf);
   const last = series[series.length - 1] ?? 0;
   return (
-    <div className="flex items-center justify-between gap-3 rounded-sm border border-line bg-bg-1 px-3 py-2">
-      <div>
-        <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-2">users logged out</div>
-        <div className={cx("font-mono text-2xl tabular", last > 0.01 ? "text-alert glow-alert" : "text-phos")}>{fmtPct(last, 1)}</div>
+    <div className="flex items-center justify-between gap-4 rounded-lg border border-line/70 bg-bg-1/75 px-4 py-3 shadow-card">
+      <div className="shrink-0">
+        <div className="eyebrow text-xs text-ink-2">Users logged out</div>
+        <div className={cx("mt-0.5 font-mono text-2xl tabular transition-colors duration-300", last > 0.01 ? "text-alert" : "text-phos")}>{fmtPct(last, 1)}</div>
       </div>
-      <Sparkline values={series} width={200} height={34} max={1} tone={last > 0.01 ? "alert" : "phos"} />
+      <Sparkline className="min-w-0" values={series} width={200} height={34} max={1} tone={last > 0.01 ? "alert" : "phos"} />
     </div>
   );
 }
@@ -95,28 +95,28 @@ function Lab({ config: c, onObserve, locked, mode: wmode, scene }: WidgetProps<S
   }, [last]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 lg:flex-row">
-      <div className="flex min-h-0 flex-1 flex-col gap-2">
+    <div className="flex h-full min-h-0 flex-col gap-4 lg:flex-row">
+      <div className="flex min-h-0 flex-1 flex-col gap-3">
         <LossStrip windows={sim.windows} />
         <SimStage className="min-h-[320px] flex-1" sim={sim} nodes={layout.nodes} edges={layout.edges} metrics={["p99", "errors", "rps"]} highlight={scene === "state" ? servers.map((s) => s.id) : scene === "store" ? ["redis"] : []} honestPhysics={HONEST} />
       </div>
-      <div className="flex w-full flex-col gap-3 lg:w-[320px]">
-        <Panel label="where sessions live">
+      <div className="flex w-full flex-col gap-4 lg:w-[280px] 2xl:w-[320px]">
+        <Panel label="Where sessions live">
           <div className={cx("flex flex-col gap-2", locked && "pointer-events-none opacity-40")}>
             {MODES.map((m) => (
               <button
                 key={m}
                 onClick={() => changeMode(m)}
-                className={cx("rounded-sm border px-2.5 py-2 text-left", mode === m ? "border-amber bg-amber-dim/40" : "border-line-2 hover:border-line-3")}
+                className={cx("rounded-md border px-3 py-2.5 text-left transition-colors duration-200", mode === m ? "border-amber/80 bg-amber-dim/40" : "border-line-2/80 bg-bg-2/40 hover:border-line-3")}
               >
-                <div className="font-mono text-2xs uppercase tracking-[0.1em] text-ink-0">{MODE_LABEL[m]}</div>
-                <div className="text-xs text-ink-2">{MODE_HINT[m]}</div>
+                <div className="text-sm font-semibold text-ink-0">{MODE_LABEL[m]}</div>
+                <div className="mt-0.5 text-xs leading-snug text-ink-2">{MODE_HINT[m]}</div>
               </button>
             ))}
           </div>
         </Panel>
-        <Panel label="fleet">
-          <div className={cx("flex flex-col gap-2", locked && "pointer-events-none opacity-40")}>
+        <Panel label="Fleet">
+          <div className={cx("flex flex-col gap-3", locked && "pointer-events-none opacity-40")}>
             <Segmented size="sm" label="Boxes in rotation" value={active} onChange={changeActive} options={[2, 3, 4].map((n) => ({ value: n, label: `${n} boxes` }))} />
             <Button size="sm" variant="danger" onClick={() => sim.patch({ op: "restart", node: "app-1" })}>
               Restart app-1
@@ -157,28 +157,28 @@ function Deploy({ config: c, onResult, verdict, locked, conditions }: WidgetProp
     return tot ? a.failReasons.session / tot : 0;
   }, [ch.sim.windows]);
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 lg:flex-row">
-      <div className="flex min-h-0 flex-1 flex-col gap-2">
+    <div className="flex h-full min-h-0 flex-col gap-4 lg:flex-row">
+      <div className="flex min-h-0 flex-1 flex-col gap-3">
         <LossStrip windows={ch.sim.windows} />
         <SimStage className="min-h-[320px] flex-1" sim={ch.sim} nodes={layout.nodes} edges={layout.edges} metrics={["p99", "errors", "rps", "cost"]} slo={slo} highlight={highlight} honestPhysics={HONEST} />
       </div>
-      <div className="flex w-full flex-col gap-3 lg:w-[300px]">
-        <Panel label="session strategy">
+      <div className="flex w-full flex-col gap-4 lg:w-[280px] 2xl:w-[320px]">
+        <Panel label="Session strategy">
           <div className={cx("flex flex-col gap-2", (running || locked) && "pointer-events-none opacity-50")}>
             {MODES.map((m) => (
-              <button key={m} onClick={() => setMode(m)} className={cx("rounded-sm border px-2.5 py-2 text-left", mode === m ? "border-amber bg-amber-dim/40" : "border-line-2 hover:border-line-3")}>
-                <div className="flex items-center justify-between font-mono text-2xs uppercase tracking-[0.1em] text-ink-0">
+              <button key={m} onClick={() => setMode(m)} className={cx("rounded-md border px-3 py-2.5 text-left transition-colors duration-200", mode === m ? "border-amber/80 bg-amber-dim/40" : "border-line-2/80 bg-bg-2/40 hover:border-line-3")}>
+                <div className="flex items-center justify-between gap-2 text-sm font-semibold text-ink-0">
                   {MODE_LABEL[m]}
-                  <span className="text-ink-2">{m === "redis" ? `+${fmtUsd(redisCost)}/mo` : "+$0"}</span>
+                  <span className="font-mono text-xs font-normal tabular text-ink-2">{m === "redis" ? `+${fmtUsd(redisCost)}/mo` : "+$0"}</span>
                 </div>
-                <div className="text-xs text-ink-2">{MODE_HINT[m]}</div>
+                <div className="mt-0.5 text-xs leading-snug text-ink-2">{MODE_HINT[m]}</div>
               </button>
             ))}
           </div>
         </Panel>
         <ConditionList conditions={conditions} metrics={ch.result?.metrics} />
         <ChallengeControls ch={ch} onRun={() => ch.run(buildFleet(opts))} verdict={verdict} disabled={locked} runLabel="Ship deploy v42" />
-        {running && <Chip tone={lossSoFar > 0.005 ? "alert" : "muted"}>logged out so far: {fmtPct(lossSoFar, 2)}</Chip>}
+        {running && <Chip tone={lossSoFar > 0.005 ? "alert" : "muted"}>Logged out so far: {fmtPct(lossSoFar, 2)}</Chip>}
       </div>
     </div>
   );

@@ -9,7 +9,8 @@ import { sfx } from "@/audio/engine";
 import type { CastLine as CastLineT } from "@/content/schema";
 import { CastLine } from "./Cast";
 import { cx } from "./kit";
-import { GlitchText, spring, useReducedMotion } from "./motion";
+import { spring, useReducedMotion } from "./motion";
+import { alpha, PALETTE } from "./palette";
 
 export type Frame =
   | { kind: "title"; kicker: string; title: string; sub?: string; tone?: "phos" | "amber" | "alert"; ms?: number; stencil?: boolean }
@@ -52,9 +53,10 @@ export function Cinematic({ frames, onDone, sound = "whoosh", tone = "default" }
   }, [i, frames.length, finish]);
 
   const f = frames[i];
+  const toneText = (t?: "phos" | "amber" | "alert") => (t === "alert" ? "text-alert" : t === "amber" ? "text-amber" : t === "phos" ? "text-phos" : "text-ink-0");
   return (
     <motion.div
-      className={cx("fixed inset-0 z-[70] flex items-center justify-center p-6", tone === "alert" ? "bg-[#0d0303]/95" : "bg-bg-0/95")}
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-bg-0/95 px-6 py-16 backdrop-blur-sm"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -63,27 +65,47 @@ export function Cinematic({ frames, onDone, sound = "whoosh", tone = "default" }
       aria-label="Cinematic"
       onClick={() => (i + 1 < frames.length ? setI(i + 1) : finish())}
     >
-      {tone === "alert" && !reduced && <motion.div className="pointer-events-none absolute inset-0 border-[6px] border-alert/60" animate={{ opacity: [0.2, 0.9, 0.2] }} transition={{ duration: 1.4, repeat: Infinity }} />}
-      <div className="w-full max-w-2xl">
+      {/* A slow coral dusk for alarms instead of a flashing border. */}
+      {tone === "alert" && (
+        <motion.div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: `radial-gradient(70% 60% at 50% 45%, ${alpha(PALETTE.alert, 0.13)}, transparent 70%), radial-gradient(120% 90% at 50% 100%, ${alpha(PALETTE.alertDim, 0.6)}, transparent 70%)` }}
+          animate={reduced ? undefined : { opacity: [0.55, 1, 0.55] }}
+          transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut" }}
+        />
+      )}
+      <div className="relative w-full max-w-2xl">
         <AnimatePresence mode="wait">
           {f && (
-            <motion.div key={i} initial={{ opacity: 0, y: reduced ? 0 : 14, scale: reduced ? 1 : 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: reduced ? 0 : -10 }} transition={spring.soft}>
+            <motion.div key={i} initial={{ opacity: 0, y: reduced ? 0 : 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reduced ? 0 : -8 }} transition={spring.soft}>
               {f.kind === "title" && (
                 <div className="text-center">
-                  <div className={cx("font-mono text-2xs uppercase tracking-[0.36em]", f.tone === "alert" ? "text-alert" : f.tone === "amber" ? "text-amber" : "text-phos")}>{f.kicker}</div>
-                  <h1
-                    className={cx(
-                      "mt-3 text-[clamp(3rem,12vw,7rem)] font-extrabold uppercase leading-[0.9] tracking-tight",
-                      f.stencil ? "font-[family-name:var(--font-stencil-face)]" : "font-display",
-                      f.tone === "alert" ? "text-alert glow-alert" : f.tone === "amber" ? "text-amber glow-amber" : f.tone === "phos" ? "text-phos glow-phos" : "text-ink-0",
-                    )}
-                  >
-                    <GlitchText text={f.title} duration={0.7} />
+                  <div className={cx("eyebrow text-[13px]", f.tone ? toneText(f.tone) : "text-phos")}>{f.kicker}</div>
+                  <h1 className={cx("mt-4 text-balance font-display text-[clamp(2.5rem,7vw,4.5rem)] font-semibold leading-[1.05]", toneText(f.tone))}>
+                    <motion.span
+                      className="inline-block"
+                      initial={{ opacity: 0, y: reduced ? 0 : 8, filter: reduced ? "none" : "blur(6px)" }}
+                      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                      transition={{ duration: 0.7, ease: "easeOut" }}
+                    >
+                      {/* "checkout · 5xx 24% · SLO burn 24×" is a title card, not a log line: one part per line. */}
+                      {f.title.includes(" · ")
+                        ? f.title.split(" · ").map((part, k) => (
+                            <span key={k} className="block">
+                              {part}
+                            </span>
+                          ))
+                        : f.title}
+                    </motion.span>
                   </h1>
-                  {f.sub && <div className="mt-3 font-mono text-sm text-ink-1">{f.sub}</div>}
+                  {f.sub && <p className="mx-auto mt-5 max-w-lg text-pretty text-base leading-relaxed text-ink-1 tabular">{f.sub}</p>}
                 </div>
               )}
-              {f.kind === "line" && <CastLine line={f.line} className="mx-auto max-w-lg" />}
+              {f.kind === "line" && (
+                <div className="mx-auto max-w-lg rounded-xl border border-line/70 bg-bg-1/80 p-5 shadow-lift">
+                  <CastLine line={f.line} />
+                </div>
+              )}
               {f.kind === "custom" && f.node}
             </motion.div>
           )}
@@ -94,13 +116,13 @@ export function Cinematic({ frames, onDone, sound = "whoosh", tone = "default" }
           e.stopPropagation();
           finish();
         }}
-        className="absolute bottom-5 right-5 font-mono text-2xs uppercase tracking-[0.16em] text-ink-2 hover:text-amber"
+        className="absolute bottom-5 right-5 rounded-full border border-line-2/70 bg-bg-1/70 px-4 py-1.5 text-[13px] font-medium text-ink-1 transition-colors hover:border-amber-3 hover:text-amber"
       >
-        Skip ⟶
+        Skip →
       </button>
-      <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-1.5" aria-hidden>
+      <div className="absolute bottom-7 left-1/2 flex -translate-x-1/2 items-center gap-1.5" aria-hidden>
         {frames.map((_, k) => (
-          <span key={k} className={cx("h-1 w-5 rounded-full", k <= i ? "bg-amber" : "bg-line-2")} />
+          <span key={k} className={cx("h-1.5 rounded-full transition-all duration-300", k === i ? "w-5 bg-amber" : k < i ? "w-1.5 bg-amber-3" : "w-1.5 bg-line-3")} />
         ))}
       </div>
     </motion.div>

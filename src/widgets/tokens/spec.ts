@@ -1,6 +1,6 @@
 /**
  * Tokenizer helpers and the Token Diet puzzle. The offline tokenizer is o200k_base (a real BPE),
- * used as a proxy: Claude's tokenizer differs, and with an API key NINES also shows Claude's own count.
+ * exact for the gpt-oss models NINES calls; other families (Claude included) tokenize differently.
  */
 import { z } from "zod";
 

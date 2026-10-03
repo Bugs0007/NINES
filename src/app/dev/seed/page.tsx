@@ -41,7 +41,7 @@ export default function Seed() {
   };
   return (
     <main className="flex min-h-dvh flex-col items-start gap-3 p-6">
-      <h1 className="font-mono text-2xs uppercase tracking-[0.2em] text-ink-2">dev · seed progress</h1>
+      <h1 className="eyebrow text-2xs text-ink-2">dev · seed progress</h1>
       <div className="flex flex-wrap gap-2">
         <Button onClick={() => seed("fresh")}>Fresh player</Button>
         <Button onClick={() => seed("healthy")}>A few built, healthy</Button>

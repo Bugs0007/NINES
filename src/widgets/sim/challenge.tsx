@@ -115,7 +115,7 @@ export function ChallengeControls({
   const cause = ch.cause?.event;
   const highlightNow = inReplay && cause && t >= cause.t - 3;
   return (
-    <div className={cx("flex flex-col gap-2", className)}>
+    <div className={cx("flex flex-col gap-3", className)}>
       <div className="flex flex-wrap items-center gap-2">
         {phase === "setup" && (
           <Button variant="go" onClick={onRun} disabled={disabled} sound="thunk">
@@ -144,10 +144,12 @@ export function ChallengeControls({
         )}
       </div>
       {((phase === "done" && verdict && !verdict.won) || inReplay) && ch.cause?.firstBad && cause && (
-        <div className={cx("rounded-sm border px-2.5 py-2 text-sm", highlightNow || phase === "done" ? "border-amber-3 bg-amber-dim/40" : "border-line")}>
-          <div className="font-mono text-2xs uppercase tracking-[0.14em] text-amber">First domino · t+{cause.t.toFixed(0)}s</div>
-          <div className="text-ink-0">{cause.detail}</div>
-          <div className="mt-1 font-mono text-2xs text-ink-2">
+        <div className={cx("rounded-md border px-4 py-3 text-sm transition-colors duration-300", highlightNow || phase === "done" ? "border-amber-3/70 bg-amber-dim/40" : "border-line/80 bg-bg-1/60")}>
+          <div className="eyebrow text-xs text-amber">
+            First domino · <span className="font-mono tabular">t+{cause.t.toFixed(0)}s</span>
+          </div>
+          <div className="mt-1 text-ink-0">{cause.detail}</div>
+          <div className="mt-1.5 text-xs tabular text-ink-2">
             SLO first broke at t+{ch.cause.firstBad.t.toFixed(0)}s: p99 {fmtLatency(ch.cause.firstBad.p99)}, errors {fmtPct(ch.cause.firstBad.errorRate, 1)}
           </div>
         </div>

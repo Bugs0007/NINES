@@ -75,3 +75,23 @@ Architecture decision log. Newest at the bottom. Each entry: context, decision, 
 - **Decision:** A deterministic model (`src/widgets/context/model.ts`): a 32k window over a 40-turn chat; a question is answerable when the needed fact is in the request; lost-in-the-middle applies to buried docs in a crowded window; a router sends 20% of turns to the Sonnet-class model; TTFT is a fixed overhead plus prefill on uncached input. Prices and cache multipliers come from `src/config/models.ts`.
 - **Why:** The lesson is the arithmetic (re-sent history, quadratic cost, what falls out) and the trade-offs between policies, which a model shows exactly and reproducibly; honest-physics notes disclose the simplifications.
 - **Consequence:** In The Bill the dollar figure stays hidden until you ship, so the forecast is an estimate from tokens and the price sheet, not a read-off.
+
+### D-017 · Runtime AI moves from Claude to Groq; the lessons keep Claude as reference
+- **Context:** Bhagath won't add an Anthropic key; he added `GROQ_API_KEY`.
+- **Decision:** Grading and hints call Groq with plain `fetch` (`src/server/ai.ts`): `openai/gpt-oss-120b` grades with strict JSON-schema structured outputs, `openai/gpt-oss-20b` gives hints. Reasoning effort is set per route and reasoning text is never returned. The Anthropic SDK and the token-count route are removed.
+- **Why:** Same shape as before (capable model for judgement, cheap model for chatter), structured outputs with constrained decoding, automatic prefix caching, and prices low enough that the $5 cap covers thousands of grades (a grade costs about $0.0006).
+- **Consequence:** The AI-engineering lessons still teach with Claude's pricing and docs (a stable, sourced reference), now in `src/content/prices.ts`, decoupled from the runtime config so switching providers can't shift a calibrated challenge. The Tokenizer Slicer's o200k counts are now exact for the models NINES actually calls.
+
+### D-018 · "Dusk" replaces the "Night Shift" control-room look
+- **Context:** First playtest: the UI "looks too artificial and robotic"; Bhagath wants something soothing to look at for hours.
+- **Decision:** A new design system (DESIGN.md): blue-slate surfaces, parchment ink, sage/sand/coral plus sky and lilac accents; Fraunces + Figtree (self-hosted), mono only for live numbers and code; sentence case; rounded cards and pills; soft shadows; a faint dusk wash instead of scanlines; softer sounds. A codemod (`scripts/codemod-dusk.py`) did the mechanical part (colours, ALL-CAPS, letter-spacing) and four agents restyled each area by hand against the spec, checked with screenshots at 1440px and 390px.
+- **Why:** The robotic feel came from type and texture (all-caps mono labels, brackets, neon, scanlines, hard corners), not from layout, so it could be fixed at the token and component level without touching game logic.
+
+### D-019 · A learning layer and section intros, from one source of truth
+- **Context:** Bhagath couldn't see how the game is designed to teach, which parts teach what, or why he's learning it; and wanted game-style openers for each section.
+- **Decision:** `src/content/learning.ts` holds, per concept, what you can do afterwards, why it matters, and the key idea; per chapter, outcomes, why, and payoff; per section, what it trains and the learning reason. Section intros (`src/intro/`: animated SVG scenes + that text), chapter pages, mission hooks and debriefs, and the `/learn` page all read from it. A test requires an entry for every built node.
+- **Why:** One place to write "what and why" keeps it short, consistent, and impossible to forget when a concept ships.
+
+### D-020 · The AI coach has a per-browser off switch; tests use it
+- **Context:** With a key configured, the e2e suite was grading explanations through the live provider (slow, rate-limited, costs money, nondeterministic).
+- **Decision:** `localStorage['nines:ai'] = 'off'` makes the browser treat the coach as unavailable (offline paths everywhere). It's a Settings option for players who prefer self-grading, and Playwright starts every context with it via `storageState`.

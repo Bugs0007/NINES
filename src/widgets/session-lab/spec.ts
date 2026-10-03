@@ -16,10 +16,10 @@ export const SessionConfig = z.object({
 export type SessionConfig = z.infer<typeof SessionConfig>;
 
 export const MODE_LABEL: Record<Exclude<SessionMode, "none">, string> = {
-  local: "in memory",
-  sticky: "sticky + memory",
-  redis: "redis",
-  cookie: "signed cookie",
+  local: "In memory",
+  sticky: "Sticky + memory",
+  redis: "Redis",
+  cookie: "Signed cookie",
 };
 
 /** Lab: four boxes built, the first `active` in rotation. */

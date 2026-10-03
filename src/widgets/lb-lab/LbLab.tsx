@@ -19,15 +19,15 @@ import { labSpec, LbConfig, noisyOptions } from "./spec";
 export { LbConfig };
 
 const ALGS: { value: LbAlgorithm; label: string; hint: string }[] = [
-  { value: "round-robin", label: "round robin", hint: "Each target in turn" },
-  { value: "random", label: "random", hint: "Pick any target" },
-  { value: "least-outstanding", label: "least outstanding", hint: "Fewest requests in flight (ALB supports this)" },
-  { value: "p2c", label: "power of 2", hint: "Pick two at random, send to the less busy one" },
+  { value: "round-robin", label: "Round robin", hint: "Each target in turn" },
+  { value: "random", label: "Random", hint: "Pick any target" },
+  { value: "least-outstanding", label: "Least outstanding", hint: "Fewest requests in flight (ALB supports this)" },
+  { value: "p2c", label: "Power of 2", hint: "Pick two at random, send to the less busy one" },
 ];
 const HCS: { value: HcMode; label: string; hint: string }[] = [
-  { value: "off", label: "off", hint: "No health checks" },
-  { value: "shallow", label: "shallow", hint: "GET /health: is the process up?" },
-  { value: "deep", label: "deep", hint: "Health check runs the real request path" },
+  { value: "off", label: "Off", hint: "No health checks" },
+  { value: "shallow", label: "Shallow", hint: "GET /health: is the process up?" },
+  { value: "deep", label: "Deep", hint: "Health check runs the real request path" },
 ];
 
 const HONEST = [
@@ -109,7 +109,7 @@ function Lab({ config: c, onObserve, locked, mode, scene }: WidgetProps<LbConfig
   const perServer = servers.map((s) => ({ s, w: last?.nodes[s.id] }));
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 lg:flex-row">
+    <div className="flex h-full min-h-0 flex-col gap-4 lg:flex-row">
       <SimStage
         className="min-h-[360px] flex-1"
         sim={sim}
@@ -119,18 +119,18 @@ function Lab({ config: c, onObserve, locked, mode, scene }: WidgetProps<LbConfig
         highlight={scene === "rr" || scene === "lor" ? ["lb"] : scene === "blackhole" ? servers.filter((s) => state[s.id] === "dead").map((s) => s.id) : []}
         honestPhysics={HONEST}
       />
-      <div className="flex w-full flex-col gap-3 lg:w-[320px]">
-        <Panel label="load balancer">
-          <div className={cx("flex flex-col gap-3", locked && "pointer-events-none opacity-40")}>
+      <div className="flex w-full flex-col gap-4 lg:w-[280px] 2xl:w-[320px]">
+        <Panel label="Load balancer">
+          <div className={cx("flex flex-col gap-4", locked && "pointer-events-none opacity-40")}>
             <div>
-              <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">algorithm</div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="mb-2 eyebrow text-xs text-ink-2">Algorithm</div>
+              <div className="grid grid-cols-2 gap-1.5">
                 {ALGS.map((a) => (
                   <button
                     key={a.value}
                     title={a.hint}
                     onClick={() => setAlg(a.value)}
-                    className={cx("h-9 rounded-[2px] border font-mono text-2xs uppercase tracking-[0.08em]", alg === a.value ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1 hover:border-line-3")}
+                    className={cx("h-9 rounded-sm border px-2 text-[13px] font-medium transition-colors duration-200", alg === a.value ? "border-amber bg-amber text-bg-0" : "border-line-2/80 bg-bg-2/50 text-ink-1 hover:border-line-3 hover:text-ink-0")}
                   >
                     {a.label}
                   </button>
@@ -138,49 +138,49 @@ function Lab({ config: c, onObserve, locked, mode, scene }: WidgetProps<LbConfig
               </div>
             </div>
             <div>
-              <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">health checks</div>
+              <div className="mb-2 eyebrow text-xs text-ink-2">Health checks</div>
               <Segmented size="sm" label="Health checks" value={hc} onChange={setHc} options={HCS} />
             </div>
-            <label className="flex items-center gap-2 text-sm text-ink-1">
-              <input type="checkbox" checked={outlier} onChange={(e) => setOutlier(e.target.checked)} className="h-4 w-4 accent-[#ffb547]" />
+            <label className="flex cursor-pointer items-center gap-2.5 text-sm text-ink-1">
+              <input type="checkbox" checked={outlier} onChange={(e) => setOutlier(e.target.checked)} className="h-4 w-4 accent-amber" />
               Passive ejection (5 straight errors)
             </label>
-            <Slider label="traffic" value={rps} min={40} max={320} step={10} onChange={setRps} format={(v) => `${v} req/s`} />
+            <Slider label="Traffic" value={rps} min={40} max={320} step={10} onChange={setRps} format={(v) => `${v} req/s`} />
           </div>
         </Panel>
-        <Panel label="servers" bodyClassName="p-0">
-          <table className="w-full text-left font-mono text-2xs">
-            <thead className="text-ink-3">
+        <Panel label="Servers" bodyClassName="px-0 pb-2 pt-1">
+          <table className="w-full text-left text-[13px]">
+            <thead className="text-xs text-ink-3">
               <tr>
-                <th className="px-2 py-1 font-normal">box</th>
-                <th className="px-1 py-1 font-normal">busy</th>
-                <th className="px-1 py-1 font-normal">p99</th>
-                <th className="px-1 py-1 font-normal" />
+                <th className="px-3 py-1.5 font-medium">Box</th>
+                <th className="px-2 py-1.5 font-medium">Busy</th>
+                <th className="px-2 py-1.5 font-medium">p99</th>
+                <th className="py-1.5 pl-1 pr-3 font-medium" />
               </tr>
             </thead>
             <tbody>
               {perServer.map(({ s, w }) => {
                 const st = state[s.id] ?? "ok";
                 return (
-                  <tr key={s.id} className="border-t border-line">
-                    <td className={cx("px-2 py-1.5", st === "dead" ? "text-alert" : st === "slow" ? "text-amber" : "text-ink-0")}>{s.label}</td>
-                    <td className="px-1 tabular text-ink-1">{w ? `${Math.round(Math.max(w.util, w.workerUtil) * 100)}%` : "—"}</td>
-                    <td className="px-1 tabular text-ink-1">{w && w.completed ? fmtLatency(w.p99) : "—"}</td>
-                    <td className="px-1 py-1 text-right">
-                      <div className={cx("inline-flex gap-1", locked && "pointer-events-none opacity-40")}>
+                  <tr key={s.id} className="border-t border-line/60">
+                    <td className={cx("px-3 py-1.5 font-mono text-xs", st === "dead" ? "text-alert" : st === "slow" ? "text-amber" : "text-ink-0")}>{s.label}</td>
+                    <td className="px-2 font-mono text-xs tabular text-ink-1">{w ? `${Math.round(Math.max(w.util, w.workerUtil) * 100)}%` : "—"}</td>
+                    <td className="px-2 font-mono text-xs tabular text-ink-1">{w && w.completed ? fmtLatency(w.p99) : "—"}</td>
+                    <td className="py-1.5 pl-1 pr-3 text-right">
+                      <div className={cx("inline-flex gap-1.5", locked && "pointer-events-none opacity-40")}>
                         {st !== "slow" && (
-                          <button onClick={() => setServer(s.id, "slow")} className="rounded-[2px] border border-amber-3 px-1.5 py-0.5 text-amber hover:bg-amber-dim">
-                            slow
+                          <button onClick={() => setServer(s.id, "slow")} className="relative inline-flex h-7 items-center rounded-full border px-2.5 text-xs font-medium transition-colors after:absolute after:-inset-x-[3px] after:-inset-y-1.5 after:content-[''] border-amber-3/70 text-amber hover:bg-amber-dim">
+                            Slow
                           </button>
                         )}
                         {st !== "dead" && (
-                          <button onClick={() => setServer(s.id, "dead")} className="rounded-[2px] border border-alert-3 px-1.5 py-0.5 text-alert hover:bg-alert-dim">
-                            kill
+                          <button onClick={() => setServer(s.id, "dead")} className="relative inline-flex h-7 items-center rounded-full border px-2.5 text-xs font-medium transition-colors after:absolute after:-inset-x-[3px] after:-inset-y-1.5 after:content-[''] border-alert-3/70 text-alert hover:bg-alert-dim">
+                            Kill
                           </button>
                         )}
                         {st !== "ok" && (
-                          <button onClick={() => setServer(s.id, "ok")} className="rounded-[2px] border border-phos-3 px-1.5 py-0.5 text-phos hover:bg-phos-dim">
-                            heal
+                          <button onClick={() => setServer(s.id, "ok")} className="relative inline-flex h-7 items-center rounded-full border px-2.5 text-xs font-medium transition-colors after:absolute after:-inset-x-[3px] after:-inset-y-1.5 after:content-[''] border-phos-3/70 text-phos hover:bg-phos-dim">
+                            Heal
                           </button>
                         )}
                       </div>
@@ -218,32 +218,32 @@ function Noisy({ config: c, onResult, verdict, locked, conditions }: WidgetProps
   const highlight = useReplayHighlight(ch);
   useSloAlarm(ch.sim.windows, slo, ch.phase === "running");
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 lg:flex-row">
+    <div className="flex h-full min-h-0 flex-col gap-4 lg:flex-row">
       <SimStage className="min-h-[360px] flex-1" sim={ch.sim} nodes={layout.nodes} edges={layout.edges} metrics={["p99", "errors", "rps", "util"]} slo={slo} highlight={highlight} honestPhysics={HONEST} />
-      <div className="flex w-full flex-col gap-3 lg:w-[300px]">
+      <div className="flex w-full flex-col gap-4 lg:w-[280px] 2xl:w-[320px]">
         <Panel label="Balancer config">
-          <div className={cx("flex flex-col gap-3", (running || locked) && "pointer-events-none opacity-50")}>
-            <div className="grid grid-cols-2 gap-1">
+          <div className={cx("flex flex-col gap-4", (running || locked) && "pointer-events-none opacity-50")}>
+            <div className="grid grid-cols-2 gap-1.5">
               {ALGS.map((a) => (
                 <button
                   key={a.value}
                   title={a.hint}
                   onClick={() => setAlg(a.value)}
-                  className={cx("h-9 rounded-[2px] border font-mono text-2xs uppercase tracking-[0.08em]", alg === a.value ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1 hover:border-line-3")}
+                  className={cx("h-9 rounded-sm border px-2 text-[13px] font-medium transition-colors duration-200", alg === a.value ? "border-amber bg-amber text-bg-0" : "border-line-2/80 bg-bg-2/50 text-ink-1 hover:border-line-3 hover:text-ink-0")}
                 >
                   {a.label}
                 </button>
               ))}
             </div>
             <div>
-              <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">health checks</div>
+              <div className="mb-2 eyebrow text-xs text-ink-2">Health checks</div>
               <Segmented size="sm" label="Health checks" value={hc} onChange={setHc} options={HCS} />
             </div>
-            <label className="flex items-center gap-2 text-sm text-ink-1">
-              <input type="checkbox" checked={outlier} onChange={(e) => setOutlier(e.target.checked)} className="h-4 w-4 accent-[#ffb547]" />
+            <label className="flex cursor-pointer items-center gap-2.5 text-sm text-ink-1">
+              <input type="checkbox" checked={outlier} onChange={(e) => setOutlier(e.target.checked)} className="h-4 w-4 accent-amber" />
               Passive ejection (5 straight errors)
             </label>
-            <div className="font-mono text-[10px] text-ink-3">
+            <div className="text-xs text-ink-3">
               {c.count} × {c.instance} · {c.rps} req/s · no client retries
             </div>
           </div>

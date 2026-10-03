@@ -11,20 +11,20 @@ import { spring, useReducedMotion } from "@/ui/motion";
 import { Slider } from "@/ui/Slider";
 import { ConditionList } from "../shared";
 import type { WidgetProps } from "../types";
-import { CACHE_READ_MULT, CACHE_WRITE_MULT, MODELS, PRICING } from "@/config/models";
+import { TEACHING_CACHE_READ_MULT as CACHE_READ_MULT, TEACHING_CACHE_WRITE_MULT as CACHE_WRITE_MULT, TEACHING_PRICES } from "@/content/prices";
 import { ContextConfig, evaluate, FACTS, prefixTokens, ROUTER_FAST_SHARE, turnState, type HistoryMode, type Policy } from "./model";
 
 export { ContextConfig };
 
 const KIND_STYLE: Record<string, string> = {
-  system: "bg-ink-2/40 border-line-3",
-  tools: "bg-amber/25 border-amber-3",
-  docs: "bg-phos/20 border-phos-3",
-  pinned: "bg-amber/50 border-amber",
-  summary: "bg-ink-1/30 border-line-3",
-  history: "bg-phos/35 border-phos-2",
-  question: "bg-ink-0/40 border-ink-1",
-  reserve: "border-dashed border-line-3 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgb(54_90_102/0.35)_4px,rgb(54_90_102/0.35)_5px)]",
+  system: "bg-ink-2/30 border-line-3/80",
+  tools: "bg-amber/20 border-amber-3/80",
+  docs: "bg-phos/15 border-phos-3/80",
+  pinned: "bg-amber/40 border-amber/80",
+  summary: "bg-ink-1/25 border-line-3/80",
+  history: "bg-phos/30 border-phos-3",
+  question: "bg-ink-0/30 border-ink-2",
+  reserve: "border-dashed border-line-3/80 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,color-mix(in_srgb,var(--color-line-3)_35%,transparent)_4px,color-mix(in_srgb,var(--color-line-3)_35%,transparent)_5px)]",
 };
 
 export default function ContextTetris({ config, scene, onObserve, onResult, conditions, locked, runLocked, verdict, mode: wmode }: WidgetProps<ContextConfig>) {
@@ -92,17 +92,17 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
   const controlsLocked = locked || shipped || wmode === "preview";
   // In the boss the bill stays hidden until you ship: you forecast it from tokens and prices.
   const showUsd = !bill || shipped;
-  const g = PRICING[MODELS.grader]!;
-  const f = PRICING[MODELS.fast]!;
+  const g = TEACHING_PRICES.big;
+  const f = TEACHING_PRICES.small;
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 lg:flex-row">
+    <div className="flex h-full min-h-0 flex-col gap-4 lg:flex-row">
       {/* the well */}
-      <div className="flex flex-col items-center gap-2">
-        <div className="font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">context window · {(c.window / 1000).toFixed(0)}k tokens</div>
+      <div className="flex flex-col items-center gap-3">
+        <div className="eyebrow text-xs text-ink-2">Context window · {(c.window / 1000).toFixed(0)}k tokens</div>
         <div className="relative h-[380px] w-[210px]">
-          <div className={cx("absolute inset-0 rounded-sm border-2", st.overflow ? "border-alert shadow-glow-alert" : "border-line-3")} />
-          <div className="absolute inset-x-1 bottom-1 top-1 flex flex-col-reverse overflow-visible">
+          <div className={cx("absolute inset-0 rounded-lg border bg-bg-1/50 transition-colors duration-300", st.overflow ? "border-alert/80 shadow-glow-alert" : "border-line-2")} />
+          <div className="absolute inset-x-1.5 bottom-1.5 top-1.5 flex flex-col-reverse overflow-visible">
             <AnimatePresence initial={false}>
               {st.blocks.map((b) => (
                 <motion.div
@@ -111,11 +111,11 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
                   animate={{ opacity: 1, height: scale(b.tokens) }}
                   exit={{ opacity: 0, height: "0%" }}
                   transition={reduced ? { duration: 0 } : spring.soft}
-                  className={cx("relative mt-[2px] flex shrink-0 items-center justify-center overflow-hidden rounded-[2px] border px-1", b.kind === "pinned" ? "min-h-[13px]" : "min-h-[3px]", KIND_STYLE[b.kind])}
+                  className={cx("relative mt-[2px] flex shrink-0 items-center justify-center overflow-hidden rounded-xs border px-1", b.kind === "pinned" ? "min-h-[16px]" : "min-h-[3px]", KIND_STYLE[b.kind])}
                   title={`${b.label}: ${b.tokens.toLocaleString()} tokens`}
                 >
                   {(b.tokens / c.window > 0.045 || b.kind === "pinned") && (
-                    <span className={cx("truncate font-mono text-ink-0", b.kind === "pinned" ? "text-[8px] leading-none" : "text-[9px]")}>
+                    <span className={cx("truncate text-[11px] font-medium tabular text-ink-0", b.kind === "pinned" && "leading-none")}>
                       {b.label} · {b.tokens >= 1000 ? `${(b.tokens / 1000).toFixed(1)}k` : b.tokens}
                     </span>
                   )}
@@ -124,25 +124,27 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
             </AnimatePresence>
           </div>
           {st.overflow && (
-            <div className="absolute -top-7 inset-x-0 text-center font-mono text-[10px] text-alert">
+            <div className="absolute -top-7 inset-x-0 text-center text-xs font-medium tabular text-alert">
               over by {overBy.toLocaleString()} · 400 prompt is too long
             </div>
           )}
         </div>
         <div className="w-[210px]">
-          <Slider label="turn" value={turn} min={1} max={c.turns} step={1} onChange={setTurn} format={(v) => `${v} / ${c.turns}`} />
-          <div className="mt-1 flex gap-1">
+          <Slider label="Turn" value={turn} min={1} max={c.turns} step={1} onChange={setTurn} format={(v) => `${v} / ${c.turns}`} />
+          <div className="mt-2 flex items-center gap-2">
             <Button size="sm" variant="secondary" onClick={() => { setTurn(1); setPlaying(true); }} sound="none" disabled={wmode === "preview"}>
-              ▶ play chat
+              ▶ Play chat
             </Button>
-            <Chip tone={st.overflow ? "alert" : "muted"}>{st.input.toLocaleString()} in</Chip>
+            <Chip tone={st.overflow ? "alert" : "muted"}>
+              <span className="font-mono tabular">{st.input.toLocaleString()}</span> in
+            </Chip>
           </div>
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3">
-        <Panel label="context policy">
-          <div className={cx("flex flex-col gap-3", controlsLocked && "pointer-events-none opacity-50")}>
+      <div className="flex min-h-0 flex-1 flex-col gap-4 lg:overflow-y-auto lg:pr-1 [scrollbar-gutter:stable]">
+        <Panel label="Context policy">
+          <div className={cx("flex flex-col gap-4", controlsLocked && "pointer-events-none opacity-50")}>
             <Segmented<HistoryMode>
               label="History policy"
               size="sm"
@@ -150,22 +152,22 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
               value={p.mode}
               onChange={(v) => set("mode", v)}
               options={[
-                { value: "full", label: "full history" },
-                { value: "last", label: "last N turns" },
-                { value: "summary", label: "summarize" },
-                { value: "pinned", label: "pinned + last N" },
+                { value: "full", label: "Full history" },
+                { value: "last", label: "Last N turns" },
+                { value: "summary", label: "Summarize" },
+                { value: "pinned", label: "Pinned + last N" },
               ]}
             />
-            {(p.mode === "last" || p.mode === "pinned") && <Slider label="keep the last" value={p.lastN} min={2} max={40} step={1} onChange={(v) => set("lastN", v)} format={(v) => `${v} turns`} />}
-            <Slider label="retrieved docs per turn" value={p.docs} min={0} max={8} step={1} onChange={(v) => set("docs", v)} format={(v) => `${v} × ${c.docTokens} tokens`} />
+            {(p.mode === "last" || p.mode === "pinned") && <Slider label="Keep the last" value={p.lastN} min={2} max={40} step={1} onChange={(v) => set("lastN", v)} format={(v) => `${v} turns`} />}
+            <Slider label="Retrieved docs per turn" value={p.docs} min={0} max={8} step={1} onChange={(v) => set("docs", v)} format={(v) => `${v} × ${c.docTokens} tokens`} />
             {bill && (
               <>
-                <label className="flex items-start gap-2 text-sm text-ink-1">
-                  <input type="checkbox" checked={!!p.cache} onChange={(e) => set("cache", e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 accent-[#ffb547]" />
+                <label className="flex cursor-pointer items-start gap-2.5 text-sm text-ink-1">
+                  <input type="checkbox" checked={!!p.cache} onChange={(e) => set("cache", e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 accent-amber" />
                   <span>
                     Cache the stable prefix
-                    <span className="block font-mono text-[10px] text-ink-3">
-                      system + tools{p.mode === "pinned" ? " + profile" : ""} = {prefixTokens(c, p).toLocaleString()} tokens, identical every turn · first write {CACHE_WRITE_MULT}×, reads {CACHE_READ_MULT}× input price
+                    <span className="mt-0.5 block text-xs leading-snug text-ink-3">
+                      System + tools{p.mode === "pinned" ? " + profile" : ""} = {prefixTokens(c, p).toLocaleString()} tokens, identical every turn · first write {CACHE_WRITE_MULT}×, reads {CACHE_READ_MULT}× input price
                     </span>
                   </span>
                 </label>
@@ -178,13 +180,13 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
                     options={[
                       { value: "grader", label: "Sonnet-class" },
                       { value: "fast", label: "Haiku-class" },
-                      { value: "router", label: "router" },
+                      { value: "router", label: "Router" },
                     ]}
                   />
-                  <div className="mt-1 font-mono text-[10px] text-ink-3">
+                  <div className="mt-1.5 text-xs leading-snug text-ink-3">
                     {p.model === "router"
-                      ? `a cheap classifier sends ~${Math.round((1 - ROUTER_FAST_SHARE) * 100)}% of turns (the hard ones) to Sonnet-class, the rest to Haiku-class`
-                      : `per million tokens: Sonnet-class $${g.input} in / $${g.output} out · Haiku-class $${f.input} in / $${f.output} out`}
+                      ? `A cheap classifier sends ~${Math.round((1 - ROUTER_FAST_SHARE) * 100)}% of turns (the hard ones) to Sonnet-class, the rest to Haiku-class`
+                      : `Per million tokens: Sonnet-class $${g.input} in / $${g.output} out · Haiku-class $${f.input} in / $${f.output} out`}
                   </div>
                 </div>
               </>
@@ -192,7 +194,7 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
           </div>
         </Panel>
         <Panel
-          label="input tokens per turn"
+          label="Input tokens per turn"
           right={
             showUsd ? (
               <span className="tabular">
@@ -205,26 +207,26 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
         >
           <div className="flex h-20 items-end gap-[2px]" aria-label="Input tokens per turn">
             {bars.map((v, i) => (
-              <div key={i} className={cx("flex-1 rounded-t-[1px]", ev.perTurn[i]!.overflow ? "bg-alert/70" : i + 1 === turn ? "bg-amber" : "bg-phos/50")} style={{ height: `${ev.perTurn[i]!.overflow ? 100 : (v / maxBar) * 100}%` }} />
+              <div key={i} className={cx("flex-1 rounded-t-[2px] transition-colors duration-200", ev.perTurn[i]!.overflow ? "bg-alert/60" : i + 1 === turn ? "bg-amber" : "bg-phos/40")} style={{ height: `${ev.perTurn[i]!.overflow ? 100 : (v / maxBar) * 100}%` }} />
             ))}
           </div>
-          <div className="mt-1 flex justify-between gap-2 font-mono text-[10px] text-ink-3">
-            <span className="hidden sm:inline">turn 1</span>
+          <div className="mt-2 flex justify-between gap-3 text-[11px] tabular text-ink-3">
+            <span className="hidden shrink-0 sm:inline">Turn 1</span>
             <span>
               {ev.inputTokens.toLocaleString()} input{bill ? ` + ${(c.outputTokens * c.turns).toLocaleString()} output` : ""} tokens across {ev.overflowTurn ? `${ev.overflowTurn - 1} turns (then rejected)` : `${c.turns} turns`} · ttft ≈ {ev.ttftS.toFixed(2)}s
             </span>
-            <span className="hidden sm:inline">turn {c.turns}</span>
+            <span className="hidden shrink-0 sm:inline">Turn {c.turns}</span>
           </div>
         </Panel>
-        <Panel label={`at turn ${c.turns}, can the model answer?`} right={<Chip tone={ev.quality >= 4 ? "ok" : "alert"}>{ev.quality}/5</Chip>}>
-          <ul className="space-y-1">
+        <Panel label={`At turn ${c.turns}, can the model answer?`} right={<Chip tone={ev.quality >= 4 ? "ok" : "alert"}>{ev.quality}/5</Chip>}>
+          <ul className="space-y-2.5">
             {ev.facts.map((f) => (
-              <li key={f.fact.id} className="flex items-start gap-2 text-sm">
+              <li key={f.fact.id} className="flex items-start gap-2.5 text-sm">
                 <span className={cx("mt-0.5 font-mono text-xs", f.ok ? "text-phos" : "text-alert")}>{f.ok ? "✓" : "✗"}</span>
                 <span className="min-w-0">
                   <span className="text-ink-0">{f.fact.question}</span>
-                  <span className="block font-mono text-[10px] text-ink-3">
-                    needs: {f.fact.label} · {f.why}
+                  <span className="mt-0.5 block text-xs leading-snug text-ink-3">
+                    Needs: {f.fact.label} · {f.why}
                   </span>
                 </span>
               </li>
@@ -232,7 +234,7 @@ export default function ContextTetris({ config, scene, onObserve, onResult, cond
           </ul>
         </Panel>
         {c.variant !== "lab" && (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             <ConditionList conditions={conditions} metrics={shipped ? { overflow: ev.overflowTurn ? 1 : 0, quality: ev.quality, costPerConversation: ev.costPerConversation, monthly: ev.monthly, ttft: ev.ttftS } : undefined} />
             {!shipped ? (
               runLocked ? (

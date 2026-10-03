@@ -1,4 +1,4 @@
-/** Shared request/response shapes for the Claude routes (client and server). */
+/** Shared request/response shapes for the AI routes (client and server). */
 import { z } from "zod";
 
 export const GradeRequest = z.object({
@@ -32,4 +32,30 @@ export const HintRequest = z.object({
 });
 export type HintRequest = z.infer<typeof HintRequest>;
 
-export const CountRequest = z.object({ text: z.string().min(1).max(20000) });
+
+/**
+ * JSON Schema for strict structured outputs (Groq constrained decoding): every key required and
+ * additionalProperties: false on every object. Mirrors GradeResult; the score is recomputed server-side.
+ */
+export const GRADE_JSON_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["criteria", "feedback", "gap"],
+  properties: {
+    criteria: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["id", "verdict", "note"],
+        properties: {
+          id: { type: "string" },
+          verdict: { type: "string", enum: ["met", "partial", "missed"] },
+          note: { type: "string" },
+        },
+      },
+    },
+    feedback: { type: "string" },
+    gap: { type: "string" },
+  },
+} as const;

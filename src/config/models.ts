@@ -1,25 +1,27 @@
 /**
- * Every Claude model ID NINES uses, in one place. Verified against the Claude API docs (2026-09).
- * Sonnet-class for grading and the interviewer, Haiku-class for cheap, fast calls (per the brief).
+ * Every model ID NINES calls at runtime, in one place. Provider: Groq (OpenAI-compatible API).
+ * Verified against console.groq.com/docs (models, structured outputs, prompt caching, reasoning), 2026-10.
+ *
+ * A capable model for grading and the interviewer, a small fast one for cheap calls (per the brief).
+ * The lessons' price sheet is separate: src/content/prices.ts.
  */
+export const AI_PROVIDER = { name: "Groq", baseUrl: "https://api.groq.com/openai/v1" } as const;
+
 export const MODELS = {
-  /** Explain-it-back grading, postmortem grading, Interview Arena, Field Mission verification. */
-  grader: "claude-sonnet-5",
-  interviewer: "claude-sonnet-5",
-  /** Ask the SRE hints, Heist bot first line, quick classification. */
-  fast: "claude-haiku-4-5",
-  /** Token counting uses the grader's tokenizer (counts are model-specific). */
-  tokenizer: "claude-sonnet-5",
+  /** Explain-it-back grading, postmortem grading, Interview Arena, Field Mission verification. Strict JSON-schema outputs. */
+  grader: "openai/gpt-oss-120b",
+  interviewer: "openai/gpt-oss-120b",
+  /** Ask the SRE hints, quick classification. */
+  fast: "openai/gpt-oss-20b",
 } as const;
 
 export type ModelId = (typeof MODELS)[keyof typeof MODELS];
 
-/** USD per million tokens (first-party API list prices). */
-export const PRICING: Record<string, { input: number; output: number }> = {
-  "claude-sonnet-5": { input: 2, output: 10 },
-  "claude-haiku-4-5": { input: 1, output: 5 },
+/**
+ * USD per million tokens (Groq on-demand list prices). Prompt caching is automatic on the gpt-oss models:
+ * cached prefix tokens bill at half the input price. Reasoning tokens bill as output.
+ */
+export const PRICING: Record<string, { input: number; cachedInput: number; output: number }> = {
+  "openai/gpt-oss-120b": { input: 0.15, cachedInput: 0.075, output: 0.6 },
+  "openai/gpt-oss-20b": { input: 0.075, cachedInput: 0.0375, output: 0.3 },
 };
-
-/** Cache writes cost 1.25x input; cache reads 0.1x input. */
-export const CACHE_WRITE_MULT = 1.25;
-export const CACHE_READ_MULT = 0.1;

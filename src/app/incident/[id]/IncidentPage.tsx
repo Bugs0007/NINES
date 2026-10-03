@@ -5,6 +5,6 @@ import { useGame } from "@/game/store";
 
 export function IncidentPage({ id }: { id: string }) {
   const hydrated = useGame((s) => s.hydrated);
-  if (!hydrated) return <div className="grid min-h-dvh place-items-center font-mono text-2xs uppercase tracking-[0.2em] text-ink-3">paging…</div>;
+  if (!hydrated) return <div className="grid min-h-dvh place-items-center text-[13px] text-ink-3">paging…</div>;
   return <IncidentRoom inc={INCIDENT_BY_ID.get(id)!} />;
 }

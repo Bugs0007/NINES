@@ -1,11 +1,12 @@
 "use client";
 /**
- * NINES UI kit: panels, buttons, LEDs, stat readouts, meters, sparklines, chips, segmented controls.
+ * NINES UI kit ("Dusk"): calm cards, buttons, status dots, readouts, meters, sparklines, chips, segmented controls.
+ * Sentence case everywhere; colour carries meaning (see globals.css).
  */
 import { motion } from "motion/react";
 import { forwardRef, useId, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { sfx } from "@/audio/engine";
-import { spring } from "./motion";
+import { spring, useReducedMotion } from "./motion";
 
 export function cx(...parts: (string | false | null | undefined)[]): string {
   return parts.filter(Boolean).join(" ");
@@ -29,23 +30,20 @@ export function Panel({
   tone?: "default" | "alert" | "amber" | "phos";
 }) {
   const border = {
-    default: "border-line",
-    alert: "border-alert-3",
-    amber: "border-amber-3",
-    phos: "border-phos-3",
+    default: "border-line/80",
+    alert: "border-alert-3/70",
+    amber: "border-amber-3/70",
+    phos: "border-phos-3/70",
   }[tone];
   return (
-    <section className={cx("relative rounded-sm border bg-bg-1/80", border, className)}>
+    <section className={cx("relative rounded-lg border bg-bg-1/75 shadow-card backdrop-blur-[2px]", border, className)}>
       {(label || right) && (
-        <header className="flex items-center justify-between gap-3 border-b border-line px-3 py-1.5">
-          <h3 className="rack-label font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">{label}</h3>
-          {right && <div className="flex items-center gap-2 font-mono text-2xs text-ink-2">{right}</div>}
+        <header className="flex items-center justify-between gap-3 px-4 pb-0 pt-3">
+          <h3 className="eyebrow text-xs text-ink-2">{label}</h3>
+          {right && <div className="flex items-center gap-2 text-xs text-ink-2">{right}</div>}
         </header>
       )}
-      <div className={cx("p-3", bodyClassName)}>{children}</div>
-      {/* corner ticks */}
-      <span aria-hidden className="pointer-events-none absolute -left-px -top-px h-2 w-2 border-l border-t border-line-3" />
-      <span aria-hidden className="pointer-events-none absolute -right-px -bottom-px h-2 w-2 border-r border-b border-line-3" />
+      <div className={cx("p-4", !!(label || right) && "pt-2.5", bodyClassName)}>{children}</div>
     </section>
   );
 }
@@ -66,21 +64,21 @@ export const Button = forwardRef<HTMLButtonElement, NButtonProps>(function Butto
   ref,
 ) {
   const styles: Record<ButtonVariant, string> = {
-    primary: "bg-amber text-bg-0 border-amber hover:bg-[#ffc56b] shadow-[0_0_24px_-6px_rgb(255_181_71/0.6)]",
-    go: "bg-phos text-bg-0 border-phos hover:bg-[#7cf7b0] shadow-[0_0_24px_-6px_rgb(92_242_154/0.6)]",
+    primary: "bg-amber text-bg-0 border-amber hover:bg-[#f0c793] shadow-[0_10px_28px_-14px_rgb(232_183_125/0.7)]",
+    go: "bg-phos text-bg-0 border-phos hover:bg-[#a6dfc2] shadow-[0_10px_28px_-14px_rgb(143_212_178/0.7)]",
     secondary: "bg-bg-2 text-ink-0 border-line-2 hover:border-line-3 hover:bg-bg-3",
     ghost: "bg-transparent text-ink-1 border-transparent hover:text-ink-0 hover:bg-bg-2",
-    danger: "bg-alert-dim text-alert border-alert-3 hover:bg-alert-3/40",
+    danger: "bg-alert-dim text-alert border-alert-3/70 hover:bg-alert-3/30",
   };
   const sizes = {
-    sm: "h-8 px-2.5 text-xs gap-1.5",
-    md: "h-10 px-3.5 text-sm gap-2",
-    lg: "h-12 px-5 text-base gap-2.5",
+    sm: "h-8 px-3 text-[13px] gap-1.5",
+    md: "h-10 px-4 text-sm gap-2",
+    lg: "h-12 px-6 text-[15px] gap-2.5",
   };
   return (
     <motion.button
       ref={ref}
-      whileTap={disabled ? undefined : { scale: 0.96, y: 1 }}
+      whileTap={disabled ? undefined : { scale: 0.97 }}
       transition={spring.snap}
       disabled={disabled}
       onClick={(e) => {
@@ -91,8 +89,11 @@ export const Button = forwardRef<HTMLButtonElement, NButtonProps>(function Butto
         onClick?.(e);
       }}
       className={cx(
-        "inline-flex select-none items-center justify-center rounded-sm border font-mono font-medium uppercase tracking-[0.08em] transition-colors",
-        "disabled:cursor-not-allowed disabled:opacity-40",
+        "inline-flex select-none items-center justify-center rounded-sm border font-semibold transition-colors duration-200",
+        "disabled:cursor-not-allowed",
+        variant === "primary" || variant === "go" || variant === "danger"
+          ? "disabled:border-line-2 disabled:bg-bg-3 disabled:text-ink-3 disabled:shadow-none"
+          : "disabled:opacity-45",
         styles[variant],
         sizes[size],
         className,
@@ -111,10 +112,10 @@ export type LedTone = "ok" | "warn" | "alert" | "off" | "info";
 
 export function Led({ tone, blink = false, className, label }: { tone: LedTone; blink?: boolean; className?: string; label?: string }) {
   const c = {
-    ok: "bg-phos shadow-[0_0_8px_rgb(92_242_154/0.9)]",
-    warn: "bg-amber shadow-[0_0_8px_rgb(255_181_71/0.9)]",
-    alert: "bg-alert shadow-[0_0_10px_rgb(255_90_78/0.95)]",
-    info: "bg-ink-1",
+    ok: "bg-phos shadow-[0_0_0_3px_rgb(143_212_178/0.16)]",
+    warn: "bg-amber shadow-[0_0_0_3px_rgb(232_183_125/0.18)]",
+    alert: "bg-alert shadow-[0_0_0_3px_rgb(236_143_128/0.2)]",
+    info: "bg-sky shadow-[0_0_0_3px_rgb(147_189_227/0.16)]",
     off: "bg-ink-3",
   }[tone];
   return <span role={label ? "img" : undefined} aria-label={label} className={cx("inline-block h-2 w-2 shrink-0 rounded-full", c, blink && "animate-blink", className)} />;
@@ -139,34 +140,30 @@ export function Stat({
   className?: string;
   size?: "sm" | "md" | "lg";
 }) {
+  // Colour alone carries the tone: numbers are read, not shouted (no glow).
   const color = { default: "text-ink-0", ok: "text-phos", warn: "text-amber", alert: "text-alert" }[tone];
-  const glow = { default: "", ok: "glow-phos", warn: "glow-amber", alert: "glow-alert" }[tone];
   const sz = { sm: "text-lg", md: "text-2xl", lg: "text-4xl" }[size];
   return (
     <div className={cx("min-w-0", className)}>
-      <div className="font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">{label}</div>
-      <div className={cx("font-mono font-medium tabular leading-tight", sz, color, glow)}>
+      <div className="eyebrow text-xs text-ink-2">{label}</div>
+      <div className={cx("font-mono font-medium tabular leading-tight", sz, color)}>
         {value}
         {unit && <span className="ml-1 text-[0.55em] font-normal text-ink-2">{unit}</span>}
       </div>
-      {sub && <div className="mt-0.5 font-mono text-2xs text-ink-2">{sub}</div>}
+      {sub && <div className="mt-0.5 text-xs text-ink-2">{sub}</div>}
     </div>
   );
 }
 
 // ---------------------------------------------------------------- Meter
 
-/** Segmented VU-style meter. value 0..1 (can exceed 1: shows overload). */
-export function Meter({ value, segments = 20, warnAt = 0.7, alertAt = 0.9, className, label }: { value: number; segments?: number; warnAt?: number; alertAt?: number; className?: string; label?: string }) {
-  const lit = Math.round(Math.min(1, Math.max(0, value)) * segments);
+/** A smooth bar meter. value 0..1 (can exceed 1: shows overload). Colour shifts at warnAt / alertAt. */
+export function Meter({ value, warnAt = 0.7, alertAt = 0.9, className, label }: { value: number; segments?: number; warnAt?: number; alertAt?: number; className?: string; label?: string }) {
+  const v = Math.min(1, Math.max(0, value));
+  const col = value > alertAt ? "bg-alert" : value > warnAt ? "bg-amber" : "bg-phos";
   return (
-    <div className={cx("flex h-2.5 gap-[2px]", className)} role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(value * 100)} aria-label={label}>
-      {Array.from({ length: segments }, (_, i) => {
-        const frac = (i + 1) / segments;
-        const on = i < lit;
-        const col = frac > alertAt ? "bg-alert" : frac > warnAt ? "bg-amber" : "bg-phos";
-        return <span key={i} className={cx("flex-1 rounded-[1px] transition-opacity duration-150", on ? col : "bg-line", on ? "opacity-100" : "opacity-60")} />;
-      })}
+    <div className={cx("relative h-2 overflow-hidden rounded-full bg-line", className)} role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(value * 100)} aria-label={label}>
+      <span className={cx("absolute inset-y-0 left-0 rounded-full transition-[width,background-color] duration-500 ease-out", col)} style={{ width: `${v * 100}%` }} />
     </div>
   );
 }
@@ -195,8 +192,12 @@ export function Sparkline({
   fill?: boolean;
 }) {
   const id = useId();
-  const color = { phos: "#5cf29a", amber: "#ffb547", alert: "#ff5a4e", ink: "#a6bab1" }[tone];
-  const hi = max ?? Math.max(1e-9, ...values, threshold ?? 0);
+  const color = { phos: "#8fd4b2", amber: "#e8b77d", alert: "#ec8f80", ink: "#c5c4bc" }[tone];
+  const lo = values.length ? Math.min(...values) : 0;
+  const top = values.length ? Math.max(...values) : 0;
+  const flat = max === undefined && threshold === undefined && top - lo < 1e-9;
+  const hi = flat ? top + Math.max(1, Math.abs(top)) : (max ?? Math.max(1e-9, ...values, threshold ?? 0));
+  min = flat ? top - Math.max(1, Math.abs(top)) : min;
   const n = values.length;
   const pts = values.map((v, i) => {
     const x = n <= 1 ? width : (i / (n - 1)) * width;
@@ -213,9 +214,9 @@ export function Sparkline({
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      {thY !== null && <line x1={0} x2={width} y1={thY} y2={thY} stroke="#ff5a4e" strokeOpacity="0.5" strokeDasharray="3 3" strokeWidth="1" />}
-      {n > 1 && fill && <path d={`${d}L${width},${height}L0,${height}Z`} fill={`url(#g${id})`} />}
-      {n > 1 && <path d={d} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" />}
+      {thY !== null && <line x1={0} x2={width} y1={thY} y2={thY} stroke="#ec8f80" strokeOpacity="0.5" strokeDasharray="3 3" strokeWidth="1" />}
+      {n > 1 && fill && !flat && <path d={`${d}L${width},${height}L0,${height}Z`} fill={`url(#g${id})`} />}
+      {n > 1 && <path d={d} fill="none" stroke={color} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />}
       {n > 0 && <circle cx={pts[n - 1]![0]} cy={pts[n - 1]![1]} r="2" fill={color} />}
     </svg>
   );
@@ -223,15 +224,17 @@ export function Sparkline({
 
 // ---------------------------------------------------------------- Chip / Tag
 
-export function Chip({ children, tone = "default", className }: { children: ReactNode; tone?: "default" | "ok" | "warn" | "alert" | "muted"; className?: string }) {
+export function Chip({ children, tone = "default", className }: { children: ReactNode; tone?: "default" | "ok" | "warn" | "alert" | "muted" | "info" | "ai"; className?: string }) {
   const t = {
-    default: "border-line-2 text-ink-1",
-    ok: "border-phos-3 text-phos bg-phos-dim/40",
-    warn: "border-amber-3 text-amber bg-amber-dim/40",
-    alert: "border-alert-3 text-alert bg-alert-dim/50",
+    default: "border-line-2 text-ink-1 bg-bg-2/60",
+    ok: "border-phos-3/60 text-phos bg-phos-dim/50",
+    warn: "border-amber-3/60 text-amber bg-amber-dim/50",
+    alert: "border-alert-3/60 text-alert bg-alert-dim/60",
     muted: "border-line text-ink-2",
+    info: "border-sky-3/60 text-sky bg-sky-dim/50",
+    ai: "border-lilac-3/60 text-lilac bg-lilac-dim/50",
   }[tone];
-  return <span className={cx("inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 font-mono text-2xs uppercase tracking-[0.1em]", t, className)}>{children}</span>;
+  return <span className={cx("inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium", t, className)}>{children}</span>;
 }
 
 // ---------------------------------------------------------------- Segmented
@@ -255,8 +258,9 @@ export function Segmented<T extends string | number>({
   wrap?: boolean;
 }) {
   const layout = useId();
+  const reduced = useReducedMotion();
   return (
-    <div role="radiogroup" aria-label={label} className={cx(wrap ? "grid grid-cols-2 sm:flex" : "inline-flex", "rounded-sm border border-line-2 bg-bg-1 p-0.5", className)}>
+    <div role="radiogroup" aria-label={label} className={cx(wrap ? "grid grid-cols-2 sm:flex" : "inline-flex", "rounded-sm border border-line bg-bg-2/70 p-1", className)}>
       {options.map((o) => {
         const active = o.value === value;
         return (
@@ -273,12 +277,13 @@ export function Segmented<T extends string | number>({
               }
             }}
             className={cx(
-              "relative flex-1 whitespace-nowrap rounded-[2px] font-mono uppercase tracking-[0.08em] transition-colors",
-              size === "sm" ? "h-7 px-2 text-2xs" : "h-9 px-3 text-xs",
-              active ? "text-bg-0" : "text-ink-1 hover:text-ink-0",
+              "relative flex-1 whitespace-nowrap rounded-xs font-medium transition-colors duration-150",
+              size === "sm" ? "h-7 px-2.5 text-[13px]" : "h-9 px-3.5 text-sm",
+              // The new label darkens once the pill has (nearly) arrived; the old one lightens at once, so no label is ever dark on dark.
+              active ? cx("text-bg-0", !reduced && "delay-100") : "text-ink-1 hover:text-ink-0",
             )}
           >
-            {active && <motion.span layoutId={`seg-${layout}`} transition={spring.snap} className="absolute inset-0 rounded-[2px] bg-amber" />}
+            {active && <motion.span layoutId={`seg-${layout}`} transition={reduced ? { duration: 0 } : spring.snap} className="absolute inset-0 rounded-xs bg-amber" />}
             <span className="relative">{o.label}</span>
           </button>
         );
@@ -290,14 +295,14 @@ export function Segmented<T extends string | number>({
 // ---------------------------------------------------------------- misc
 
 export function Kbd({ children }: { children: ReactNode }) {
-  return <kbd className="rounded-[2px] border border-line-2 bg-bg-2 px-1 font-mono text-2xs text-ink-1">{children}</kbd>;
+  return <kbd className="rounded-xs border border-line-2 bg-bg-2 px-1.5 font-mono text-xs text-ink-1">{children}</kbd>;
 }
 
 export function Divider({ label }: { label?: string }) {
   return (
     <div className="flex items-center gap-2 py-1" role="separator">
       <span className="h-px flex-1 bg-line" />
-      {label && <span className="font-mono text-2xs uppercase tracking-[0.14em] text-ink-3">{label}</span>}
+      {label && <span className="eyebrow text-xs text-ink-3">{label}</span>}
       <span className="h-px flex-1 bg-line" />
     </div>
   );

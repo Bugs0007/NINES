@@ -20,16 +20,16 @@ import { DEFAULT_DESIGN, designCost, extraServer, LaunchConfig, launchOptions, l
 export { LaunchConfig };
 
 const ALGS: { value: LbAlgorithm; label: string }[] = [
-  { value: "round-robin", label: "round robin" },
-  { value: "random", label: "random" },
-  { value: "least-outstanding", label: "least outstanding" },
-  { value: "p2c", label: "power of 2" },
+  { value: "round-robin", label: "Round robin" },
+  { value: "random", label: "Random" },
+  { value: "least-outstanding", label: "Least outstanding" },
+  { value: "p2c", label: "Power of 2" },
 ];
 const SESSIONS: { value: Exclude<SessionMode, "none">; label: string; hint: string }[] = [
-  { value: "local", label: "in memory", hint: "Django default on this box" },
-  { value: "sticky", label: "sticky", hint: "hash users to boxes" },
-  { value: "redis", label: "redis", hint: `+${fmtUsd(monthly(REDIS_NODES[1]!.usdPerHour))}/mo` },
-  { value: "cookie", label: "signed cookie", hint: "no server state" },
+  { value: "local", label: "In memory", hint: "Django default on this box" },
+  { value: "sticky", label: "Sticky", hint: "Hash users to boxes" },
+  { value: "redis", label: "Redis", hint: `+${fmtUsd(monthly(REDIS_NODES[1]!.usdPerHour))}/mo` },
+  { value: "cookie", label: "Signed cookie", hint: "No server state" },
 ];
 const MAX_LAUNCHES = 2;
 
@@ -94,8 +94,8 @@ export default function LaunchBuilder({ config, onResult, verdict, locked, runLo
   const cannotRun = !memFits || cost > c.budget * 1.5;
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 lg:flex-row">
-      <div className="flex min-h-0 flex-1 flex-col gap-2">
+    <div className="flex h-full min-h-0 flex-col gap-4 lg:flex-row">
+      <div className="flex min-h-0 flex-1 flex-col gap-3">
         <Timeline t={ch.sim.t} duration={c.durationS} active={ch.phase !== "setup"} />
         <SimStage className="min-h-[340px] flex-1" sim={ch.sim} nodes={layout.nodes} edges={layout.edges} metrics={["p99", "errors", "rps", "util"]} slo={slo} highlight={highlight} />
         {running && (
@@ -103,16 +103,18 @@ export default function LaunchBuilder({ config, onResult, verdict, locked, runLo
             <Button variant="secondary" size="sm" onClick={launch} disabled={launched.length >= MAX_LAUNCHES}>
               Launch another {d.instance} (+{fmtUsd(monthly(it.usdPerHour))}/mo, 20s boot)
             </Button>
-            <span className="font-mono text-2xs text-ink-3">{MAX_LAUNCHES - launched.length} launches left</span>
+            <span className="text-xs text-ink-3">
+              <span className="font-mono tabular">{MAX_LAUNCHES - launched.length}</span> launches left
+            </span>
           </div>
         )}
       </div>
 
-      <div className="flex w-full flex-col gap-3 lg:w-[330px] lg:overflow-y-auto">
-        <Panel label="launch plan">
-          <div className={cx("flex flex-col gap-3", (!designing || locked) && "pointer-events-none opacity-50")}>
+      <div className="flex w-full flex-col gap-4 lg:w-[330px] lg:overflow-y-auto">
+        <Panel label="Launch plan">
+          <div className={cx("flex flex-col gap-4", (!designing || locked) && "pointer-events-none opacity-50")}>
             <div>
-              <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">instances</div>
+              <div className="mb-2 eyebrow text-xs text-ink-2">Instances</div>
               <Segmented
                 size="sm"
                 label="Instance type"
@@ -121,59 +123,60 @@ export default function LaunchBuilder({ config, onResult, verdict, locked, runLo
                 options={c.instances.map((n) => ({ value: n, label: n.replace("m7i.", ""), hint: `${instance(n).vcpu} vCPU · ${instance(n).memGiB} GiB` }))}
               />
             </div>
-            <Slider label="how many" value={d.count} min={1} max={8} step={1} onChange={(v) => set("count", v)} format={(v) => `${v} × ${d.instance} · ${v * it.vcpu} vCPU`} />
+            <Slider label="How many" value={d.count} min={1} max={8} step={1} onChange={(v) => set("count", v)} format={(v) => `${v} × ${d.instance} · ${v * it.vcpu} vCPU`} />
             <div>
-              <Slider label="gunicorn workers per box" value={d.workers} min={1} max={48} step={1} onChange={(v) => set("workers", v)} format={(v) => `${v}`} />
-              <div className="mt-1 flex justify-between font-mono text-[10px] text-ink-2">
+              <Slider label="Gunicorn workers per box" value={d.workers} min={1} max={48} step={1} onChange={(v) => set("workers", v)} format={(v) => `${v}`} />
+              <div className="mt-1.5 flex justify-between gap-3 text-xs text-ink-2">
                 <span>RAM per box</span>
-                <span className={cx("tabular", memFits ? "text-ink-1" : "text-alert")}>
+                <span className={cx("font-mono tabular", memFits ? "text-ink-1" : "text-alert")}>
                   {mem.used.toFixed(1)} / {mem.total} GiB{memFits ? "" : " · won't fit"}
                 </span>
               </div>
               <Meter value={mem.used / mem.total} warnAt={0.8} alertAt={1} className="mt-1" label="memory per box" />
             </div>
             <div>
-              <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">load balancer</div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="mb-2 eyebrow text-xs text-ink-2">Load balancer</div>
+              <div className="grid grid-cols-2 gap-1.5">
                 {ALGS.map((a) => (
                   <button
                     key={a.value}
                     onClick={() => set("algorithm", a.value)}
-                    className={cx("h-8 rounded-[2px] border font-mono text-2xs uppercase tracking-[0.06em]", d.algorithm === a.value ? "border-amber bg-amber text-bg-0" : "border-line-2 text-ink-1 hover:border-line-3")}
+                    className={cx("h-9 rounded-sm border px-2 text-[13px] font-medium transition-colors duration-200", d.algorithm === a.value ? "border-amber bg-amber text-bg-0" : "border-line-2/80 bg-bg-2/50 text-ink-1 hover:border-line-3 hover:text-ink-0")}
                   >
                     {a.label}
                   </button>
                 ))}
               </div>
-              <div className="mt-2 flex items-center justify-between gap-2">
-                <Segmented size="sm" label="Health checks" value={d.hc} onChange={(v: HcMode) => set("hc", v)} options={[{ value: "off", label: "no hc" }, { value: "shallow", label: "shallow" }, { value: "deep", label: "deep" }]} />
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <span className="text-xs text-ink-2">Health checks</span>
+                <Segmented size="sm" label="Health checks" value={d.hc} onChange={(v: HcMode) => set("hc", v)} options={[{ value: "off", label: "Off" }, { value: "shallow", label: "Shallow" }, { value: "deep", label: "Deep" }]} />
               </div>
-              <label className="mt-2 flex items-center gap-2 text-sm text-ink-1">
-                <input type="checkbox" checked={d.outlier} onChange={(e) => set("outlier", e.target.checked)} className="h-4 w-4 accent-[#ffb547]" />
+              <label className="mt-3 flex cursor-pointer items-center gap-2.5 text-sm text-ink-1">
+                <input type="checkbox" checked={d.outlier} onChange={(e) => set("outlier", e.target.checked)} className="h-4 w-4 accent-amber" />
                 Passive ejection
               </label>
             </div>
             <div>
-              <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">sessions</div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="mb-2 eyebrow text-xs text-ink-2">Sessions</div>
+              <div className="grid grid-cols-2 gap-1.5">
                 {SESSIONS.map((s) => (
                   <button
                     key={s.value}
                     title={s.hint}
                     onClick={() => set("session", s.value)}
-                    className={cx("rounded-[2px] border px-2 py-1.5 text-left", d.session === s.value ? "border-amber bg-amber-dim/50" : "border-line-2 hover:border-line-3")}
+                    className={cx("rounded-sm border px-2.5 py-2 text-left transition-colors duration-200", d.session === s.value ? "border-amber/80 bg-amber-dim/50" : "border-line-2/80 bg-bg-2/40 hover:border-line-3")}
                   >
-                    <div className="font-mono text-2xs uppercase tracking-[0.06em] text-ink-0">{s.label}</div>
-                    <div className="text-[10px] text-ink-2">{s.hint}</div>
+                    <div className="text-[13px] font-semibold text-ink-0">{s.label}</div>
+                    <div className="mt-0.5 text-xs text-ink-2">{s.hint}</div>
                   </button>
                 ))}
               </div>
             </div>
           </div>
-          <div className="mt-3 border-t border-line pt-2">
-            <div className="flex justify-between font-mono text-2xs text-ink-2">
-              <span>monthly bill (incl. ALB {fmtUsd(albMonthly())})</span>
-              <span className={cx("tabular", cost > c.budget ? "text-alert" : "text-ink-0")}>
+          <div className="mt-4 border-t border-line/60 pt-3">
+            <div className="flex justify-between gap-3 text-xs text-ink-2">
+              <span>Monthly bill (incl. ALB {fmtUsd(albMonthly())})</span>
+              <span className={cx("shrink-0 font-mono tabular", cost > c.budget ? "text-alert" : "text-ink-0")}>
                 {fmtUsd(cost)} / {fmtUsd(c.budget)}
               </span>
             </div>
@@ -193,20 +196,25 @@ export default function LaunchBuilder({ config, onResult, verdict, locked, runLo
 
 function Timeline({ t, duration, active }: { t: number; duration: number; active: boolean }) {
   return (
-    <div className="h-14 rounded-sm border border-line bg-bg-1 px-6">
-      <div className="relative h-full">
-        <div className="absolute inset-x-0 top-1/2 h-px bg-line-2" />
+    <div className="h-12 rounded-lg border border-line/70 bg-bg-1/75 px-4 shadow-card lg:h-[5.5rem]">
+      <div className="@container relative h-full">
+        <div className="absolute inset-x-0 top-1/2 h-px bg-line-2/70" />
         {TIMELINE.map((e, i) => {
           const past = active && t >= e.t;
           const up = i % 2 === 1;
+          const pos = (e.t / duration) * 100;
+          // Labels near the ends hang inward so the story is never cut at the edge of the card.
+          const anchor = pos < 12 ? "left-0 text-left" : pos > 88 ? "right-0 text-right" : "left-1/2 -translate-x-1/2 text-center";
           return (
-            <div key={e.t} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${(e.t / duration) * 100}%` }} title={e.label}>
-              <div className={cx("mx-auto h-2 w-2 rotate-45 border", past ? "border-amber bg-amber" : "border-line-3 bg-bg-1")} />
-              <div className={cx("absolute left-1/2 hidden w-[120px] -translate-x-1/2 truncate text-center font-mono text-[9px] lg:block", up ? "bottom-3" : "top-3", past ? "text-amber" : "text-ink-3")}>{e.label}</div>
+            <div key={e.t} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${pos}%` }} title={e.label}>
+              <div className={cx("mx-auto h-2.5 w-2.5 rounded-full border transition-colors duration-300", past ? "border-amber bg-amber" : "border-line-3 bg-bg-1")} />
+              <div className={cx("absolute hidden w-[min(140px,24cqw)] text-xs leading-tight transition-colors duration-300 lg:block", anchor, up ? "bottom-4" : "top-4", past ? "text-amber" : "text-ink-2")}>
+                <div className="line-clamp-2">{e.label}</div>
+              </div>
             </div>
           );
         })}
-        {active && <motion.div className="absolute bottom-1 top-1 w-px bg-phos shadow-[0_0_6px_rgb(92_242_154/0.8)]" style={{ left: `${Math.min(1, t / duration) * 100}%` }} />}
+        {active && <motion.div className="absolute top-1/2 h-5 w-px -translate-y-1/2 bg-phos/80" style={{ left: `${Math.min(1, t / duration) * 100}%` }} />}
       </div>
     </div>
   );

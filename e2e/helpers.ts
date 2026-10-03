@@ -42,3 +42,15 @@ export async function noSideScroll(page: Page) {
   const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(over, "horizontal overflow in px").toBeLessThanOrEqual(1);
 }
+
+/** Section intros show once per save; dismiss one if it's up (as a player would, with "Skip intro"). */
+export async function skipIntro(page: Page) {
+  const skip = page.getByRole("button", { name: /skip intro/i });
+  try {
+    await skip.waitFor({ state: "visible", timeout: 5000 });
+    await skip.click();
+    await page.waitForTimeout(700);
+  } catch {
+    /* no intro this time */
+  }
+}

@@ -16,6 +16,9 @@ export interface Call {
   confidence: Confidence;
 }
 
+/** A primary action that is waiting on the player: a quiet sand outline rather than a muddy, half-faded fill. */
+export const WAITING_PRIMARY = "disabled:border-amber-3/40! disabled:bg-amber-dim/70! disabled:text-amber/55! disabled:opacity-100! disabled:shadow-none!";
+
 export function formatNumeric(v: number, unit: string): string {
   const s = v >= 10000 ? v.toLocaleString("en-US", { maximumSignificantDigits: 3 }) : v >= 100 ? v.toFixed(0) : v >= 10 ? v.toFixed(1).replace(/\.0$/, "") : v.toFixed(2).replace(/\.?0+$/, "");
   return `${s}${unit ? ` ${unit}` : ""}`;
@@ -24,8 +27,8 @@ export function formatNumeric(v: number, unit: string): string {
 export function ConfidencePicker({ value, onChange }: { value: Confidence | null; onChange: (c: Confidence) => void }) {
   return (
     <div>
-      <div className="mb-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">How sure are you?</div>
-      <div role="radiogroup" aria-label="Confidence" className="grid grid-cols-3 gap-1.5">
+      <div className="mb-2 eyebrow text-xs text-ink-2">How sure are you?</div>
+      <div role="radiogroup" aria-label="Confidence" className="grid grid-cols-3 gap-2">
         {CONFIDENCES.map((c) => {
           const on = value === c;
           return (
@@ -39,12 +42,12 @@ export function ConfidencePicker({ value, onChange }: { value: Confidence | null
                 onChange(c);
               }}
               className={cx(
-                "flex h-14 flex-col items-center justify-center rounded-sm border font-mono transition-colors",
-                on ? "border-amber bg-amber-dim/60 text-amber" : "border-line-2 bg-bg-2 text-ink-1 hover:border-line-3",
+                "flex h-16 flex-col items-center justify-center rounded-md border transition-colors duration-200",
+                on ? "border-amber-3 bg-amber-dim/70 text-amber ring-1 ring-inset ring-amber/30" : "border-line-2/70 bg-bg-2/60 text-ink-1 hover:border-line-3 hover:bg-bg-2",
               )}
             >
-              <span className="text-lg tabular leading-none">{c}%</span>
-              <span className="mt-1 text-[10px] uppercase tracking-[0.1em] opacity-80">{CONFIDENCE_LABEL[c]}</span>
+              <span className="text-lg font-semibold tabular leading-none">{c}%</span>
+              <span className={cx("mt-1.5 text-xs", on ? "text-amber/85" : "text-ink-2")}>{CONFIDENCE_LABEL[c]}</span>
             </button>
           );
         })}
@@ -63,16 +66,16 @@ export function PredictPanel({ p, onLock, index, total }: { p: Prediction; onLoc
   const ready = conf !== null && (p.kind === "choice" ? choice !== null : p.kind === "numeric" ? touched : true);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div>
-        <div className="mb-1 font-mono text-2xs uppercase tracking-[0.16em] text-amber">
-          Your call {total > 1 ? `· ${index + 1} of ${total}` : ""}
+        <div className="mb-2 eyebrow text-xs text-amber">
+          Your call {total > 1 ? <span className="tabular">· {index + 1} of {total}</span> : ""}
         </div>
-        <p className="text-[17px] leading-snug text-ink-0">{p.prompt}</p>
+        <p className="text-[17px] font-medium leading-relaxed text-ink-0">{p.prompt}</p>
       </div>
 
       {p.kind === "choice" && (
-        <div role="radiogroup" aria-label={p.prompt} className="flex flex-col gap-1.5">
+        <div role="radiogroup" aria-label={p.prompt} className="flex flex-col gap-2">
           {p.options.map((o, i) => {
             const on = choice === o.id;
             return (
@@ -88,11 +91,11 @@ export function PredictPanel({ p, onLock, index, total }: { p: Prediction; onLoc
                   setChoice(o.id);
                 }}
                 className={cx(
-                  "flex min-h-11 items-center gap-3 rounded-sm border px-3 py-2 text-left text-sm transition-colors",
-                  on ? "border-amber bg-amber-dim/50 text-ink-0" : "border-line-2 bg-bg-2 text-ink-1 hover:border-line-3 hover:text-ink-0",
+                  "flex min-h-12 items-center gap-3 rounded-md border px-3.5 py-2.5 text-left text-sm leading-snug transition-colors duration-200",
+                  on ? "border-amber-3 bg-amber-dim/60 text-ink-0 ring-1 ring-inset ring-amber/25" : "border-line-2/70 bg-bg-2/60 text-ink-1 hover:border-line-3 hover:bg-bg-2 hover:text-ink-0",
                 )}
               >
-                <span className={cx("grid h-6 w-6 shrink-0 place-items-center rounded-[2px] border font-mono text-2xs", on ? "border-amber text-amber" : "border-line-3 text-ink-2")}>
+                <span className={cx("grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-semibold transition-colors", on ? "bg-amber text-bg-0" : "bg-bg-3 text-ink-2")}>
                   {String.fromCharCode(65 + i)}
                 </span>
                 {o.label}
@@ -103,10 +106,10 @@ export function PredictPanel({ p, onLock, index, total }: { p: Prediction; onLoc
       )}
 
       {p.kind === "numeric" && (
-        <div className="rounded-sm border border-line-2 bg-bg-2 p-3">
-          <div className="mb-2 text-center font-mono text-3xl tabular text-amber glow-amber">{touched ? formatNumeric(num, p.unit) : "?"}</div>
+        <div className="rounded-md border border-line/70 bg-bg-2/50 px-4 pb-3 pt-4">
+          <div className={cx("num-display mb-3 text-center text-4xl font-semibold", touched ? "text-amber" : "text-ink-3")}>{touched ? formatNumeric(num, p.unit) : "?"}</div>
           <Slider
-            label="drag to set"
+            label="Drag to set"
             value={num}
             min={p.min}
             max={p.max}
@@ -124,11 +127,11 @@ export function PredictPanel({ p, onLock, index, total }: { p: Prediction; onLoc
 
       {p.kind === "order" && (
         <div>
-          <div className="mb-1.5 flex justify-between font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">
-            <span>Fastest</span>
-            <span>drag or use arrows</span>
+          <div className="mb-2 flex justify-between text-xs">
+            <span className="eyebrow text-ink-2">Fastest</span>
+            <span className="text-ink-3">Drag or use arrows</span>
           </div>
-          <Reorder.Group axis="y" values={order} onReorder={setOrder} className="flex flex-col gap-1">
+          <Reorder.Group axis="y" values={order} onReorder={setOrder} className="flex flex-col gap-1.5">
             {order.map((id, i) => {
               const item = p.items.find((x) => x.id === id)!;
               return (
@@ -137,15 +140,15 @@ export function PredictPanel({ p, onLock, index, total }: { p: Prediction; onLoc
                   value={id}
                   onDragStart={() => sfx.tick()}
                   onDragEnd={() => sfx.thunk()}
-                  className="flex min-h-11 cursor-grab touch-none select-none items-center gap-2 rounded-sm border border-line-2 bg-bg-2 px-2 py-1.5 text-sm text-ink-0 active:cursor-grabbing active:border-amber"
+                  className="flex min-h-12 cursor-grab touch-none select-none items-center gap-3 rounded-md border border-line-2/70 bg-bg-2/60 py-1.5 pl-3 pr-1.5 text-sm text-ink-0 shadow-card active:cursor-grabbing active:border-amber-3"
                 >
-                  <span className="w-5 font-mono text-2xs text-ink-3">{i + 1}</span>
-                  <span className="flex-1">{item.label}</span>
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-bg-3 text-xs font-semibold tabular text-ink-2">{i + 1}</span>
+                  <span className="min-w-0 flex-1 leading-snug">{item.label}</span>
                   <span className="flex gap-0.5">
-                    <button aria-label={`Move ${item.label} up`} className="h-8 w-8 rounded-[2px] text-ink-2 hover:bg-bg-3 hover:text-ink-0" onClick={() => move(order, setOrder, i, -1)}>
+                    <button aria-label={`Move ${item.label} up`} className="h-8 w-8 rounded-full text-[11px] text-ink-3 transition-colors hover:bg-bg-3 hover:text-ink-0" onClick={() => move(order, setOrder, i, -1)}>
                       ▲
                     </button>
-                    <button aria-label={`Move ${item.label} down`} className="h-8 w-8 rounded-[2px] text-ink-2 hover:bg-bg-3 hover:text-ink-0" onClick={() => move(order, setOrder, i, 1)}>
+                    <button aria-label={`Move ${item.label} down`} className="h-8 w-8 rounded-full text-[11px] text-ink-3 transition-colors hover:bg-bg-3 hover:text-ink-0" onClick={() => move(order, setOrder, i, 1)}>
                       ▼
                     </button>
                   </span>
@@ -153,7 +156,7 @@ export function PredictPanel({ p, onLock, index, total }: { p: Prediction; onLoc
               );
             })}
           </Reorder.Group>
-          <div className="mt-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">Slowest</div>
+          <div className="mt-2 eyebrow text-xs text-ink-2">Slowest</div>
         </div>
       )}
 
@@ -163,6 +166,7 @@ export function PredictPanel({ p, onLock, index, total }: { p: Prediction; onLoc
         variant="primary"
         size="lg"
         sound="latch"
+        className={WAITING_PRIMARY}
         disabled={!ready}
         onClick={() => {
           const value = p.kind === "choice" ? choice! : p.kind === "numeric" ? num : order;

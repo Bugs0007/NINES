@@ -124,7 +124,10 @@ export function Shake({ trigger, children, className, intensity = 1 }: { trigger
   );
 }
 
-/** Typewriter reveal for cast lines. */
+/**
+ * Typewriter reveal for cast lines. The untyped rest is laid out but transparent, so the line
+ * never reflows and cards don't grow while it types; the leading edge fades in over a few letters.
+ */
 export function Typewriter({ text, className, cps = 70, onDone }: { text: string; className?: string; cps?: number; onDone?: () => void }) {
   const reduced = useReducedMotion();
   const [n, setN] = useState(reduced ? text.length : 0);
@@ -152,10 +155,20 @@ export function Typewriter({ text, className, cps = 70, onDone }: { text: string
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text, cps, reduced]);
+  const edge = Math.min(text.length, n + 3);
   return (
     <span className={className} aria-label={text}>
       <span aria-hidden>{text.slice(0, n)}</span>
-      {n < text.length && <span aria-hidden className="ml-px inline-block h-[1em] w-[0.5ch] translate-y-[0.15em] bg-current opacity-70" />}
+      {n < text.length && (
+        <>
+          <span aria-hidden className="opacity-40">
+            {text.slice(n, edge)}
+          </span>
+          <span aria-hidden className="opacity-0">
+            {text.slice(edge)}
+          </span>
+        </>
+      )}
     </span>
   );
 }

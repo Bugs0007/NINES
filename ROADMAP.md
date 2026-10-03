@@ -1,11 +1,11 @@
 # NINES Roadmap
 
 ## Next session starts here
-1. The Phase 2 slice is complete and waiting at the playtest checkpoint: wait for Bhagath's feedback (what to try is listed under Checkpoint below), apply it, then promote the 11 slice nodes from "built" to "verified" in `src/content/graph.ts` STATUS.
-2. Done 2026-10-02: Foundry B1 (Context Tetris, The Bill), Settings, PWA, generative music, perf on the GPU (D-014), all 21 screens at 390px, and the accuracy pass (CONTENT_PLAN accuracy log).
-3. After feedback: Phase 3, starting with Sandbox/Architect, then Interview Arena, then chapters A2, A4, B2, and B4.
-4. Checks: `npm test` (134), `npx tsc --noEmit`, `npx playwright test` (34 flows, incl. `tour` at both widths and `perf` on the GPU). Dev server: `.claude/launch.json` on port 3100.
-5. Gotchas: responsive grids need `grid-cols-1`; headless Chromium caps near 30fps, so judge perf with `e2e/perf.spec.ts`; Python file writes on Windows default to CRLF, so pass `newline="\n"`.
+1. Playtest round 1 is applied (calm "Dusk" UI, section intros, the learning layer, Groq as the AI coach). Next: ask Bhagath to look again, then promote the 11 slice nodes from "built" to "verified" in `src/content/graph.ts` STATUS.
+2. Read `DESIGN.md` before touching UI; `src/content/learning.ts` must get an entry for every new concept (a test enforces it). New sections get an intro spec in `src/intro/specs.ts` (preview at `/dev/intro?id=…`).
+3. After that: Phase 3, starting with Sandbox/Architect, then Interview Arena, then chapters A2, A4, B2, and B4.
+4. Checks: `npm test` (138), `npx tsc --noEmit`, `npx playwright test` (38 flows incl. `tour` at both widths and `perf` on the GPU; the suite runs with the AI coach off). Dev server: `.claude/launch.json` on port 3100. AI: `GROQ_API_KEY` in `.env`.
+5. Gotchas: responsive grids need `grid-cols-1`; `npm i` on this machine can drop the rolldown binding (`npm i --no-save @rolldown/binding-win32-x64-msvc@1.2.11`); Python file writes on Windows default to CRLF, so pass `newline="\n"`.
 
 ---
 
@@ -46,11 +46,17 @@
 
 ## Checkpoint · Playtest the slice
 - [x] Hand Bhagath a short list of what to try and what feedback is needed (2026-10-02)
-- [ ] Feedback received and applied
+- [x] Feedback received and applied (round 1, 2026-10-03; see below)
+
+## Playtest round 1 · "soothing, and tell me what I'm learning"
+- [x] Calm redesign ("Dusk", D-018): palette, Fraunces + Figtree, soft kit, every screen restyled and checked at 1440px and 390px, softer sound
+- [x] Section intros with animated scenes (HQ welcome, chapters, Daily Shift, Incident Room, Codex, bosses)
+- [x] Learning layer (D-019): what each concept, chapter, and section teaches and why, on chapter pages, mission hooks, debriefs, and `/learn`
+- [x] AI coach on Groq (D-017): gpt-oss-120b grades, gpt-oss-20b hints; Settings switch to turn it off (D-020)
+- [ ] Bhagath's second look
 - What to try: Chapter A1 in order and the Launch Day boss; Foundry B1 and The Bill (forecast before you ship); INC-0001 cold, without hints; a Daily Shift after setting time warp to +10 days; the HQ on your phone; Settings.
 
 ## Phase 3 · Expand (order chosen to make the graph playable fastest)
-- [ ] Apply playtest feedback
 - [ ] Sandbox / Architect (xyflow canvas, presets, chaos monkey, save/load)
 - [ ] Interview Arena (streaming interviewer, clocks, rubric debrief, estimation duels)
 - [ ] Chapter A2 Growing Pains, A4 Read Heavy, B2 How Models Behave, B4 Retrieval

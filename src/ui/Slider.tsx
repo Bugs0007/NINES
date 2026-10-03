@@ -82,7 +82,7 @@ export function Slider({ value, onChange, onCommit, min, max, step, log, label, 
   return (
     <div className={cx("select-none", className)}>
       <div className="mb-1.5 flex items-baseline justify-between gap-2">
-        <span className="font-mono text-2xs uppercase tracking-[0.14em] text-ink-2">{label}</span>
+        <span className="eyebrow text-xs text-ink-2">{label}</span>
         {!hideValue && <span className="font-mono text-sm tabular text-amber">{format ? format(value) : value}</span>}
       </div>
       <div
@@ -95,7 +95,7 @@ export function Slider({ value, onChange, onCommit, min, max, step, log, label, 
         aria-valuenow={value}
         aria-valuetext={typeof format?.(value) === "string" ? (format(value) as string) : String(value)}
         aria-disabled={disabled}
-        className={cx("relative h-9 touch-none", disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer")}
+        className={cx("group relative h-9 touch-none outline-none", disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer")}
         onPointerDown={(e) => {
           if (disabled) return;
           sfx.unlock();
@@ -127,34 +127,32 @@ export function Slider({ value, onChange, onCommit, min, max, step, log, label, 
         }}
         onKeyUp={() => onCommit?.(lastStep.current)}
       >
-        {/* track */}
-        <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-line" />
+        {/* track: a soft rounded groove, filled in sand up to the thumb */}
+        <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-bg-3 shadow-[inset_0_1px_2px_rgb(0_0_0/0.35)]" />
         {zone && (
           <div
-            className={cx("absolute top-1/2 h-1.5 -translate-y-1/2", zone.tone === "alert" ? "bg-alert/35" : "bg-amber/30")}
+            className={cx("absolute top-1/2 h-2 -translate-y-1/2 rounded-full", zone.tone === "alert" ? "bg-alert/30" : "bg-amber/25")}
             style={{ left: `${toFrac(zone.from) * 100}%`, width: `${(toFrac(zone.to) - toFrac(zone.from)) * 100}%` }}
           />
         )}
-        <motion.div className="absolute left-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-amber/80" animate={{ width: `${frac * 100}%` }} transition={spring.snap} />
+        <motion.div className="absolute left-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-amber/70" animate={{ width: `${frac * 100}%` }} transition={spring.snap} />
         {marks?.map((m) => (
-          <div key={m.value} className="absolute top-1/2 h-3 w-px -translate-y-1/2 bg-line-3" style={{ left: `${toFrac(m.value) * 100}%` }} />
+          <div key={m.value} className="absolute top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink-3/70" style={{ left: `${toFrac(m.value) * 100}%` }} />
         ))}
-        {/* thumb */}
+        {/* thumb: a round pebble with a soft halo while held; keyboard focus rings the thumb, not the whole track */}
         <motion.div
           className={cx(
-            "absolute top-1/2 h-6 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-[2px] border bg-bg-3",
-            dragging ? "border-amber shadow-[0_0_16px_rgb(255_181_71/0.6)]" : "border-line-3",
+            "absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-amber bg-ink-0 transition-shadow duration-200 group-focus-visible:ring-4 group-focus-visible:ring-amber/30",
+            dragging ? "shadow-[0_0_0_7px_rgb(232_183_125/0.18),0_2px_8px_rgb(0_0_0/0.45)]" : "shadow-[0_2px_8px_rgb(0_0_0/0.45)]",
           )}
-          animate={{ left: `${frac * 100}%`, scale: dragging ? 1.15 : 1 }}
+          animate={{ left: `${frac * 100}%`, scale: dragging ? 1.1 : 1 }}
           transition={spring.snap}
-        >
-          <span className="absolute inset-x-[4px] top-1/2 h-2.5 -translate-y-1/2 border-x border-ink-3" />
-        </motion.div>
+        />
       </div>
       {marks && (
-        <div className="relative mt-0.5 h-4">
+        <div className="relative mt-1 h-4">
           {marks.map((m) => (
-            <span key={m.value} className="absolute -translate-x-1/2 font-mono text-[10px] text-ink-3" style={{ left: `${toFrac(m.value) * 100}%` }}>
+            <span key={m.value} className="absolute -translate-x-1/2 text-[11px] tabular text-ink-3" style={{ left: `${toFrac(m.value) * 100}%` }}>
               {m.label}
             </span>
           ))}

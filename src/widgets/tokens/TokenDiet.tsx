@@ -44,12 +44,12 @@ export default function TokenDiet({ config, onResult, conditions, locked, verdic
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 lg:flex-row">
-      <div className="flex min-h-0 flex-1 flex-col gap-3">
+    <div className="flex h-full min-h-0 flex-col gap-4 lg:flex-row">
+      <div className="flex min-h-0 flex-1 flex-col gap-4">
         <Panel label={`${c.title} · ${tokens} tokens`} right={<Chip tone={tokens <= c.budgetTokens ? "ok" : "warn"}>budget {c.budgetTokens}</Chip>} className="min-h-0 flex-1" bodyClassName="max-h-[46dvh] overflow-y-auto lg:max-h-[48dvh]">
-          {tok ? <TokenChips pieces={pieces} animate={false} max={900} /> : <div className="font-mono text-2xs text-ink-3">loading tokenizer…</div>}
+          {tok ? <TokenChips pieces={pieces} animate={false} max={900} /> : <div className="text-xs text-ink-2">Loading tokenizer…</div>}
         </Panel>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {DIET_EDITS.map((e) => {
             const on = chosen.includes(e.id);
             const d = deltas[e.id] ?? 0;
@@ -66,7 +66,7 @@ export default function TokenDiet({ config, onResult, conditions, locked, verdic
                   sfx.tick();
                   setChosen((cur) => (cur.includes(e.id) ? cur.filter((x) => x !== e.id) : [...cur, e.id]));
                 }}
-                className={cx("flex items-center justify-between gap-2 rounded-sm border p-2.5 text-left text-sm", on ? "border-amber bg-amber-dim/40 text-ink-0" : "border-line-2 bg-bg-2 text-ink-1 hover:border-line-3")}
+                className={cx("flex items-center justify-between gap-3 rounded-md border p-3.5 text-left text-sm transition-colors duration-200", on ? "border-amber/80 bg-amber-dim/40 text-ink-0" : "border-line-2/80 bg-bg-1/70 text-ink-1 hover:border-line-3")}
               >
                 <span>{e.label}</span>
                 <span className={cx("shrink-0 font-mono text-2xs tabular", good ? "text-phos" : "text-alert")}>{tag}</span>
@@ -75,17 +75,17 @@ export default function TokenDiet({ config, onResult, conditions, locked, verdic
           })}
         </div>
       </div>
-      <div className="flex w-full flex-col gap-3 lg:w-[300px]">
-        <Panel label="the bill">
-          <div className="font-mono text-2xs text-ink-2">
+      <div className="flex w-full flex-col gap-4 lg:w-[280px] 2xl:w-[320px]">
+        <Panel label="The bill">
+          <div className="text-xs tabular text-ink-2">
             {c.requestsPerDay.toLocaleString()} requests/day × ${c.usdPerMTok}/M input tokens
           </div>
-          <div className={cx("mt-1 font-mono text-3xl tabular", tokens <= c.budgetTokens ? "text-phos" : "text-amber")}>{fmtUsd(cost)}/mo</div>
-          <div className="mt-1 font-mono text-[10px] text-ink-3">started at {fmtUsd(monthlyUsd(base, c.requestsPerDay, c.usdPerMTok))}/mo ({base} tokens)</div>
-          <Meter value={tokens / Math.max(1, base)} warnAt={0.7} alertAt={0.95} className="mt-2" label="tokens vs original" />
+          <div className={cx("num-display mt-1.5 text-4xl font-semibold transition-colors duration-300", tokens <= c.budgetTokens ? "text-phos" : "text-amber")}>{fmtUsd(cost)}/mo</div>
+          <div className="mt-1.5 text-xs tabular text-ink-3">Started at {fmtUsd(monthlyUsd(base, c.requestsPerDay, c.usdPerMTok))}/mo ({base} tokens)</div>
+          <Meter value={tokens / Math.max(1, base)} warnAt={0.7} alertAt={0.95} className="mt-3" label="tokens vs original" />
         </Panel>
-        <Panel label="facts the model needs">
-          <ul className="space-y-1">
+        <Panel label="Facts the model needs">
+          <ul className="space-y-1.5">
             {DIET_REQUIRED.map((r, i) => (
               <li key={r.label} className={cx("flex items-center gap-2 text-sm", kept[i] ? "text-ink-0" : "text-alert")}>
                 <span className="font-mono text-xs">{kept[i] ? "✓" : "✗"}</span>

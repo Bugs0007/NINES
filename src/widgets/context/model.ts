@@ -3,7 +3,7 @@
  * and which facts the model can still see. Deterministic and stylized (see honest physics).
  */
 import { z } from "zod";
-import { PRICING, MODELS, CACHE_READ_MULT, CACHE_WRITE_MULT } from "@/config/models";
+import { TEACHING_CACHE_READ_MULT as CACHE_READ_MULT, TEACHING_CACHE_WRITE_MULT as CACHE_WRITE_MULT, TEACHING_PRICES } from "@/content/prices";
 
 export type HistoryMode = "full" | "last" | "summary" | "pinned";
 
@@ -74,15 +74,15 @@ export function turnState(c: ContextConfig, p: Policy, turn: number): TurnState 
   if (p.mode === "summary") keptFrom = Math.max(1, Math.floor(prev / 10) * 10 + 1);
   const keptTurns = prev >= keptFrom ? prev - keptFrom + 1 : 0;
   const blocks: TurnState["blocks"] = [
-    { id: "system", label: "system prompt", tokens: c.systemTokens, kind: "system" },
+    { id: "system", label: "System prompt", tokens: c.systemTokens, kind: "system" },
     { id: "tools", label: "4 tool definitions", tokens: c.toolTokens, kind: "tools" },
   ];
   // Stable blocks first: a cache can only reuse an identical prefix.
-  if (p.mode === "pinned") blocks.push({ id: "pinned", label: "pinned user profile", tokens: c.pinnedTokens, kind: "pinned" });
+  if (p.mode === "pinned") blocks.push({ id: "pinned", label: "Pinned user profile", tokens: c.pinnedTokens, kind: "pinned" });
   if (p.docs > 0) blocks.push({ id: "docs", label: `${p.docs} retrieved doc${p.docs > 1 ? "s" : ""}`, tokens: p.docs * c.docTokens, kind: "docs" });
-  if (p.mode === "summary" && keptFrom > 1) blocks.push({ id: "summary", label: `summary of turns 1–${keptFrom - 1}`, tokens: c.summaryTokens, kind: "summary" });
-  if (keptTurns > 0) blocks.push({ id: "history", label: `turns ${keptFrom}–${prev}`, tokens: keptTurns * c.turnTokens, kind: "history" });
-  blocks.push({ id: "question", label: "new message", tokens: c.questionTokens, kind: "question" });
+  if (p.mode === "summary" && keptFrom > 1) blocks.push({ id: "summary", label: `Summary of turns 1–${keptFrom - 1}`, tokens: c.summaryTokens, kind: "summary" });
+  if (keptTurns > 0) blocks.push({ id: "history", label: `Turns ${keptFrom}–${prev}`, tokens: keptTurns * c.turnTokens, kind: "history" });
+  blocks.push({ id: "question", label: "New message", tokens: c.questionTokens, kind: "question" });
   const input = blocks.reduce((s, b) => s + b.tokens, 0);
   blocks.push({ id: "reserve", label: "room for the answer (max_tokens)", tokens: c.reserveTokens, kind: "reserve" });
   return { turn, blocks, input, overflow: input + c.reserveTokens > c.window, keptTurns: keptTurns ? [keptFrom, prev] : null };
@@ -130,8 +130,8 @@ export function evaluate(c: ContextConfig, p: Policy): Evaluation {
     if ((p.mode === "pinned" || p.mode === "summary") && f.profile) return { fact: f, ok: true, why: p.mode === "pinned" ? "pinned in the profile block" : "kept by the summary" };
     return { fact: f, ok: false, why: `turn ${f.turn} fell out of the window` };
   });
-  const g = PRICING[MODELS.grader]!;
-  const fp = PRICING[MODELS.fast]!;
+  const g = TEACHING_PRICES.big;
+  const fp = TEACHING_PRICES.small;
   const r = ROUTER_FAST_SHARE;
   const price = p.model === "fast" ? fp : p.model === "router" ? { input: r * fp.input + (1 - r) * g.input, output: r * fp.output + (1 - r) * g.output } : g;
   let usd = 0;

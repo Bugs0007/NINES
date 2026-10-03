@@ -16,17 +16,16 @@ If a screen could be replaced by a PDF, it has failed.
 
 ---
 
-## 2. Aesthetic: "Night Shift"
+## 2. Aesthetic: "Dusk"
 
-A late-night ops control room at 02:14 IST.
+A quiet evening workspace you can look at for hours. (Replaced the original "Night Shift" control-room look after the first playtest found it artificial and tiring; D-018. The full spec is `DESIGN.md`.)
 
-- **Palette.** Near-black blue-green background. Phosphor green = healthy and success. Amber = data accent, focus, attention. Red = failure and alarms. No purple, no glass cards, no gradients-for-decoration. Colour always means something.
-- **Type.** `Big Shoulders Display` (condensed, industrial signage) for headlines and big numbers on cinematics. `IBM Plex Sans` for UI copy. `IBM Plex Mono` with tabular figures for every number, label, log line, and metric.
-- **Texture.** A subtle scanline + vignette overlay (CSS only, disabled in reduced motion for the flicker part). Glow is reserved for live data (particles, the uptime number, active meters).
-- **Shapes.** Hairline 1px rules, square-ish corners (2 to 4px), bracketed labels like `[ P99 ]`, panel headers styled like rack labels. Dense where data lives, generous where decisions happen.
-- **Motion.** Springs everywhere (no linear tweens for UI). Every interaction responds within 100ms. Big moments get short, skippable cinematics.
-
-Tokens live in `app/globals.css` (`@theme`) and are documented in `CLAUDE.md`.
+- **Palette.** Blue-slate surfaces, parchment text (never pure white), low contrast between neighbours. Sage = healthy and success, sand = interactive and attention, coral = failure, sky = information and memory, lilac = the AI track. Colour still always means something.
+- **Type.** Fraunces (a soft serif) for headings and big readouts, Figtree for everything you read, IBM Plex Mono only for live numbers, code, and logs. Sentence case everywhere.
+- **Texture.** A faint drifting dusk wash and grain behind everything. No scanlines, no neon glow.
+- **Shapes.** Rounded cards (10 to 24px), pill chips, soft shadows. Generous spacing; remove chrome before shrinking text.
+- **Motion.** Soft springs; things settle rather than snap. Every section opens with a skippable animated intro that says what you're about to learn and why (section 9a).
+- **Sound.** Rounded, low-passed tones at gentle levels; the incident alarm is a slow two-note chime.
 
 ---
 
@@ -316,3 +315,12 @@ Every screen works at 390px. The canvas-heavy screens switch to touch-first layo
 6. **The slice's incident is a Launch-Day incident ("The Fourth Box")** instead of a Case Intel one, so it transfers Chapter 1 concepts and keeps real mystery (you already know how your own incidents ended). Case Intel Files arrive as Track D.
 7. **Raw Web Audio instead of Tone.js; Canvas 2D instead of PixiJS** (see `DECISIONS.md`).
 8. **Tokenizer Slicer** uses a real BPE tokenizer offline as a proxy and asks Claude's token-counting endpoint for exact counts when a key is set.
+
+### 9a. Knowing what you're learning, and why
+
+Playtest feedback: the game didn't say what each part teaches or why it matters. The learning layer (`src/content/learning.ts`) answers that everywhere, from one source of truth:
+
+- **Section intros** (`src/intro/`): an animated scene plus "what you'll learn" and "why it matters" the first time you enter HQ, a chapter, the Daily Shift, the Incident Room, the Codex, or a boss. Replayable.
+- **Chapter pages**: outcomes ("by the end you can"), why the chapter comes where it does, and the payoff; each mission row leads with what it teaches.
+- **Missions**: the hook states the objective; the debrief says what you can now do, the one idea to keep, and where it comes back in the curriculum.
+- **How NINES teaches** (`/learn`): the mission loop and the reason for each step, what each section trains, how rank and decay work, and the curriculum with every built concept's "can do" and "why".
