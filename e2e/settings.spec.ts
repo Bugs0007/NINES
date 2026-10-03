@@ -11,7 +11,7 @@ test("settings: sound, motion, claude, time warp, data", async ({ page, request 
 
   await page.goto("/settings");
   await expect(page.getByRole("heading", { name: /settings/i })).toBeVisible();
-  await expect(page.getByText(/connected|offline/i).first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(/connected|offline|off on this device/i).first()).toBeVisible({ timeout: 15_000 });
   await noSideScroll(page);
   await shot("1");
 
