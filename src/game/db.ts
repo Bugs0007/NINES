@@ -27,7 +27,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  audio: { master: 0.8, ui: 0.7, sim: 0.6, alerts: 0.7, music: 0.35, muted: false },
+  audio: { master: 0.7, ui: 0.6, sim: 0.5, alerts: 0.6, music: 0.35, muted: false },
   reducedMotion: "system",
   skipSeenCinematics: false,
   showHonestPhysics: true,

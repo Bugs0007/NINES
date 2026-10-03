@@ -179,48 +179,51 @@ class NinesAudio {
 
   // ---------------------------------------------------------------- UI
 
+  // "Dusk" sound: soft, rounded, low-passed. Pleasant to hear a thousand times; meaning carried by pitch and shape.
+
+  /** A soft wooden tap. */
   tick(): void {
-    this.noise({ ch: "ui", decay: 0.025, gain: 0.25, hz: jitter(5200), q: 3, type: "highpass" });
+    this.tone({ ch: "ui", type: "sine", hz: jitter(1150, 0.04), hzEnd: 900, attack: 0.002, decay: 0.035, gain: 0.05, filterHz: 2600 });
   }
 
   select(): void {
-    this.tone({ ch: "ui", type: "triangle", hz: jitter(880), decay: 0.06, gain: 0.12 });
+    this.tone({ ch: "ui", type: "sine", hz: jitter(660, 0.02), attack: 0.006, decay: 0.12, gain: 0.07, filterHz: 2200 });
   }
 
   /** Placing something heavy: low thump with a click on top. */
   thunk(): void {
-    this.tone({ ch: "ui", type: "sine", hz: jitter(150), hzEnd: 55, decay: 0.18, gain: 0.5 });
-    this.noise({ ch: "ui", decay: 0.04, gain: 0.18, hz: 1800, q: 0.8 });
+    this.tone({ ch: "ui", type: "sine", hz: jitter(150), hzEnd: 60, decay: 0.2, gain: 0.3 });
+    this.noise({ ch: "ui", decay: 0.04, gain: 0.06, hz: 1200, q: 0.8, type: "lowpass" });
   }
 
   confirm(): void {
-    this.tone({ ch: "ui", type: "triangle", hz: jitter(660), decay: 0.09, gain: 0.14 });
-    this.tone({ ch: "ui", type: "triangle", hz: jitter(990), decay: 0.14, gain: 0.12, delay: 0.07 });
+    this.tone({ ch: "ui", type: "sine", hz: midiHz(76), attack: 0.008, decay: 0.22, gain: 0.08, filterHz: 2400 });
+    this.tone({ ch: "ui", type: "sine", hz: midiHz(83), attack: 0.008, decay: 0.32, gain: 0.07, filterHz: 2400, delay: 0.08 });
   }
 
   error(): void {
-    this.tone({ ch: "ui", type: "square", hz: jitter(160), decay: 0.16, gain: 0.08, filterHz: 900 });
-    this.tone({ ch: "ui", type: "square", hz: jitter(120), decay: 0.2, gain: 0.07, filterHz: 700, delay: 0.09 });
+    this.tone({ ch: "ui", type: "triangle", hz: midiHz(52), decay: 0.22, gain: 0.08, filterHz: 700 });
+    this.tone({ ch: "ui", type: "triangle", hz: midiHz(47), decay: 0.3, gain: 0.07, filterHz: 600, delay: 0.1 });
   }
 
   /** Locking in a prediction: a latch closing. */
   latch(): void {
-    this.noise({ ch: "ui", decay: 0.05, gain: 0.3, hz: 2400, q: 2 });
-    this.tone({ ch: "ui", type: "sine", hz: jitter(220), hzEnd: 180, decay: 0.12, gain: 0.35 });
+    this.noise({ ch: "ui", decay: 0.04, gain: 0.07, hz: 1600, q: 1.2, type: "lowpass" });
+    this.tone({ ch: "ui", type: "sine", hz: jitter(220), hzEnd: 185, decay: 0.16, gain: 0.22 });
   }
 
   /** Reveal sting. `surprise` 0 = you called it, 1 = confidently wrong. */
   reveal(surprise: number): void {
     if (surprise <= 0) {
-      [0, 4, 7, 12].forEach((s, i) => this.tone({ ch: "ui", type: "triangle", hz: midiHz(72 + s), decay: 0.35, gain: 0.1, delay: i * 0.05 }));
+      [0, 4, 7, 12].forEach((s, i) => this.tone({ ch: "ui", type: "sine", hz: midiHz(72 + s), attack: 0.01, decay: 0.5, gain: 0.07, filterHz: 3000, delay: i * 0.07 }));
     } else {
-      this.tone({ ch: "alerts", type: "sawtooth", hz: 220, hzEnd: 110 - 40 * surprise, decay: 0.5 + 0.4 * surprise, gain: 0.12 + 0.1 * surprise, filterHz: 1200 });
-      this.noise({ ch: "alerts", decay: 0.3, gain: 0.2 * surprise, hz: 400, q: 0.7, type: "lowpass" });
+      this.tone({ ch: "alerts", type: "triangle", hz: 220, hzEnd: 120 - 30 * surprise, decay: 0.55 + 0.4 * surprise, gain: 0.08 + 0.06 * surprise, filterHz: 800 });
+      this.noise({ ch: "alerts", decay: 0.3, gain: 0.06 * surprise, hz: 300, q: 0.7, type: "lowpass" });
     }
   }
 
   whoosh(): void {
-    this.noise({ ch: "ui", decay: 0.35, gain: 0.12, hz: 900, q: 0.5 });
+    this.noise({ ch: "ui", decay: 0.45, gain: 0.05, hz: 700, q: 0.4, type: "lowpass" });
   }
 
   // ---------------------------------------------------------------- simulation
@@ -294,11 +297,11 @@ class NinesAudio {
   alarm(on: boolean): void {
     if (on && !this.alarmTimer) {
       const ring = () => {
-        this.tone({ ch: "alerts", type: "square", hz: 880, decay: 0.16, gain: 0.07, filterHz: 2400 });
-        this.tone({ ch: "alerts", type: "square", hz: 660, decay: 0.16, gain: 0.07, filterHz: 2400, delay: 0.2 });
+        this.tone({ ch: "alerts", type: "triangle", hz: midiHz(76), attack: 0.01, decay: 0.3, gain: 0.07, filterHz: 1600 });
+        this.tone({ ch: "alerts", type: "triangle", hz: midiHz(72), attack: 0.01, decay: 0.4, gain: 0.07, filterHz: 1600, delay: 0.22 });
       };
       ring();
-      this.alarmTimer = setInterval(ring, 1400);
+      this.alarmTimer = setInterval(ring, 2200);
     } else if (!on && this.alarmTimer) {
       clearInterval(this.alarmTimer);
       this.alarmTimer = null;
@@ -308,7 +311,7 @@ class NinesAudio {
   /** A single pager buzz. */
   pager(): void {
     for (let i = 0; i < 3; i++) {
-      this.tone({ ch: "alerts", type: "square", hz: 1318, decay: 0.07, gain: 0.06, filterHz: 3000, delay: i * 0.13 });
+      this.tone({ ch: "alerts", type: "triangle", hz: midiHz(84), attack: 0.005, decay: 0.1, gain: 0.06, filterHz: 2400, delay: i * 0.14 });
     }
   }
 
