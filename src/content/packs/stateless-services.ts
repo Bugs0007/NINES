@@ -219,7 +219,8 @@ export default definePack({
       { choice: "Sticky sessions", gain: "No code change", cost: "Breaks on restarts and pool changes, unbalances load" },
     ],
     seenIn: [
-      "Case Intel keeps Django sessions in Postgres (the default db backend), which is why it could scale out without this bug.",
+      { text: "Case Intel keeps Django sessions in Postgres (the default db backend), which is why it could scale out without this bug.", audience: "owner" },
+      "Django keeps sessions in the database by default, which is why a default Django app can scale out without this bug.",
       "Any file your app writes to local disk (uploads, generated PDFs) is state that won't survive a second box.",
     ],
     interviewAngle: "State 'the app tier is stateless; sessions in Redis, blobs in S3' early in any design. It's what justifies the load balancer and autoscaling you draw next.",

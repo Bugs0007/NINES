@@ -232,8 +232,10 @@ export default definePack({
       { choice: "Few medium boxes", gain: "Usually the sweet spot: some pooling, tolerable failure blast", cost: "Still plan for losing one at peak" },
     ],
     seenIn: [
-      "Case Intel runs on a single EC2 box: simple and cheap, and every incident on it is a full outage.",
-      "The 1 GB box that fell over under the polling storm was a scale-up ceiling you hit early.",
+      { text: "Case Intel runs on a single EC2 box: simple and cheap, and every incident on it is a full outage.", audience: "owner" },
+      "A side project on a single EC2 box: simple and cheap, and every incident on it is a full outage.",
+      { text: "The 1 GB box that fell over under the polling storm was a scale-up ceiling you hit early.", audience: "owner" },
+      "A 1 GB box that falls over when clients start polling every few seconds is a scale-up ceiling you hit early.",
     ],
     interviewAngle: "Don't say 'scale horizontally' as a reflex. Say 'start with one reasonable box, then N boxes behind a load balancer sized so N−1 handles peak', and name what scaling out requires (stateless app tier).",
     aws: [

@@ -12,6 +12,8 @@ import { cx } from "@/ui/kit";
 import { useReducedMotion } from "@/ui/motion";
 import { alpha, PALETTE as P } from "@/ui/palette";
 import { crossTrace, focusFrame, LOT, mapLayout } from "./layout";
+import { chapterFor } from "@/content/edition";
+import { useEdition } from "@/game/account";
 
 export type LotState = "locked" | "blueprint" | "available" | "built";
 
@@ -60,6 +62,7 @@ export function InfraMap({
   focusChapter?: string;
   className?: string;
 }) {
+  const edition = useEdition();
   const L = mapLayout();
   const reduced = useReducedMotion();
   const svg = useRef<SVGSVGElement>(null);
@@ -242,7 +245,8 @@ export function InfraMap({
                 Track {d.track}
               </tspan>
             </text>
-            {d.blocks.map((b) => {
+            {d.blocks.map((b0) => {
+              const b = { ...b0, title: chapterFor({ id: b0.chapter, title: b0.title, stage: "", blurb: "" }, edition).title };
               const t = titleFit(b.chapter, b.title, b.w, k);
               return (
                 <g key={b.chapter} transform={`translate(${b.x},${b.y})`}>

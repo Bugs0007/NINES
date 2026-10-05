@@ -33,9 +33,15 @@ const mono = localFont({
   display: "swap",
 });
 
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3100");
+const DESCRIPTION = "Learn system design, AI engineering, and backend fundamentals by predicting, breaking, and explaining live simulated systems. Spaced reviews keep it from fading. Free, no sign-up.";
+
 export const metadata: Metadata = {
-  title: { default: "NINES", template: "%s · NINES" },
-  description: "A game about keeping systems up: system design, AI engineering, and the fundamentals under both.",
+  metadataBase: new URL(SITE),
+  title: { default: "NINES: learn system design by breaking systems", template: "%s · NINES" },
+  description: DESCRIPTION,
+  openGraph: { type: "website", siteName: "NINES", title: "NINES: learn system design by breaking systems", description: DESCRIPTION, url: "/" },
+  twitter: { card: "summary_large_image", title: "NINES: learn system design by breaking systems", description: DESCRIPTION },
   applicationName: "NINES",
   appleWebApp: { capable: true, title: "NINES", statusBarStyle: "black-translucent" },
 };

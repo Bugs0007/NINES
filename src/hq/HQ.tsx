@@ -17,6 +17,8 @@ import { spring, Ticker, useReducedMotion } from "@/ui/motion";
 import { InfraMap, lotInfo, type LotInfo } from "./InfraMap";
 import { useIntro } from "@/intro/useIntro";
 import { WELCOME_INTRO } from "@/intro/specs";
+import { chapterFor, nodeTitle, trackName } from "@/content/edition";
+import { useAccount, useEdition } from "@/game/account";
 
 export function HQ() {
   const intro = useIntro(WELCOME_INTRO);
@@ -133,6 +135,7 @@ function Boot() {
 }
 
 function TopBar() {
+  const acct = useAccount();
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b border-line/70 px-4 lg:px-8">
       <span className="font-display text-2xl font-semibold text-ink-0">
@@ -143,6 +146,11 @@ function TopBar() {
         <Link href="/learn" className="inline-flex h-9 items-center rounded-full px-3 font-medium transition-colors duration-200 hover:bg-bg-2 hover:text-ink-0">
           How NINES teaches
         </Link>
+        {acct.status === "guest" && (
+          <Link href="/settings" className="hidden h-9 items-center rounded-full px-3 font-medium text-amber transition-colors duration-200 hover:bg-bg-2 sm:inline-flex">
+            Save progress
+          </Link>
+        )}
         <Link href="/settings" className="-mr-2 inline-flex h-9 items-center rounded-full px-3 font-medium transition-colors duration-200 hover:bg-bg-2 hover:text-ink-0" aria-label="Settings">
           Settings
         </Link>
@@ -231,6 +239,7 @@ function Legend() {
 }
 
 function LotPanel({ id, info, r, due, onClose, onSelect }: { id: string; info: LotInfo; r?: number; due: boolean; onClose: () => void; onSelect: (id: string) => void }) {
+  const edition = useEdition();
   const n = NODE_BY_ID.get(id)!;
   const ch = CHAPTERS.find((c) => c.id === n.chapter)!;
   const concepts = useGame((s) => s.concepts);
@@ -261,13 +270,13 @@ function LotPanel({ id, info, r, due, onClose, onSelect }: { id: string; info: L
     >
       <div className="flex items-start justify-between gap-2">
         <div className="pt-1 text-xs text-ink-2">
-          {TRACKS[n.track].district} · {ch.title} · {n.kind}
+          {trackName(n.track, edition).district} · {chapterFor(ch, edition).title} · {n.kind}
         </div>
         <button onClick={onClose} aria-label="Close" className="-mr-2 -mt-2 grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink-2 transition-colors duration-200 hover:bg-bg-2 hover:text-ink-0">
           ✕
         </button>
       </div>
-      <h3 className="mt-1 font-display text-2xl font-semibold leading-tight text-ink-0">{n.title}</h3>
+      <h3 className="mt-1 font-display text-2xl font-semibold leading-tight text-ink-0">{nodeTitle(n, edition)}</h3>
       <div className={cx("mt-1.5 text-[13px] font-medium", info.state === "built" ? (info.health === "online" ? "text-phos" : info.health === "incident" ? "text-alert" : "text-amber") : info.state === "available" ? "text-amber" : "text-ink-2")}>{status}</div>
       {info.state === "built" && r !== undefined && (
         <div className="mt-4 grid grid-cols-3 gap-2 rounded-md bg-bg-2/60 px-3 py-2.5 text-xs text-ink-2">

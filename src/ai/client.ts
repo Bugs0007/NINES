@@ -10,6 +10,9 @@ export interface AiStatus {
   /** A key is configured on the server (true even when switched off in this browser). */
   keyConfigured?: boolean;
   provider: string;
+  role?: "guest" | "player" | "owner";
+  /** Calls left today for this caller (null = unlimited). */
+  remaining?: { grade: number | null; hint: number | null };
   spentUsd: number;
   calls: number;
   budgetUsd: number;

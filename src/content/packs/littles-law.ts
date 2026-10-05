@@ -265,8 +265,10 @@ export default definePack({
       { choice: "Timeouts on dependencies", gain: "Caps W, so one slow dependency can't eat every worker", cost: "Some requests fail fast instead of succeeding slowly" },
     ],
     seenIn: [
-      "Case Intel: gunicorn sync workers on a small EC2 box. In-flight requests × memory per request is Little's Law in megabytes.",
-      "Case Intel's eCourts fan-out: each slow upstream call held a worker for its whole duration.",
+      { text: "Case Intel: gunicorn sync workers on a small EC2 box. In-flight requests × memory per request is Little's Law in megabytes.", audience: "owner" },
+      "A Django app with gunicorn sync workers on a small EC2 box: in-flight requests × memory per request is Little's Law in megabytes.",
+      { text: "Case Intel's eCourts fan-out: each slow upstream call held a worker for its whole duration.", audience: "owner" },
+      "Any fan-out to a slow upstream API: each call holds a worker for its whole duration.",
     ],
     interviewAngle: "Use it in every sizing answer: 'At 2k req/s and 50ms, about 100 requests are in flight, so I'd size pools around 150 with headroom.' It shows you reason from numbers, not vibes.",
     aws: [

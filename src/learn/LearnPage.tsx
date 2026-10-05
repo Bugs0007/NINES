@@ -11,6 +11,8 @@ import { hrefFor, isPlayable } from "@/content/progression";
 import { useGame } from "@/game/store";
 import { Chip, cx } from "@/ui/kit";
 import { useReducedMotion } from "@/ui/motion";
+import { trackName } from "@/content/edition";
+import { useEdition } from "@/game/account";
 
 const SECTION_LOOK: Record<SectionId, { href: string; dot: string; text: string }> = {
   campaign: { href: "/campaign/a1", dot: "bg-phos", text: "text-phos" },
@@ -24,6 +26,7 @@ const SECTION_LOOK: Record<SectionId, { href: string; dot: string; text: string 
 const TRACK_TONE: Record<Track, string> = { A: "text-phos", B: "text-lilac", C: "text-sky", D: "text-amber" };
 
 export function LearnPage() {
+  const edition = useEdition();
   const reduced = useReducedMotion();
   const concepts = useGame((s) => s.concepts);
   // Appear on load with a short stagger (not on scroll: content must never depend on an observer firing).
@@ -177,7 +180,7 @@ export function LearnPage() {
           })}
           <p className="mt-8 text-sm leading-relaxed text-ink-2">
             <span className="text-ink-1">Also planned: </span>
-            {TRACKS.C.name} ({TRACKS.C.district}), and {TRACKS.D.name} ({TRACKS.D.district}): incidents drawn from Case Intel, unlocked once you have the concepts to prove their root causes.
+            {TRACKS.C.name} ({TRACKS.C.district}), and {trackName("D", edition).name} ({TRACKS.D.district}): {edition === "owner" ? "incidents drawn from Case Intel" : "incidents from a small production app"}, unlocked once you have the concepts to prove their root causes.
           </p>
         </section>
 

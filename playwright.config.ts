@@ -23,6 +23,8 @@ export default defineConfig({
     command: `npx next dev -p ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: true,
+    // A test owner, so e2e can check the owner edition and /admin (real owners come from OWNER_EMAILS in .env).
+    env: { OWNER_EMAILS: [process.env.OWNER_EMAILS, "owner@nines.test"].filter(Boolean).join(",") },
     timeout: 180_000,
   },
 });

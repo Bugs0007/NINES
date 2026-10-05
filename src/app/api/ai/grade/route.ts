@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { MODELS } from "@/config/models";
 import { GRADE_JSON_SCHEMA, GradeRequest } from "@/ai/schemas";
-import { assertBudget, chat, hasKey, reasonOf, record, unavailable } from "@/server/ai";
+import { assertBudget, assertQuota, caller, chat, hasKey, reasonOf, record, unavailable } from "@/server/ai";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +34,8 @@ export async function POST(req: Request) {
   if (!parsed.success) return unavailable("bad-request", 400);
   const g = parsed.data;
   try {
+    const who = await caller(req);
+    await assertQuota(who, "grade");
     await assertBudget();
     const rubric = g.rubric.map((r) => `- id: ${r.id}\n  criterion: ${r.criterion}${r.keyIdea ? `\n  key idea: ${r.keyIdea}` : ""}`).join("\n");
     const user = [
@@ -45,7 +47,7 @@ export async function POST(req: Request) {
       "Grade the player_answer.",
     ].join("\n\n");
     const res = await chat({ model: MODELS.grader, system: SYSTEM, user, maxTokens: 3000, reasoningEffort: "medium", jsonSchema: { name: "grade", schema: GRADE_JSON_SCHEMA } });
-    const usd = await record("grade", MODELS.grader, res.usage);
+    const usd = await record("grade", MODELS.grader, res.usage, who.subject);
     let json: unknown = null;
     try {
       json = JSON.parse(res.text);

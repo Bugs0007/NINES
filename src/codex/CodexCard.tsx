@@ -8,10 +8,13 @@ import { NODE_BY_ID, TRACKS } from "@/content/graph";
 import type { MasteryLevel } from "@/game/db";
 import { Chip, cx } from "@/ui/kit";
 import { spring } from "@/ui/motion";
+import { seenInFor } from "@/content/edition";
+import { useEdition } from "@/game/account";
 
 const MASTERY = ["Unbuilt", "Built", "Hardened", "Mastered"];
 
 export function CodexCard({ pack, mastery = 1, compact = false, onReplay, className }: { pack: ConceptPack; mastery?: MasteryLevel; compact?: boolean; onReplay?: () => void; className?: string }) {
+  const edition = useEdition();
   const node = NODE_BY_ID.get(pack.id);
   const c = pack.codex;
   return (
@@ -80,7 +83,7 @@ export function CodexCard({ pack, mastery = 1, compact = false, onReplay, classN
             <section>
               <h4 className="eyebrow text-xs text-sky">Where you&apos;ve seen it</h4>
               <ul className="mt-2 list-disc space-y-1.5 pl-4 text-sm leading-relaxed text-ink-1 marker:text-ink-3">
-                {c.seenIn.map((s, i) => (
+                {seenInFor(c.seenIn, edition).map((s, i) => (
                   <li key={i}>{s}</li>
                 ))}
               </ul>

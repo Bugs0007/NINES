@@ -1,6 +1,6 @@
 import { MODELS } from "@/config/models";
 import { HintRequest } from "@/ai/schemas";
-import { assertBudget, chat, hasKey, reasonOf, record, unavailable } from "@/server/ai";
+import { assertBudget, assertQuota, caller, chat, hasKey, reasonOf, record, unavailable } from "@/server/ai";
 
 export const dynamic = "force-dynamic";
 
@@ -27,10 +27,12 @@ export async function POST(req: Request) {
   if (!parsed.success) return unavailable("bad-request", 400);
   const h = parsed.data;
   try {
+    const who = await caller(req);
+    await assertQuota(who, "hint");
     await assertBudget();
     const user = `<mission>${h.mission}</mission>\n<goal>${h.goal}</goal>\n<situation>${h.situation}</situation>\n<previous_hints>${h.previous.join("\n") || "none"}</previous_hints>\nGive a level ${h.level} hint.`;
     const res = await chat({ model: MODELS.fast, system: SYSTEM, user, maxTokens: 700, reasoningEffort: "low" });
-    const usd = await record("hint", MODELS.fast, res.usage);
+    const usd = await record("hint", MODELS.fast, res.usage, who.subject);
     if (!res.text) return unavailable("no-hint");
     return Response.json({ ok: true, hint: unquote(res.text), usd });
   } catch (e) {

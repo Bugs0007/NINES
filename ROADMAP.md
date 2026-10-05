@@ -1,11 +1,11 @@
 # NINES Roadmap
 
 ## Next session starts here
-1. Playtest round 1 is applied (calm "Dusk" UI, section intros, the learning layer, Groq as the AI coach). Next: ask Bhagath to look again, then promote the 11 slice nodes from "built" to "verified" in `src/content/graph.ts` STATUS.
-2. Read `DESIGN.md` before touching UI; `src/content/learning.ts` must get an entry for every new concept (a test enforces it). New sections get an intro spec in `src/intro/specs.ts` (preview at `/dev/intro?id=…`).
-3. After that: Phase 3, starting with Sandbox/Architect, then Interview Arena, then chapters A2, A4, B2, and B4.
-4. Checks: `npm test` (138), `npx tsc --noEmit`, `npx playwright test` (38 flows incl. `tour` at both widths and `perf` on the GPU; the suite runs with the AI coach off). Dev server: `.claude/launch.json` on port 3100. AI: `GROQ_API_KEY` in `.env`.
-5. Gotchas: responsive grids need `grid-cols-1`; `npm i` on this machine can drop the rolldown binding (`npm i --no-save @rolldown/binding-win32-x64-msvc@1.2.11`); Python file writes on Windows default to CRLF, so pass `newline="\n"`.
+1. Public launch is built (D-021): guest play, optional Google/GitHub sign-in with progress sync, owner edition + `/admin`, capped shared AI coach, privacy page, link preview. Next: Bhagath deploys per `DEPLOY.md` (Vercel + Neon, OAuth apps, env vars), then posts.
+2. After launch: read `/admin` feedback weekly; promote the slice nodes to "verified" once playtest round 2 is in.
+3. Then Phase 3: Sandbox/Architect, Interview Arena, chapters A2, A4, B2, B4.
+4. Checks: `npm test` (142), `npx tsc --noEmit`, `npx next build`, `npx playwright test` (incl. `accounts`, `tour`, GPU `perf`; AI off; test owner `owner@nines.test`).
+5. Gotchas: role checks are server-side; public text must pass `tests/content/edition.test.ts`; `npm i` can drop the rolldown binding; Tailwind scans only `src/`.
 
 ---
 

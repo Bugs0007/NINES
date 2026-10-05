@@ -226,7 +226,8 @@ export default definePack({
       { choice: "Summaries", gain: "Keeps the gist of old turns", cost: "Extra calls; details get lost" },
     ],
     seenIn: [
-      "Case Intel's RAG answers: every retrieved chunk you add is paid for on every question, and the key passage can get lost in the middle.",
+      { text: "Case Intel's RAG answers: every retrieved chunk you add is paid for on every question, and the key passage can get lost in the middle.", audience: "owner" },
+      "A RAG answer box: every retrieved chunk you add is paid for on every question, and the key passage can get lost in the middle.",
       "Any chatbot you've built that 'suddenly forgot' something was a context policy you didn't choose on purpose.",
     ],
     interviewAngle: "In a chat-product design, state the context budget explicitly: 'system + tools ≈ 4k, top-3 chunks ≈ 2k, pinned profile, last N turns, answer reserve', and how you cache the stable prefix. It shows you understand cost and quality at once.",

@@ -16,6 +16,7 @@ A game that teaches system design, AI engineering, and dev fundamentals. Read `R
 | Every screen at both widths | `npx playwright test e2e/tour.spec.ts` (fails on any sideways scroll) |
 | Renderer perf (needs a GPU) | `npx playwright test e2e/perf.spec.ts` (stress page: `/dev/perf?n=2000`) |
 | Preview a section intro | `/dev/intro?id=chapter:a1` (also `chapter:b1`, `section:shift`, `section:incident`, `section:codex`, `boss:boss-the-bill`) |
+| Production build + local prod server | `npx next build` then `npx next start -p 3200` (sign-in needs `AUTH_SECRET` in production) |
 | Regenerate app icons | `npx tsx scripts/gen-icons.mts` (from `src/app/icon.svg`) |
 
 Windows + OneDrive notes: installs are slow here. If Vitest dies with "Cannot find native binding" run `npm i --no-save @rolldown/binding-win32-x64-msvc`. Fonts are committed in `src/fonts/` because `next/font/google` can't fetch on this network.
@@ -103,7 +104,14 @@ Motion presets live in `src/ui/motion.tsx` (`spring.snap`, `soft`, `heavy`, `bou
 - Runtime AI is Groq's OpenAI-compatible API, called with plain `fetch` from `src/server/ai.ts` (no SDK). Key: `GROQ_API_KEY` in `.env` (gitignored), read server-side only.
 - Routes: `/api/ai/status`, `/api/ai/grade` (gpt-oss-120b, strict JSON-schema output, medium reasoning), `/api/ai/hint` (gpt-oss-20b, low reasoning). `include_reasoning: false` always.
 - Model IDs and runtime prices only in `src/config/models.ts`. The lessons' price sheet (Claude list prices the AI track teaches with) is `src/content/prices.ts`; never couple the two, or a provider change moves calibrated challenges.
-- The ledger is `.nines/usage.json`; the monthly cap is `NINES_MONTHLY_BUDGET_USD` (default $5). Free tier: 30 requests/min, 8,000 tokens/min; a 429 falls back to offline behaviour.
+- Spend and quotas go through `src/server/store.ts` (Postgres when `DATABASE_URL` is set, else `.nines/store.json`). Caps: `NINES_MONTHLY_BUDGET_USD` (default $5) and a daily cap; per-person daily quotas by role (`src/config/ai.ts`). Free tier: 30 requests/min, 8,000 tokens/min; a 429, quota, or cap falls back to offline behaviour.
 - Groq caches matching prompt prefixes automatically on gpt-oss (cached tokens at half price): keep system prompts stable and first, volatile content last.
 - Every feature must work without a key (self-graded rubric, scripted hints). The offline tokenizer (o200k) is exact for gpt-oss.
 - A per-browser switch turns the coach off (`localStorage['nines:ai'] = 'off'`, in Settings). The e2e suite starts every context with it off (`storageState` in `playwright.config.ts`), so tests never call the live provider.
+
+## Accounts, roles, editions (public build: DEPLOY.md, D-021)
+
+- Guests play fully with progress in IndexedDB. Signing in (Auth.js v5, `src/auth.ts`: Google/GitHub when their keys are set; a dev email login outside production) syncs progress via `/api/progress` (`src/game/sync.ts`: first link on a device keeps the save with more XP, then newest wins).
+- Roles: guest, player, owner (`OWNER_EMAILS`). Check roles server-side (`currentUser()` in route handlers and server components), never only in the client. `/admin` and `/dev/*` (in production) are owner-only.
+- Editions (`src/content/edition.ts`): public players never see personal content. Owner-only Codex lines are `{ text, audience: "owner" }` in `seenIn` with a public line beside them; owner titles for Track D live in `OWNER_EDITION` in `graph.ts`. `tests/content/edition.test.ts` fails if public text mentions Case Intel or the owner.
+- Server persistence is `src/server/store.ts` (users, synced progress, AI usage, feedback). Keep it the only place that touches the database.

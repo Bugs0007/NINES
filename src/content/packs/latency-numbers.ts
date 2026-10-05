@@ -254,7 +254,8 @@ export default definePack({
       { choice: "Keep connections alive", gain: "Skips TCP and TLS handshakes", cost: "Idle connections hold memory on both ends" },
     ],
     seenIn: [
-      "Case Intel's eCourts scraping: every district request paid a full round trip to a server you don't control, which is why fan-out concurrency mattered.",
+      { text: "Case Intel's eCourts scraping: every district request paid a full round trip to a server you don't control, which is why fan-out concurrency mattered.", audience: "owner" },
+      "A scraper or fan-out that calls a slow third-party site once per item pays a full round trip each time, which is why concurrency matters.",
       "Every Django N+1 you've fixed with select_related was round-trip counting.",
     ],
     interviewAngle: "Open latency discussions by listing the round trips in the request path with rough costs: 'two cross-region hops, ~300ms, before we've done any work'. It anchors the whole design.",

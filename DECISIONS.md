@@ -95,3 +95,9 @@ Architecture decision log. Newest at the bottom. Each entry: context, decision, 
 ### D-020 · The AI coach has a per-browser off switch; tests use it
 - **Context:** With a key configured, the e2e suite was grading explanations through the live provider (slow, rate-limited, costs money, nondeterministic).
 - **Decision:** `localStorage['nines:ai'] = 'off'` makes the browser treat the coach as unavailable (offline paths everywhere). It's a Settings option for players who prefer self-grading, and Playwright starts every context with it via `storageState`.
+
+### D-021 · Public launch: optional accounts, owner edition, capped shared AI
+- **Context:** Bhagath is sharing NINES on LinkedIn for anyone to play. Personal content (Case Intel) should stay his only.
+- **Decision:** Guest-first: no sign-in wall, progress local. Optional Auth.js sign-in (Google, GitHub) syncs progress through a small server store (Neon Postgres in production, a JSON file locally). Roles guest / player / owner; the owner (OWNER_EMAILS) gets the personal edition and `/admin`. The shared Groq key is protected by per-person daily quotas (guests keyed by a salted hash), a daily cap, and the monthly cap, all falling back to self-grading. Hosting on Vercel; repo stays private.
+- **Why:** Zero-friction trial matters most for a social post; accounts only add value (sync, bigger allowance), never gate play. Editions are text-level (generic public twins), so nothing structural forks.
+- **Consequence:** Server-side role checks in every protected route; a content test guards the public edition.

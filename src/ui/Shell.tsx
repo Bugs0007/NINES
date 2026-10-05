@@ -8,9 +8,20 @@ import { useEffect, type ReactNode } from "react";
 import { sfx } from "@/audio/engine";
 import { setTimeWarp } from "@/game/clock";
 import { useGame } from "@/game/store";
+import { useProgressSync } from "@/game/sync";
+import { SessionProvider } from "next-auth/react";
 import { useReducedMotion } from "./motion";
 
 export function Shell({ children }: { children: ReactNode }) {
+  return (
+    <SessionProvider>
+      <ShellInner>{children}</ShellInner>
+    </SessionProvider>
+  );
+}
+
+function ShellInner({ children }: { children: ReactNode }) {
+  useProgressSync();
   const hydrate = useGame((s) => s.hydrate);
   const audio = useGame((s) => s.profile.settings.audio);
   const rmPref = useGame((s) => s.profile.settings.reducedMotion);

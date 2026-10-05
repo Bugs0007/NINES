@@ -10,6 +10,8 @@ import { exportAll, importAll, resetAll, type AudioSettings, type ExportBlob, ty
 import { istDay, useGame } from "@/game/store";
 import { Button, Chip, cx, fmtUsd, Meter, Panel, Segmented } from "@/ui/kit";
 import { PageBar } from "@/ui/Shell";
+import { useAccount } from "@/game/account";
+import { AccountPanel, FeedbackPanel } from "./AccountPanels";
 import { Slider } from "@/ui/Slider";
 
 const CHANNELS: { key: keyof Omit<AudioSettings, "muted">; label: string; test: () => void }[] = [
@@ -21,6 +23,7 @@ const CHANNELS: { key: keyof Omit<AudioSettings, "muted">; label: string; test: 
 ];
 
 export function Settings() {
+  const acct = useAccount();
   const hydrated = useGame((s) => s.hydrated);
   const settings = useGame((s) => s.profile.settings);
   const update = useGame((s) => s.updateSettings);
@@ -84,8 +87,10 @@ export function Settings() {
         </div>
       </Panel>
 
+      <AccountPanel />
       <AiPanel />
-      <TimeWarpPanel days={settings.timeWarpDays ?? 0} onChange={(d) => void update({ timeWarpDays: d })} />
+      {(acct.role === "owner" || process.env.NODE_ENV !== "production") && <TimeWarpPanel days={settings.timeWarpDays ?? 0} onChange={(d) => void update({ timeWarpDays: d })} />}
+      <FeedbackPanel />
       <DataPanel />
       </div>
     </div>
@@ -121,6 +126,16 @@ function AiPanel() {
             To turn on graded explanations and the live SRE, put <code className="font-mono text-amber">GROQ_API_KEY</code> in <code className="font-mono">.env</code> and restart. The key stays on the server; the browser never sees it. Cap spend with <code className="font-mono text-amber">NINES_MONTHLY_BUDGET_USD</code> (default $5).
           </p>
         </div>
+      ) : s.role !== "owner" ? (
+        <div className="space-y-2 text-sm leading-relaxed text-ink-1">
+          <p>The AI coach grades your explanations against each rubric and gives hints that point without telling.</p>
+          {s.remaining && (
+            <p className="text-ink-2">
+              Left today: <span className="font-medium tabular text-ink-0">{s.remaining.grade ?? "∞"}</span> grades and <span className="font-medium tabular text-ink-0">{s.remaining.hint ?? "∞"}</span> hints
+              {s.role === "guest" ? ". Signing in raises this." : "."} When it runs out, you grade yourself against the same rubric.
+            </p>
+          )}
+        </div>
       ) : (
         <div className="space-y-3">
           <div>
@@ -134,7 +149,7 @@ function AiPanel() {
             </div>
             <Meter value={s.spentUsd / Math.max(0.01, s.budgetUsd)} warnAt={0.7} alertAt={0.95} className="mt-2" label="monthly budget used" />
             <div className="mt-2 text-xs leading-relaxed text-ink-3">
-              <span className="tabular">{s.calls}</span> calls · at the cap, Claude features switch off until next month and everything falls back to offline.</div>
+              <span className="tabular">{s.calls}</span> calls · at the cap, the AI coach switches off until next month and everything falls back to offline.</div>
           </div>
           {s.byRoute && Object.keys(s.byRoute).length > 0 && (
             <table className="w-full text-[13px]">

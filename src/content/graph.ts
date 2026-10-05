@@ -38,7 +38,7 @@ export const TRACKS: Record<Track, { name: string; district: string }> = {
   A: { name: "System Design", district: "Core Grid" },
   B: { name: "AI Engineering", district: "Agent Foundry" },
   C: { name: "Dev Fundamentals", district: "The Yard" },
-  D: { name: "The Case Intel Files", district: "Annex" },
+  D: { name: "The Production Files", district: "Annex" },
 };
 
 export const CHAPTERS: ChapterDef[] = [
@@ -77,7 +77,7 @@ export const CHAPTERS: ChapterDef[] = [
   { id: "c5", track: "C", order: 5, title: "Concurrency", stage: "Two requests, one row", blurb: "Threads, processes, async, the GIL, races, deadlocks." },
   { id: "c6", track: "C", order: 6, title: "LLD & Machine Coding", stage: "The SDE1 loop", blurb: "OOP, SOLID, patterns, and classic problems." },
   // Track D
-  { id: "d1", track: "D", order: 1, title: "The Case Intel Files", stage: "Your own production", blurb: "Real incidents from caseintel.in, and the capstone." },
+  { id: "d1", track: "D", order: 1, title: "The Production Files", stage: "A real production app", blurb: "Real incidents from a small production app, and the capstone." },
 ];
 
 type Row = [id: string, title: string, prereqs: string[], interaction: string, kind?: NodeKind];
@@ -272,7 +272,7 @@ const chapterRows: Record<string, Row[]> = {
     ["prompt-regression", "Prompt Regression Testing", ["llm-as-judge", "prompt-versioning"], "Eval Lab"],
     ["offline-online-evals", "Offline vs Online Evals", ["prompt-regression", "sli-slo-error-budgets"], "Shadow Traffic"],
     ["boss-ship-the-prompt", "Boss: Ship the Prompt", ["prompt-regression", "offline-online-evals", "retrieval-eval"], "Eval gauntlet", "boss"],
-    ["field-case-intel-evals", "Field: An Eval Suite for Case Intel Search", ["retrieval-eval", "prompt-regression"], "Field Mission", "field"],
+    ["field-case-intel-evals", "Field: An Eval Suite for Your Own Search", ["retrieval-eval", "prompt-regression"], "Field Mission", "field"],
   ],
   b6: [
     ["tool-calling", "Tool Calling & JSON Schemas", ["structured-outputs"], "Schema Smith"],
@@ -342,7 +342,7 @@ const chapterRows: Record<string, Row[]> = {
     ["docker-compose", "Docker Compose", ["docker-volumes", "docker-networking"], "Compose Up"],
     ["kubernetes-core", "Kubernetes Core", ["docker-compose", "load-balancing"], "Cluster Keeper"],
     ["kubernetes-probes-scaling", "Probes, Limits & HPA", ["kubernetes-core", "autoscaling", "memory-oom"], "Pod Doctor"],
-    ["field-containerize-case-intel", "Field: Containerize Case Intel", ["docker-compose"], "Field Mission", "field"],
+    ["field-containerize-case-intel", "Field: Containerize Your Own App", ["docker-compose"], "Field Mission", "field"],
     ["inc-oom-container", "INC: CrashLoopBackOff", ["kubernetes-probes-scaling"], "Incident Room", "incident"],
   ],
   c2: [
@@ -362,7 +362,7 @@ const chapterRows: Record<string, Row[]> = {
   c4: [
     ["ci-pipelines", "CI/CD Pipelines", ["git-dag", "docker-images-layers"], "Pipeline Builder"],
     ["iac-basics", "Infrastructure as Code", ["ci-pipelines"], "Plan & Apply"],
-    ["field-gh-actions", "Field: CI for Case Intel", ["ci-pipelines"], "Field Mission", "field"],
+    ["field-gh-actions", "Field: CI for Your Own App", ["ci-pipelines"], "Field Mission", "field"],
   ],
   c5: [
     ["threads-processes-async", "Threads vs Processes vs Async", ["processes-signals", "littles-law"], "Worker Models"],
@@ -380,12 +380,12 @@ const chapterRows: Record<string, Row[]> = {
     ["lld-rate-limiter-class", "LLD: Rate Limiter Class", ["design-patterns", "rate-limiting"], "Machine Coding"],
   ],
   d1: [
-    ["ci-polling-storm", "Case Intel: The Polling Storm", ["littles-law", "pagination", "realtime-transport", "memory-oom"], "Incident Room", "incident"],
-    ["ci-t3-unreachable", "Case Intel: The Unreachable t3.micro", ["memory-oom", "cpu-credits", "reading-logs"], "Incident Room", "incident"],
-    ["ci-district-fanout", "Case Intel: State-wide Fan-out", ["retries-backoff-jitter", "bulkheads", "tail-latency", "backpressure"], "Fan-out Designer"],
-    ["ci-pg-job-queue", "Case Intel: The Postgres Job Queue", ["postgres-queue", "dlq-poison"], "Lock Skipper: production"],
-    ["ci-certbot-404", "Case Intel: Certbot's 404", ["reverse-proxy", "tls-handshake"], "Incident Room", "incident"],
-    ["capstone-case-intel-india", "Capstone: Case Intel for Every Advocate in India", ["case-legal-rag", "case-web-crawler", "case-notification-system", "multi-tenant-isolation", "llm-cost-controls", "ci-district-fanout", "ci-pg-job-queue"], "Interview Arena capstone", "boss"],
+    ["ci-polling-storm", "Production: The Polling Storm", ["littles-law", "pagination", "realtime-transport", "memory-oom"], "Incident Room", "incident"],
+    ["ci-t3-unreachable", "Production: The Unreachable t3.micro", ["memory-oom", "cpu-credits", "reading-logs"], "Incident Room", "incident"],
+    ["ci-district-fanout", "Production: State-wide Fan-out", ["retries-backoff-jitter", "bulkheads", "tail-latency", "backpressure"], "Fan-out Designer"],
+    ["ci-pg-job-queue", "Production: The Postgres Job Queue", ["postgres-queue", "dlq-poison"], "Lock Skipper: production"],
+    ["ci-certbot-404", "Production: Certbot's 404", ["reverse-proxy", "tls-handshake"], "Incident Room", "incident"],
+    ["capstone-case-intel-india", "Capstone: Legal Search for Every Advocate in India", ["case-legal-rag", "case-web-crawler", "case-notification-system", "multi-tenant-isolation", "llm-cost-controls", "ci-district-fanout", "ci-pg-job-queue"], "Interview Arena capstone", "boss"],
   ],
 };
 
@@ -439,3 +439,23 @@ export function getNode(id: string): PlannedNode {
   if (!n) throw new Error(`Unknown curriculum node: ${id}`);
   return n;
 }
+
+/**
+ * The owner's personal edition (OWNER_EMAILS accounts): Track D is the owner's own production app. Public
+ * players see the generic titles above. Applied via src/content/edition.ts.
+ */
+export const OWNER_EDITION = {
+  trackD: { name: "The Case Intel Files", district: "Annex" },
+  chapterD1: { title: "The Case Intel Files", stage: "Your own production", blurb: "Real incidents from caseintel.in, and the capstone." },
+  titles: {
+  "field-case-intel-evals": "Field: An Eval Suite for Case Intel Search",
+  "field-containerize-case-intel": "Field: Containerize Case Intel",
+  "field-gh-actions": "Field: CI for Case Intel",
+  "ci-polling-storm": "Case Intel: The Polling Storm",
+  "ci-t3-unreachable": "Case Intel: The Unreachable t3.micro",
+  "ci-district-fanout": "Case Intel: State-wide Fan-out",
+  "ci-pg-job-queue": "Case Intel: The Postgres Job Queue",
+  "ci-certbot-404": "Case Intel: Certbot's 404",
+  "capstone-case-intel-india": "Capstone: Case Intel for Every Advocate in India",
+  } as Record<string, string>,
+};

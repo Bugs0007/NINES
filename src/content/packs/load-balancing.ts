@@ -217,7 +217,8 @@ export default definePack({
       { choice: "Deep health checks", gain: "Catch boxes that are up but broken", cost: "A shared dependency blip fails every target together; ALB fails open, other systems pull the fleet" },
     ],
     seenIn: [
-      "Case Intel sits behind nginx on one box: nginx is a layer 7 reverse proxy, the same idea as an ALB, one server block at a time.",
+      { text: "Case Intel sits behind nginx on one box: nginx is a layer 7 reverse proxy, the same idea as an ALB, one server block at a time.", audience: "owner" },
+      "A Django app behind nginx on one box: nginx is a layer 7 reverse proxy, the same idea as an ALB, one server block at a time.",
       "Most '502 Bad Gateway' pages from nginx mean the upstream refused the connection, died mid-request, or sent something nginx couldn't parse; a slow upstream gets you a 504 instead.",
     ],
     interviewAngle: "Name the algorithm and the health-check strategy when you draw a load balancer: 'ALB, least outstanding requests, health checks that go through the app process'. ALB has no passive ejection with that algorithm (its anomaly mitigation needs weighted random), so if you need outlier ejection, add Envoy or a service mesh behind it. Mention layer 4 vs 7 only when it changes the design.",
