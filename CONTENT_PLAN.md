@@ -747,7 +747,7 @@ flowchart LR
 | · | **Prompt Regression Testing** `prompt-regression` | concept | `llm-as-judge`, `prompt-versioning` | Eval Lab |
 | · | **Offline vs Online Evals** `offline-online-evals` | concept | `prompt-regression`, `sli-slo-error-budgets` | Shadow Traffic |
 | · | **Boss: Ship the Prompt** `boss-ship-the-prompt` | **boss** | `prompt-regression`, `offline-online-evals`, `retrieval-eval` | Eval gauntlet |
-| · | **Field: An Eval Suite for Case Intel Search** `field-case-intel-evals` | `field` | `retrieval-eval`, `prompt-regression` | Field Mission |
+| · | **Field: An Eval Suite for Case Intel Search** `field-search-evals` | `field` | `retrieval-eval`, `prompt-regression` | Field Mission |
 
 <details><summary>Graph</summary>
 
@@ -1014,7 +1014,7 @@ flowchart LR
 | · | **Docker Compose** `docker-compose` | concept | `docker-volumes`, `docker-networking` | Compose Up |
 | · | **Kubernetes Core** `kubernetes-core` | concept | `docker-compose`, `load-balancing` | Cluster Keeper |
 | · | **Probes, Limits & HPA** `kubernetes-probes-scaling` | concept | `kubernetes-core`, `autoscaling`, `memory-oom` | Pod Doctor |
-| · | **Field: Containerize Case Intel** `field-containerize-case-intel` | `field` | `docker-compose` | Field Mission |
+| · | **Field: Containerize Case Intel** `field-containerize-app` | `field` | `docker-compose` | Field Mission |
 | · | **INC: CrashLoopBackOff** `inc-oom-container` | `incident` | `kubernetes-probes-scaling` | Incident Room |
 
 <details><summary>Graph</summary>
@@ -1195,12 +1195,12 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Case Intel: The Polling Storm** `ci-polling-storm` | `incident` | `littles-law`, `pagination`, `realtime-transport`, `memory-oom` | Incident Room |
-| · | **Case Intel: The Unreachable t3.micro** `ci-t3-unreachable` | `incident` | `memory-oom`, `cpu-credits`, `reading-logs` | Incident Room |
-| · | **Case Intel: State-wide Fan-out** `ci-district-fanout` | concept | `retries-backoff-jitter`, `bulkheads`, `tail-latency`, `backpressure` | Fan-out Designer |
-| · | **Case Intel: The Postgres Job Queue** `ci-pg-job-queue` | concept | `postgres-queue`, `dlq-poison` | Lock Skipper: production |
-| · | **Case Intel: Certbot's 404** `ci-certbot-404` | `incident` | `reverse-proxy`, `tls-handshake` | Incident Room |
-| · | **Capstone: Case Intel for Every Advocate in India** `capstone-case-intel-india` | **boss** | `case-legal-rag`, `case-web-crawler`, `case-notification-system`, `multi-tenant-isolation`, `llm-cost-controls`, `ci-district-fanout`, `ci-pg-job-queue` | Interview Arena capstone |
+| · | **Case Intel: The Polling Storm** `prod-polling-storm` | `incident` | `littles-law`, `pagination`, `realtime-transport`, `memory-oom` | Incident Room |
+| · | **Case Intel: The Unreachable t3.micro** `prod-t3-unreachable` | `incident` | `memory-oom`, `cpu-credits`, `reading-logs` | Incident Room |
+| · | **Case Intel: State-wide Fan-out** `prod-state-fanout` | concept | `retries-backoff-jitter`, `bulkheads`, `tail-latency`, `backpressure` | Fan-out Designer |
+| · | **Case Intel: The Postgres Job Queue** `prod-pg-job-queue` | concept | `postgres-queue`, `dlq-poison` | Lock Skipper: production |
+| · | **Case Intel: Certbot's 404** `prod-certbot-404` | `incident` | `reverse-proxy`, `tls-handshake` | Incident Room |
+| · | **Capstone: Case Intel for Every Advocate in India** `capstone-legal-search` | **boss** | `case-legal-rag`, `case-web-crawler`, `case-notification-system`, `multi-tenant-isolation`, `llm-cost-controls`, `prod-state-fanout`, `prod-pg-job-queue` | Interview Arena capstone |
 
 <details><summary>Graph</summary>
 

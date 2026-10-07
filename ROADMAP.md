@@ -1,11 +1,11 @@
 # NINES Roadmap
 
 ## Next session starts here
-1. Public launch is built (D-021): guest play, optional Google/GitHub sign-in with progress sync, owner edition + `/admin`, capped shared AI coach, privacy page, link preview. Next: Bhagath deploys per `DEPLOY.md` (Vercel + Neon, OAuth apps, env vars), then posts.
-2. After launch: read `/admin` feedback weekly; promote the slice nodes to "verified" once playtest round 2 is in.
+1. Launch polish is built (D-022): neutral public copy, generated section labels, a skippable briefing and HQ tour, a "next step" card, locked-state reasons, Supabase accounts with validated progress, an admin funnel, anonymous analytics, and bring-your-own AI keys. Next: set up Supabase, Google sign-in and PostHog per `SUPABASE_SETUP.md`, deploy per `DEPLOY.md`, then post.
+2. After launch: read `/admin` (funnel and feedback) weekly; promote the slice nodes to "verified" once playtest round 2 is in.
 3. Then Phase 3: Sandbox/Architect, Interview Arena, chapters A2, A4, B2, B4.
-4. Checks: `npm test` (142), `npx tsc --noEmit`, `npx next build`, `npx playwright test` (incl. `accounts`, `tour`, GPU `perf`; AI off; test owner `owner@nines.test`).
-5. Gotchas: role checks are server-side; public text must pass `tests/content/edition.test.ts`; `npm i` can drop the rolldown binding; Tailwind scans only `src/`.
+4. Checks: `npm test`, `npx tsc --noEmit`, `npx next build`, `npx playwright test` (incl. `accounts`, `onboarding`, `tour`, GPU `perf`; AI off; onboarding off; test admin `admin@nines.test`).
+5. Gotchas: role checks are server-side; public text must pass `tests/content/edition.test.ts`; `npm i` can drop the rolldown binding; Tailwind scans only `src/`; never add a write policy for browsers in `supabase/migrations`.
 
 ---
 

@@ -11,7 +11,7 @@ test("boss: launch day", async ({ page }, info) => {
   await page.keyboard.press("Escape");
   await page.waitForTimeout(500);
   await shot("0-chapter");
-  await page.getByRole("button", { name: /survive the launch/i }).click();
+  await page.getByRole("link", { name: /survive the launch/i }).click();
   await page.waitForTimeout(1200);
   await shot("1-intro");
   await page.getByRole("button", { name: /skip/i }).click();

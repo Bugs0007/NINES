@@ -8,14 +8,16 @@ import { useMemo, useState } from "react";
 import { CHAPTERS, GRAPH, NODE_BY_ID, TRACKS, type PlannedNode } from "@/content/graph";
 import { BOSS_BY_ID, PACK_BY_ID } from "@/content/packs";
 import { CHAPTER_LEARNING, CONCEPT_LEARNING } from "@/content/learning";
-import { hrefFor, isPlayable } from "@/content/progression";
+import { hrefFor, isPlayable, lockReason } from "@/content/progression";
 import { GATES } from "@/game/rank";
 import { useGame, useRank } from "@/game/store";
 import { chapterIntro } from "@/intro/specs";
 import { useIntro } from "@/intro/useIntro";
-import { Button, Chip, cx, Led } from "@/ui/kit";
+import { Chip, cx, Led, LinkButton } from "@/ui/kit";
 import { spring } from "@/ui/motion";
 import { PageBar } from "@/ui/Shell";
+import { SectionHeader } from "@/ui/SectionLabel";
+import { sectionForTrack } from "@/content/sections";
 
 type State = "locked" | "available" | "built" | "blueprint";
 
@@ -45,20 +47,22 @@ export function ChapterView({ chapterId }: { chapterId: string }) {
   const nextBoss = nextMission ? undefined : bosses.find((n) => stateOf(n) === "available" && BOSS_BY_ID.has(n.id));
   const next = nextMission ?? nextBoss;
   const [about, setAbout] = useState(false);
+  const section = sectionForTrack(ch.track);
 
   return (
     <div className="flex min-h-dvh flex-col">
       <PageBar
         backHref="/"
         backLabel="HQ"
-        title={TRACKS[ch.track].district}
+        title={sectionForTrack(ch.track)?.name ?? TRACKS[ch.track].district}
         right={
           <button onClick={intro.replay} className="-mr-2 inline-flex h-9 items-center rounded-full px-3 text-[13px] font-medium text-ink-2 transition-colors duration-200 hover:bg-bg-2 hover:text-ink-0">
             Replay intro
           </button>
         }
       />
-      <section className="mx-auto w-full max-w-5xl px-4 pb-6 pt-10 sm:pt-14 lg:px-8">
+      <section className="mx-auto w-full max-w-5xl px-4 pb-6 pt-8 sm:pt-12 lg:px-8">
+        {section && <SectionHeader id={section.id} className="mb-8 max-w-3xl" />}
         <div className={cx("eyebrow text-[13px]", ch.track === "B" ? "text-lilac" : ch.track === "A" ? "text-phos" : "text-ink-2")}>
           Chapter {ch.id.toUpperCase()} · {ch.stage}
         </div>
@@ -75,11 +79,9 @@ export function ChapterView({ chapterId }: { chapterId: string }) {
           )}
         </div>
         {next && (
-          <Link href={hrefFor(next)} className="mt-6 block sm:inline-block">
-            <Button variant="primary" size="lg" className="w-full sm:w-auto">
+          <LinkButton href={hrefFor(next)} variant="primary" size="lg" className="mt-6  sm: w-full sm:w-auto">
               {nextBoss ? `Face the boss: ${next.title.replace(/^Boss: /, "")}` : `${builtCount === 0 ? "Start" : "Continue"}: ${next.title}`}
-            </Button>
-          </Link>
+            </LinkButton>
         )}
         {learning && (
           <>
@@ -125,16 +127,16 @@ export function ChapterView({ chapterId }: { chapterId: string }) {
       <section className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-3 px-4 pb-12 lg:px-8">
         <div className="eyebrow text-[13px] text-ink-2">Missions, in order</div>
         {missions.map((n, i) => (
-          <MissionRow key={n.id} n={n} index={i + 1} state={stateOf(n)} mastery={concepts[n.id]?.mastery ?? 0} />
+          <MissionRow key={n.id} n={n} index={i + 1} state={stateOf(n)} mastery={concepts[n.id]?.mastery ?? 0} reason={lockReason(n.id, done)} />
         ))}
         {bosses.map((n) => (
-          <BossRow key={n.id} n={n} state={stateOf(n)} />
+          <BossRow key={n.id} n={n} state={stateOf(n)} reason={lockReason(n.id, done)} />
         ))}
         {side.length > 0 && (
           <div className="mt-6 grid grid-cols-1 gap-3">
             <div className="eyebrow text-[13px] text-ink-2">On call this chapter</div>
             {side.map((n) => (
-              <MissionRow key={n.id} n={n} index={0} state={stateOf(n)} mastery={0} />
+              <MissionRow key={n.id} n={n} index={0} state={stateOf(n)} mastery={0} reason={lockReason(n.id, done)} />
             ))}
           </div>
         )}
@@ -145,10 +147,9 @@ export function ChapterView({ chapterId }: { chapterId: string }) {
   );
 }
 
-function MissionRow({ n, index, state, mastery }: { n: PlannedNode; index: number; state: State; mastery: number }) {
+function MissionRow({ n, index, state, mastery, reason }: { n: PlannedNode; index: number; state: State; mastery: number; reason: string | null }) {
   const pack = PACK_BY_ID.get(n.id);
   const learn = CONCEPT_LEARNING[n.id];
-  const needs = n.prereqs.map((p) => NODE_BY_ID.get(p)?.title ?? p);
   const inner = (
     <motion.div
       whileHover={state === "available" || state === "built" ? { x: 4 } : undefined}
@@ -172,8 +173,8 @@ function MissionRow({ n, index, state, mastery }: { n: PlannedNode; index: numbe
         <div className={cx("mt-1 truncate text-xs tabular", state === "locked" || state === "blueprint" ? "text-ink-3" : "text-ink-2")}>
           {n.interaction}
           {pack ? ` · ~${pack.estimatedMinutes} min` : ""}
-          {state === "locked" && needs.length ? ` · needs ${needs.join(", ")}` : ""}
         </div>
+        {(state === "locked" || state === "blueprint") && reason && <div className="mt-1.5 text-[13px] leading-snug text-amber/90">{reason}</div>}
       </div>
       <div className="hidden shrink-0 items-center gap-2.5 sm:flex">
         {state === "built" && (
@@ -184,7 +185,7 @@ function MissionRow({ n, index, state, mastery }: { n: PlannedNode; index: numbe
           </span>
         )}
         {state === "available" && <Led tone="warn" blink />}
-        <span className={cx("text-[13px] font-medium", state === "available" ? "text-amber" : state === "built" ? "text-ink-1" : "text-ink-3")}>
+        <span title={reason ?? undefined} className={cx("text-[13px] font-medium", state === "available" ? "text-amber" : state === "built" ? "text-ink-1" : "text-ink-3")}>
           {state === "built" ? "Online" : state === "available" ? "Build" : state === "blueprint" ? "Blueprint" : "Locked"}
         </span>
       </div>
@@ -199,7 +200,7 @@ function MissionRow({ n, index, state, mastery }: { n: PlannedNode; index: numbe
   );
 }
 
-function BossRow({ n, state }: { n: PlannedNode; state: State }) {
+function BossRow({ n, state, reason }: { n: PlannedNode; state: State; reason: string | null }) {
   const boss = BOSS_BY_ID.get(n.id);
   const learn = CONCEPT_LEARNING[n.id];
   const open = state === "available" || state === "built";
@@ -208,13 +209,11 @@ function BossRow({ n, state }: { n: PlannedNode; state: State }) {
       <div className="eyebrow text-[13px] text-alert">Boss incident</div>
       <div className="mt-2 font-display text-3xl font-semibold leading-tight text-ink-0 sm:text-4xl">{n.title.replace(/^Boss: /, "")}</div>
       {learn && <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-ink-0">{learn.canDo}</p>}
-      <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-ink-1">{state === "locked" ? `Needs every service in this chapter online. ${n.prereqs.length} prerequisites.` : state === "built" ? "Survived. The gate is open." : boss ? `~${boss.estimatedMinutes} minutes. Everything from this chapter, at once, under a budget.` : "Blueprint: not yet constructed in this build."}</p>
+      <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-ink-1">{state === "locked" || state === "blueprint" ? (reason ?? "Not available yet.") : state === "built" ? "Survived. The gate is open." : boss ? `~${boss.estimatedMinutes} minutes. Everything from this chapter, at once, under a budget.` : "Blueprint: not yet constructed in this build."}</p>
       {open && boss && (
-        <Link href={hrefFor(n)} className="mt-5 inline-block">
-          <Button variant={state === "built" ? "secondary" : "danger"} size="lg">
+        <LinkButton href={hrefFor(n)} variant={state === "built" ? "secondary" : "danger"} size="lg" className="mt-5">
             {state === "built" ? "Fight it again" : boss.challenge.title}
-          </Button>
-        </Link>
+          </LinkButton>
       )}
     </div>
   );

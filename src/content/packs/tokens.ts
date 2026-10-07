@@ -216,7 +216,6 @@ export default definePack({
       { choice: "Many few-shot examples", gain: "Steadier output format", cost: "Every example is paid for on every request" },
     ],
     seenIn: [
-      { text: "Case Intel's legal RAG: long judgment chunks and Indian-language text inflate token counts per chunk.", audience: "owner" },
       "A legal or document-search RAG: long chunks and Indian-language text inflate token counts per chunk.",
       "Every JSON tool result you've passed back to a model was billed at JSON's token density.",
     ],

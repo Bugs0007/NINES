@@ -14,7 +14,7 @@ export const GATES: Record<number, { bosses: string[]; count: number; label: str
   1: { bosses: ["boss-launch-day"], count: 1, label: "Launch Day" },
   2: { bosses: ["boss-viral-tuesday", "boss-far-away-users", "boss-celebrity-post", "boss-seat-rush", "boss-the-bill"], count: 3, label: "any 3 of this tier's 5 bosses" },
   3: { bosses: ["boss-primary-down", "case-kv-store", "case-payment-system", "boss-ship-the-prompt", "boss-agent-meltdown", "case-notification-system"], count: 4, label: "any 4 of this tier's 6 bosses" },
-  4: { bosses: ["boss-region-outage", "boss-breach", "capstone-case-intel-india"], count: 3, label: "Region Down, The Breach, and the Capstone" },
+  4: { bosses: ["boss-region-outage", "boss-breach", "capstone-legal-search"], count: 3, label: "Region Down, The Breach, and the Capstone" },
 };
 
 /** How far below the next integer XP alone can take you while the gate is shut. */

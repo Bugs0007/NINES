@@ -206,7 +206,7 @@ export default definePack({
       scenario: "Profile pages for users in India take 400ms. Tap the hop that costs the most.",
       diagram: {
         nodes: [
-          { id: "user", label: "user · Hyderabad", kind: "client", col: 0, row: 1 },
+          { id: "user", label: "user · India", kind: "client", col: 0, row: 1 },
           { id: "alb", label: "ALB · ap-south-1", kind: "lb", col: 1, row: 1 },
           { id: "api", label: "api · ap-south-1", kind: "server", col: 2, row: 1 },
           { id: "db", label: "postgres · ap-south-1", kind: "db", col: 3, row: 0 },
@@ -254,7 +254,6 @@ export default definePack({
       { choice: "Keep connections alive", gain: "Skips TCP and TLS handshakes", cost: "Idle connections hold memory on both ends" },
     ],
     seenIn: [
-      { text: "Case Intel's eCourts scraping: every district request paid a full round trip to a server you don't control, which is why fan-out concurrency mattered.", audience: "owner" },
       "A scraper or fan-out that calls a slow third-party site once per item pays a full round trip each time, which is why concurrency matters.",
       "Every Django N+1 you've fixed with select_related was round-trip counting.",
     ],

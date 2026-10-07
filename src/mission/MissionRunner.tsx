@@ -22,6 +22,8 @@ import { ChallengePanel, DeeperSheet, ExplainPanel, MechanismPanel } from "./pan
 import { describeCall, judge, PredictPanel, type Call } from "./PredictPanel";
 import { RevealOverlay } from "./RevealOverlay";
 import { CONCEPT_LEARNING } from "@/content/learning";
+import { useTrackLevelStart } from "@/analytics/hooks";
+import { BriefingButton } from "@/briefing/BriefingButton";
 
 type Beat = "hook" | "predict" | "play" | "mechanism" | "challenge" | "explain" | "debrief";
 const BEATS: { id: Beat; label: string }[] = [
@@ -41,6 +43,7 @@ function hash(s: string): number {
 }
 
 export function MissionRunner({ pack, next }: { pack: ConceptPack; next?: { href: string; label: string } }) {
+  useTrackLevelStart(pack.id);
   const node = getNode(pack.id);
   const store = useGame();
   const built = !!store.concepts[pack.id]?.builtAt;
@@ -350,6 +353,7 @@ function Frame({ pack, beatIdx, chapter, children }: { pack: ConceptPack; beatId
             </li>
           ))}
         </ol>
+        <BriefingButton className="ml-auto lg:ml-0" />
         {/* Phones: a hairline of progress along the header's bottom edge, so the title keeps the room. */}
         <div
           role="progressbar"

@@ -23,10 +23,10 @@ export function dailyBudgetUsd(): number {
 
 export type AiRoute = "grade" | "hint";
 
-/** Calls per person per UTC day. Owner is unlimited (still under the global caps). */
+/** Calls per person per UTC day. An admin is unlimited (still under the global caps). */
 export function dailyQuota(role: Role, route: AiRoute): number {
-  if (role === "owner") return Infinity;
-  const table: Record<Exclude<Role, "owner">, Record<AiRoute, [string, number]>> = {
+  if (role === "admin") return Infinity;
+  const table: Record<Exclude<Role, "admin">, Record<AiRoute, [string, number]>> = {
     guest: { grade: ["NINES_GUEST_GRADES_PER_DAY", 5], hint: ["NINES_GUEST_HINTS_PER_DAY", 10] },
     player: { grade: ["NINES_PLAYER_GRADES_PER_DAY", 20], hint: ["NINES_PLAYER_HINTS_PER_DAY", 40] },
   };

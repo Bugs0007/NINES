@@ -11,8 +11,8 @@ import { hrefFor, isPlayable } from "@/content/progression";
 import { useGame } from "@/game/store";
 import { Chip, cx } from "@/ui/kit";
 import { useReducedMotion } from "@/ui/motion";
-import { trackName } from "@/content/edition";
-import { useEdition } from "@/game/account";
+import { BriefingButton } from "@/briefing/BriefingButton";
+import { getSection, trackLabel, type SectionId as UiSectionId } from "@/content/sections";
 
 const SECTION_LOOK: Record<SectionId, { href: string; dot: string; text: string }> = {
   campaign: { href: "/campaign/a1", dot: "bg-phos", text: "text-phos" },
@@ -23,10 +23,12 @@ const SECTION_LOOK: Record<SectionId, { href: string; dot: string; text: string 
   boss: { href: "/campaign/a1", dot: "bg-alert", text: "text-alert" },
 };
 
+/** The learning-layer ids that are also sections the player can visit, so the page shows the same label as the nav. */
+const LEARN_SECTION: Partial<Record<SectionId, UiSectionId>> = { campaign: "core-grid", foundry: "agent-foundry", shift: "daily-shift", incident: "incident-room", codex: "codex" };
+
 const TRACK_TONE: Record<Track, string> = { A: "text-phos", B: "text-lilac", C: "text-sky", D: "text-amber" };
 
 export function LearnPage() {
-  const edition = useEdition();
   const reduced = useReducedMotion();
   const concepts = useGame((s) => s.concepts);
   // Appear on load with a short stagger (not on scroll: content must never depend on an observer firing).
@@ -44,6 +46,7 @@ export function LearnPage() {
         </Link>
         <span className="text-line-3">|</span>
         <span className="text-sm text-ink-1">How NINES teaches</span>
+        <BriefingButton className="ml-auto" />
       </header>
 
       <main className="mx-auto w-full max-w-5xl px-4 lg:px-8">
@@ -51,7 +54,7 @@ export function LearnPage() {
           <div className="eyebrow text-sm text-amber">How NINES teaches</div>
           <h1 className="mt-2 max-w-3xl font-display text-5xl font-semibold leading-[1.05] text-ink-0 sm:text-6xl">You learn systems by predicting them, breaking them, and explaining them.</h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink-1">
-            You&apos;re the first backend engineer at Pigeon, a messaging startup in Hyderabad. Every idea you learn becomes a running service on your map, and your uptime is your rank. Then NINES keeps what you learned from fading.
+            You&apos;re the first backend engineer at Pigeon, a fast-growing messaging startup. Every idea you learn becomes a running service on your map, and your uptime is your rank. Then NINES keeps what you learned from fading.
           </p>
         </section>
 
@@ -87,6 +90,7 @@ export function LearnPage() {
                       <span className={cx("h-2 w-2 rounded-full", look.dot)} />
                       <span className="font-display text-xl font-semibold text-ink-0">{s.name}</span>
                     </div>
+                    {LEARN_SECTION[id] && <p className="mt-1 text-[13px] leading-snug text-ink-2">({getSection(LEARN_SECTION[id]!).short})</p>}
                     <p className="mt-2 text-[15px] text-ink-0">{s.does}</p>
                     <p className={cx("mt-3 text-sm font-medium", look.text)}>Trains · {s.trains}</p>
                     <p className="mt-1.5 text-sm leading-relaxed text-ink-2">{s.because}</p>
@@ -122,7 +126,7 @@ export function LearnPage() {
             return (
               <div key={track} className="mt-8">
                 <div className={cx("eyebrow text-sm", TRACK_TONE[track])}>
-                  {TRACKS[track].district} · {TRACKS[track].name}
+                  {trackLabel(track)}
                 </div>
                 {built.map((ch) => {
                   const cl = CHAPTER_LEARNING[ch.id]!;
@@ -180,7 +184,7 @@ export function LearnPage() {
           })}
           <p className="mt-8 text-sm leading-relaxed text-ink-2">
             <span className="text-ink-1">Also planned: </span>
-            {TRACKS.C.name} ({TRACKS.C.district}), and {trackName("D", edition).name} ({TRACKS.D.district}): {edition === "owner" ? "incidents drawn from Case Intel" : "incidents from a small production app"}, unlocked once you have the concepts to prove their root causes.
+            {TRACKS.C.name} ({TRACKS.C.district}), and {TRACKS.D.name} ({TRACKS.D.district}): incidents from a small production app, unlocked once you have the concepts to prove their root causes.
           </p>
         </section>
 

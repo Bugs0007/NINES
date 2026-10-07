@@ -1,22 +1,25 @@
 import "server-only";
 /**
- * Server-side persistence for the public build: users, synced progress, AI usage (spend + quotas), and
- * feedback. Postgres (Neon) when DATABASE_URL is set; otherwise a local JSON file, so development and
- * tests need no database. Progress itself stays local-first in the browser; this only holds a copy for
- * signed-in players.
+ * Server-side persistence for the public build: profiles, validated progress, synced saves, AI usage (spend and
+ * quotas), feedback, and rate limits. Supabase Postgres when it is configured (service-role key, server only);
+ * otherwise a local JSON file, so development and tests need no database. Keep this the only module that touches
+ * the database. The schema is supabase/migrations/*.sql.
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import type { ProgressRow } from "@/content/progress-model";
+import { adminClient, serviceConfigured } from "./supabase";
 
-export type Role = "guest" | "player" | "owner";
+export type Role = "guest" | "player" | "admin";
 
-export interface UserRow {
+export interface UserSummary {
   id: string;
   email: string | null;
-  name: string | null;
-  role: Role;
+  displayName: string | null;
   createdAt: number;
-  lastSeen: number;
+  lastActiveAt: number;
+  completedLevels: number;
+  startedLevels: number;
 }
 
 export interface FeedbackRow {
@@ -34,11 +37,31 @@ export interface Spend {
   byRoute: Record<string, { calls: number; usd: number }>;
 }
 
+export interface Stats {
+  users: number;
+  active7d: number;
+  withSave: number;
+  quotaHitsToday: number;
+}
+
+export interface UserSection {
+  userId: string;
+  section: string;
+  completed: string[];
+}
+
 export interface Store {
-  upsertUser(u: Omit<UserRow, "createdAt" | "lastSeen">): Promise<void>;
+  /** Create or touch a profile (last active). */
+  upsertUser(u: { id: string; email: string | null; name: string | null }): Promise<void>;
+  /** Delete the account and everything stored about it. */
   deleteUser(id: string): Promise<void>;
-  getProgress(userId: string): Promise<{ blob: unknown; savedAt: number } | null>;
-  putProgress(userId: string, blob: unknown, savedAt: number): Promise<void>;
+  getSave(userId: string): Promise<{ blob: unknown; savedAt: number } | null>;
+  putSave(userId: string, blob: unknown, savedAt: number): Promise<void>;
+  getProgress(userId: string): Promise<ProgressRow[]>;
+  /** Store rows that have already been validated and merged (src/content/progress-model.ts). */
+  putProgress(userId: string, rows: ProgressRow[]): Promise<void>;
+  /** True while the caller is within `max` hits per `windowSeconds` for this bucket. */
+  rateLimit(bucket: string, windowSeconds: number, max: number): Promise<boolean>;
   addUsage(subject: string, day: string, route: string, usd: number): Promise<void>;
   /** Calls per route for one subject on one day (quota checks). */
   usageFor(subject: string, day: string): Promise<Record<string, number>>;
@@ -46,95 +69,165 @@ export interface Store {
   spend(prefix: string): Promise<Spend>;
   addFeedback(f: Omit<FeedbackRow, "id" | "at">): Promise<void>;
   listFeedback(limit: number): Promise<FeedbackRow[]>;
-  stats(): Promise<{ users: number; active7d: number; withProgress: number; quotaHitsToday: number }>;
   noteQuotaHit(day: string): Promise<void>;
+  stats(): Promise<Stats>;
+  listUsers(limit: number): Promise<UserSummary[]>;
+  /** Completed levels per user and section, for the admin funnel. */
+  completedBySection(): Promise<UserSection[]>;
 }
 
-// ---------------------------------------------------------------- Postgres (Neon)
+const fail = (what: string, e: { message: string } | null) => {
+  if (e) throw new Error(`supabase ${what}: ${e.message}`);
+};
 
-class PgStore implements Store {
-  private ready: Promise<void> | null = null;
-  constructor(private url: string) {}
+// ---------------------------------------------------------------- Supabase
 
-  private async sql() {
-    const { neon } = await import("@neondatabase/serverless");
-    const q = neon(this.url);
-    this.ready ??= (async () => {
-      await q`create table if not exists nines_users (id text primary key, email text, name text, role text not null, created_at bigint not null, last_seen bigint not null)`;
-      await q`create table if not exists nines_progress (user_id text primary key references nines_users(id) on delete cascade, blob jsonb not null, saved_at bigint not null)`;
-      await q`create table if not exists nines_ai_usage (subject text not null, day text not null, route text not null, calls int not null default 0, usd double precision not null default 0, primary key (subject, day, route))`;
-      await q`create table if not exists nines_feedback (id serial primary key, at bigint not null, subject text not null, email text, page text not null, message text not null)`;
-      await q`create table if not exists nines_counters (key text primary key, n int not null default 0)`;
-    })();
-    await this.ready;
-    return q;
+class SupabaseStore implements Store {
+  private touched = new Map<string, number>();
+  private get sb() {
+    return adminClient();
   }
 
-  async upsertUser(u: Omit<UserRow, "createdAt" | "lastSeen">) {
-    const q = await this.sql();
-    const now = Date.now();
-    await q`insert into nines_users (id, email, name, role, created_at, last_seen) values (${u.id}, ${u.email}, ${u.name}, ${u.role}, ${now}, ${now})
-            on conflict (id) do update set email = excluded.email, name = excluded.name, role = excluded.role, last_seen = excluded.last_seen`;
+  async upsertUser(u: { id: string; email: string | null; name: string | null }) {
+    // A profile is created by a database trigger at sign-up; this keeps it current and records activity.
+    const last = this.touched.get(u.id) ?? 0;
+    if (Date.now() - last < 5 * 60_000) return;
+    this.touched.set(u.id, Date.now());
+    const { error } = await this.sb.from("profiles").upsert({ id: u.id, email: u.email, display_name: u.name, last_active_at: new Date().toISOString() }, { onConflict: "id" });
+    fail("upsert profile", error);
   }
+
   async deleteUser(id: string) {
-    const q = await this.sql();
-    await q`delete from nines_users where id = ${id}`;
+    const subject = `u:${id}`;
+    await this.sb.from("feedback").delete().eq("subject", subject);
+    await this.sb.from("ai_usage").delete().eq("subject", subject);
+    // Deleting the auth user cascades to profiles, progress and saves.
+    const { error } = await this.sb.auth.admin.deleteUser(id);
+    fail("delete user", error);
+    this.touched.delete(id);
   }
+
+  async getSave(userId: string) {
+    const { data, error } = await this.sb.from("saves").select("blob, saved_at").eq("user_id", userId).maybeSingle();
+    fail("get save", error);
+    return data ? { blob: data.blob as unknown, savedAt: Number(data.saved_at) } : null;
+  }
+
+  async putSave(userId: string, blob: unknown, savedAt: number) {
+    const { error } = await this.sb.from("saves").upsert({ user_id: userId, blob, saved_at: savedAt, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+    fail("put save", error);
+  }
+
   async getProgress(userId: string) {
-    const q = await this.sql();
-    const rows = (await q`select blob, saved_at from nines_progress where user_id = ${userId}`) as { blob: unknown; saved_at: string | number }[];
-    const r = rows[0];
-    return r ? { blob: r.blob, savedAt: Number(r.saved_at) } : null;
+    const { data, error } = await this.sb.from("progress").select("section, level, status, score, attempts, completed_at, updated_at").eq("user_id", userId).limit(1000);
+    fail("get progress", error);
+    return (data ?? []).map((r) => ({
+      section: r.section as string,
+      level: r.level as string,
+      status: r.status as ProgressRow["status"],
+      score: (r.score as number | null) ?? null,
+      attempts: Number(r.attempts),
+      completedAt: (r.completed_at as string | null) ?? null,
+      updatedAt: r.updated_at as string,
+    }));
   }
-  async putProgress(userId: string, blob: unknown, savedAt: number) {
-    const q = await this.sql();
-    await q`insert into nines_progress (user_id, blob, saved_at) values (${userId}, ${JSON.stringify(blob)}::jsonb, ${savedAt})
-            on conflict (user_id) do update set blob = excluded.blob, saved_at = excluded.saved_at`;
+
+  async putProgress(userId: string, rows: ProgressRow[]) {
+    if (!rows.length) return;
+    const { error } = await this.sb.from("progress").upsert(
+      rows.map((r) => ({ user_id: userId, section: r.section, level: r.level, status: r.status, score: r.score, attempts: r.attempts, completed_at: r.completedAt, updated_at: r.updatedAt })),
+      { onConflict: "user_id,section,level" },
+    );
+    fail("put progress", error);
   }
+
+  async rateLimit(bucket: string, windowSeconds: number, max: number) {
+    const { data, error } = await this.sb.rpc("rate_limit_hit", { p_bucket: bucket, p_window_seconds: windowSeconds, p_max: max });
+    fail("rate limit", error);
+    return data === true;
+  }
+
   async addUsage(subject: string, day: string, route: string, usd: number) {
-    const q = await this.sql();
-    await q`insert into nines_ai_usage (subject, day, route, calls, usd) values (${subject}, ${day}, ${route}, 1, ${usd})
-            on conflict (subject, day, route) do update set calls = nines_ai_usage.calls + 1, usd = nines_ai_usage.usd + excluded.usd`;
+    const { error } = await this.sb.rpc("ai_usage_add", { p_subject: subject, p_day: day, p_route: route, p_usd: usd });
+    fail("add usage", error);
   }
+
   async usageFor(subject: string, day: string) {
-    const q = await this.sql();
-    const rows = (await q`select route, calls from nines_ai_usage where subject = ${subject} and day = ${day}`) as { route: string; calls: number }[];
-    return Object.fromEntries(rows.map((r) => [r.route, Number(r.calls)]));
+    const { data, error } = await this.sb.from("ai_usage").select("route, calls").eq("subject", subject).eq("day", day);
+    fail("usage for", error);
+    return Object.fromEntries((data ?? []).map((r) => [r.route as string, Number(r.calls)]));
   }
+
   async spend(prefix: string) {
-    const q = await this.sql();
-    const rows = (await q`select route, sum(calls)::int as calls, sum(usd) as usd from nines_ai_usage where day like ${prefix + "%"} group by route`) as { route: string; calls: number; usd: number }[];
+    const { data, error } = await this.sb.rpc("ai_spend", { p_prefix: prefix });
+    fail("spend", error);
+    const rows = (data ?? []) as { route: string; calls: number; usd: number }[];
     const byRoute = Object.fromEntries(rows.map((r) => [r.route, { calls: Number(r.calls), usd: Number(r.usd) }]));
     return { usd: rows.reduce((s, r) => s + Number(r.usd), 0), calls: rows.reduce((s, r) => s + Number(r.calls), 0), byRoute };
   }
+
   async addFeedback(f: Omit<FeedbackRow, "id" | "at">) {
-    const q = await this.sql();
-    await q`insert into nines_feedback (at, subject, email, page, message) values (${Date.now()}, ${f.subject}, ${f.email}, ${f.page}, ${f.message})`;
+    const { error } = await this.sb.from("feedback").insert({ subject: f.subject, email: f.email, page: f.page, message: f.message });
+    fail("add feedback", error);
   }
+
   async listFeedback(limit: number) {
-    const q = await this.sql();
-    const rows = (await q`select id, at, subject, email, page, message from nines_feedback order by at desc limit ${limit}`) as (Omit<FeedbackRow, "at"> & { at: string | number })[];
-    return rows.map((r) => ({ ...r, at: Number(r.at) }));
+    const { data, error } = await this.sb.from("feedback").select("id, at, subject, email, page, message").order("at", { ascending: false }).limit(limit);
+    fail("list feedback", error);
+    return (data ?? []).map((r) => ({ id: Number(r.id), at: Date.parse(r.at as string), subject: r.subject as string, email: (r.email as string | null) ?? null, page: r.page as string, message: r.message as string }));
   }
-  async stats() {
-    const q = await this.sql();
-    const week = Date.now() - 7 * 86_400_000;
-    const [u] = (await q`select count(*)::int as n, count(*) filter (where last_seen > ${week})::int as a from nines_users`) as { n: number; a: number }[];
-    const [p] = (await q`select count(*)::int as n from nines_progress`) as { n: number }[];
-    const [h] = (await q`select coalesce(max(n), 0)::int as n from nines_counters where key = ${"quota:" + dayKey()}`) as { n: number }[];
-    return { users: u?.n ?? 0, active7d: u?.a ?? 0, withProgress: p?.n ?? 0, quotaHitsToday: h?.n ?? 0 };
-  }
+
   async noteQuotaHit(day: string) {
-    const q = await this.sql();
-    await q`insert into nines_counters (key, n) values (${"quota:" + day}, 1) on conflict (key) do update set n = nines_counters.n + 1`;
+    const { error } = await this.sb.rpc("counter_bump", { p_key: `quota:${day}` });
+    fail("quota hit", error);
+  }
+
+  async stats() {
+    const week = new Date(Date.now() - 7 * 86_400_000).toISOString();
+    const [users, active, saves, quota] = await Promise.all([
+      this.sb.from("profiles").select("id", { count: "exact", head: true }),
+      this.sb.from("profiles").select("id", { count: "exact", head: true }).gte("last_active_at", week),
+      this.sb.from("saves").select("user_id", { count: "exact", head: true }),
+      this.sb.from("counters").select("n").eq("key", `quota:${dayKey()}`).maybeSingle(),
+    ]);
+    fail("stats", users.error ?? active.error ?? saves.error ?? quota.error);
+    return { users: users.count ?? 0, active7d: active.count ?? 0, withSave: saves.count ?? 0, quotaHitsToday: Number(quota.data?.n ?? 0) };
+  }
+
+  async listUsers(limit: number) {
+    const { data, error } = await this.sb.rpc("admin_users", { p_limit: limit });
+    fail("list users", error);
+    return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+      id: r.id as string,
+      email: (r.email as string | null) ?? null,
+      displayName: (r.display_name as string | null) ?? null,
+      createdAt: Date.parse(r.created_at as string),
+      lastActiveAt: Date.parse(r.last_active_at as string),
+      completedLevels: Number(r.completed_levels),
+      startedLevels: Number(r.started_levels),
+    }));
+  }
+
+  async completedBySection() {
+    const { data, error } = await this.sb.rpc("progress_by_user_section");
+    fail("progress by section", error);
+    return ((data ?? []) as { user_id: string; section: string; completed: string[] }[]).map((r) => ({ userId: r.user_id, section: r.section, completed: r.completed }));
   }
 }
 
-// ---------------------------------------------------------------- local file (dev, tests, no database)
+// ---------------------------------------------------------------- local file (development, tests, no database)
 
+interface FileUser {
+  id: string;
+  email: string | null;
+  name: string | null;
+  createdAt: number;
+  lastSeen: number;
+}
 interface FileData {
-  users: Record<string, UserRow>;
-  progress: Record<string, { blob: unknown; savedAt: number }>;
+  users: Record<string, FileUser>;
+  saves: Record<string, { blob: unknown; savedAt: number }>;
+  progress: Record<string, ProgressRow[]>;
   usage: Record<string, { calls: number; usd: number }>; // key: subject|day|route
   feedback: FeedbackRow[];
   counters: Record<string, number>;
@@ -143,14 +236,19 @@ interface FileData {
 class FileStore implements Store {
   private data: FileData | null = null;
   private file = path.join(process.cwd(), ".nines", "store.json");
+  private windows = new Map<string, { start: number; hits: number }>();
 
   private async load(): Promise<FileData> {
     if (this.data) return this.data;
+    let raw: Partial<FileData> = {};
     try {
-      this.data = JSON.parse(await readFile(this.file, "utf8")) as FileData;
+      raw = JSON.parse(await readFile(this.file, "utf8")) as Partial<FileData>;
     } catch {
-      this.data = { users: {}, progress: {}, usage: {}, feedback: [], counters: {} };
+      /* first run */
     }
+    // Older files used `progress` for the save blob; those entries are not rows, so start the rows empty.
+    const progress = raw.saves ? (raw.progress ?? {}) : {};
+    this.data = { users: raw.users ?? {}, saves: raw.saves ?? {}, progress, usage: raw.usage ?? {}, feedback: raw.feedback ?? [], counters: raw.counters ?? {} };
     return this.data;
   }
   private async save() {
@@ -162,7 +260,7 @@ class FileStore implements Store {
     }
   }
 
-  async upsertUser(u: Omit<UserRow, "createdAt" | "lastSeen">) {
+  async upsertUser(u: { id: string; email: string | null; name: string | null }) {
     const d = await this.load();
     const now = Date.now();
     d.users[u.id] = { ...u, createdAt: d.users[u.id]?.createdAt ?? now, lastSeen: now };
@@ -171,16 +269,39 @@ class FileStore implements Store {
   async deleteUser(id: string) {
     const d = await this.load();
     delete d.users[id];
+    delete d.saves[id];
     delete d.progress[id];
+    d.feedback = d.feedback.filter((f) => f.subject !== `u:${id}`);
+    for (const k of Object.keys(d.usage)) if (k.startsWith(`u:${id}|`)) delete d.usage[k];
+    await this.save();
+  }
+  async getSave(userId: string) {
+    return (await this.load()).saves[userId] ?? null;
+  }
+  async putSave(userId: string, blob: unknown, savedAt: number) {
+    const d = await this.load();
+    d.saves[userId] = { blob, savedAt };
     await this.save();
   }
   async getProgress(userId: string) {
-    return (await this.load()).progress[userId] ?? null;
+    return (await this.load()).progress[userId] ?? [];
   }
-  async putProgress(userId: string, blob: unknown, savedAt: number) {
+  async putProgress(userId: string, rows: ProgressRow[]) {
     const d = await this.load();
-    d.progress[userId] = { blob, savedAt };
+    const byKey = new Map((d.progress[userId] ?? []).map((r) => [`${r.section}/${r.level}`, r]));
+    for (const r of rows) byKey.set(`${r.section}/${r.level}`, r);
+    d.progress[userId] = [...byKey.values()];
     await this.save();
+  }
+  async rateLimit(bucket: string, windowSeconds: number, max: number) {
+    const now = Date.now();
+    const w = this.windows.get(bucket);
+    if (!w || now - w.start > windowSeconds * 1000) {
+      this.windows.set(bucket, { start: now, hits: 1 });
+      return true;
+    }
+    w.hits += 1;
+    return w.hits <= max;
   }
   async addUsage(subject: string, day: string, route: string, usd: number) {
     const d = await this.load();
@@ -218,22 +339,42 @@ class FileStore implements Store {
   async listFeedback(limit: number) {
     return (await this.load()).feedback.slice(0, limit);
   }
-  async stats() {
-    const d = await this.load();
-    const week = Date.now() - 7 * 86_400_000;
-    const users = Object.values(d.users);
-    return { users: users.length, active7d: users.filter((u) => u.lastSeen > week).length, withProgress: Object.keys(d.progress).length, quotaHitsToday: d.counters[`quota:${dayKey()}`] ?? 0 };
-  }
   async noteQuotaHit(day: string) {
     const d = await this.load();
     d.counters[`quota:${day}`] = (d.counters[`quota:${day}`] ?? 0) + 1;
     await this.save();
   }
+  async stats() {
+    const d = await this.load();
+    const week = Date.now() - 7 * 86_400_000;
+    const users = Object.values(d.users);
+    return { users: users.length, active7d: users.filter((u) => u.lastSeen > week).length, withSave: Object.keys(d.saves).length, quotaHitsToday: d.counters[`quota:${dayKey()}`] ?? 0 };
+  }
+  async listUsers(limit: number) {
+    const d = await this.load();
+    return Object.values(d.users)
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .slice(0, limit)
+      .map((u) => {
+        const rows = d.progress[u.id] ?? [];
+        return { id: u.id, email: u.email, displayName: u.name, createdAt: u.createdAt, lastActiveAt: u.lastSeen, completedLevels: rows.filter((r) => r.status === "completed").length, startedLevels: rows.length };
+      });
+  }
+  async completedBySection() {
+    const d = await this.load();
+    const out: UserSection[] = [];
+    for (const [userId, rows] of Object.entries(d.progress)) {
+      const bySection = new Map<string, string[]>();
+      for (const r of rows) if (r.status === "completed") bySection.set(r.section, [...(bySection.get(r.section) ?? []), r.level]);
+      for (const [section, completed] of bySection) out.push({ userId, section, completed });
+    }
+    return out;
+  }
 }
 
 let instance: Store | null = null;
 export function store(): Store {
-  instance ??= process.env.DATABASE_URL ? new PgStore(process.env.DATABASE_URL) : new FileStore();
+  instance ??= serviceConfigured() ? new SupabaseStore() : new FileStore();
   return instance;
 }
 

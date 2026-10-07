@@ -226,7 +226,6 @@ export default definePack({
       { choice: "Summaries", gain: "Keeps the gist of old turns", cost: "Extra calls; details get lost" },
     ],
     seenIn: [
-      { text: "Case Intel's RAG answers: every retrieved chunk you add is paid for on every question, and the key passage can get lost in the middle.", audience: "owner" },
       "A RAG answer box: every retrieved chunk you add is paid for on every question, and the key passage can get lost in the middle.",
       "Any chatbot you've built that 'suddenly forgot' something was a context policy you didn't choose on purpose.",
     ],

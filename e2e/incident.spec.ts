@@ -10,7 +10,7 @@ test("incident room: the fourth box", async ({ page }, info) => {
   await page.goto("/incident");
   await skipIntro(page);
   await shot("0-list");
-  await page.getByRole("button", { name: /take the page/i }).click();
+  await page.getByRole("link", { name: /take the page/i }).click();
   await page.waitForTimeout(1500);
   await shot("1-page");
   await page.getByRole("button", { name: /skip/i }).click();

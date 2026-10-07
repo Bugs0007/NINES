@@ -3,8 +3,9 @@
  * NINES UI kit ("Dusk"): calm cards, buttons, status dots, readouts, meters, sparklines, chips, segmented controls.
  * Sentence case everywhere; colour carries meaning (see globals.css).
  */
+import Link from "next/link";
 import { motion } from "motion/react";
-import { forwardRef, useId, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { forwardRef, useId, type ButtonHTMLAttributes, type ComponentProps, type ReactNode } from "react";
 import { sfx } from "@/audio/engine";
 import { spring, useReducedMotion } from "./motion";
 
@@ -59,22 +60,57 @@ export interface NButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElemen
   sound?: "tick" | "confirm" | "thunk" | "latch" | "none";
 }
 
+const BUTTON_STYLES: Record<ButtonVariant, string> = {
+  primary: "bg-amber text-bg-0 border-amber hover:bg-[#f0c793] shadow-[0_10px_28px_-14px_rgb(232_183_125/0.7)]",
+  go: "bg-phos text-bg-0 border-phos hover:bg-[#a6dfc2] shadow-[0_10px_28px_-14px_rgb(143_212_178/0.7)]",
+  secondary: "bg-bg-2 text-ink-0 border-line-2 hover:border-line-3 hover:bg-bg-3",
+  ghost: "bg-transparent text-ink-1 border-transparent hover:text-ink-0 hover:bg-bg-2",
+  danger: "bg-alert-dim text-alert border-alert-3/70 hover:bg-alert-3/30",
+};
+const BUTTON_SIZES = {
+  sm: "h-8 px-3 text-[13px] gap-1.5",
+  md: "h-10 px-4 text-sm gap-2",
+  lg: "h-12 px-6 text-[15px] gap-2.5",
+};
+
+/** Classes shared by Button and LinkButton, so a link that looks like a button is one element, not two. */
+export function buttonClass(variant: ButtonVariant = "secondary", size: keyof typeof BUTTON_SIZES = "md", className?: string): string {
+  return cx("inline-flex select-none items-center justify-center rounded-sm border font-semibold transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber", BUTTON_STYLES[variant], BUTTON_SIZES[size], className);
+}
+
+/** A navigation link styled as a button. Use this instead of wrapping a Button in a Link (nested interactive elements). */
+export function LinkButton({
+  href,
+  variant = "secondary",
+  size = "md",
+  sound = "tick",
+  className,
+  children,
+  ...rest
+}: { href: string; variant?: ButtonVariant; size?: "sm" | "md" | "lg"; sound?: "tick" | "confirm" | "none"; className?: string; children: ReactNode } & Omit<ComponentProps<typeof Link>, "href" | "className" | "children">) {
+  return (
+    <Link
+      href={href}
+      onClick={() => {
+        if (sound !== "none") {
+          sfx.unlock();
+          sfx[sound]();
+        }
+      }}
+      className={buttonClass(variant, size, className)}
+      {...rest}
+    >
+      {children}
+    </Link>
+  );
+}
+
 export const Button = forwardRef<HTMLButtonElement, NButtonProps>(function Button(
   { variant = "secondary", size = "md", icon, sound = "tick", className, children, onClick, disabled, ...rest },
   ref,
 ) {
-  const styles: Record<ButtonVariant, string> = {
-    primary: "bg-amber text-bg-0 border-amber hover:bg-[#f0c793] shadow-[0_10px_28px_-14px_rgb(232_183_125/0.7)]",
-    go: "bg-phos text-bg-0 border-phos hover:bg-[#a6dfc2] shadow-[0_10px_28px_-14px_rgb(143_212_178/0.7)]",
-    secondary: "bg-bg-2 text-ink-0 border-line-2 hover:border-line-3 hover:bg-bg-3",
-    ghost: "bg-transparent text-ink-1 border-transparent hover:text-ink-0 hover:bg-bg-2",
-    danger: "bg-alert-dim text-alert border-alert-3/70 hover:bg-alert-3/30",
-  };
-  const sizes = {
-    sm: "h-8 px-3 text-[13px] gap-1.5",
-    md: "h-10 px-4 text-sm gap-2",
-    lg: "h-12 px-6 text-[15px] gap-2.5",
-  };
+  const styles = BUTTON_STYLES;
+  const sizes = BUTTON_SIZES;
   return (
     <motion.button
       ref={ref}
@@ -105,6 +141,30 @@ export const Button = forwardRef<HTMLButtonElement, NButtonProps>(function Butto
     </motion.button>
   );
 });
+
+// ---------------------------------------------------------------- Tip
+
+/**
+ * A tooltip for icon-only controls: shows on hover and on keyboard focus (so it works without a mouse).
+ * The wrapped control still needs its own aria-label.
+ */
+export function Tip({ label, children, side = "top", className }: { label: string; children: ReactNode; side?: "top" | "bottom" | "left"; className?: string }) {
+  const pos = side === "top" ? "bottom-full left-1/2 mb-1.5 -translate-x-1/2" : side === "bottom" ? "left-1/2 top-full mt-1.5 -translate-x-1/2" : "right-full top-1/2 mr-1.5 -translate-y-1/2";
+  return (
+    <span className={cx("group/tip relative inline-flex", className)}>
+      {children}
+      <span
+        role="tooltip"
+        className={cx(
+          "pointer-events-none absolute z-50 whitespace-nowrap rounded-sm border border-line-2 bg-bg-3 px-2 py-1 text-xs font-medium text-ink-0 opacity-0 shadow-card transition-opacity duration-150 group-hover/tip:opacity-100 group-focus-within/tip:opacity-100",
+          pos,
+        )}
+      >
+        {label}
+      </span>
+    </span>
+  );
+}
 
 // ---------------------------------------------------------------- LED
 

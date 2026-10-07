@@ -3,6 +3,8 @@
  * Browser-side helpers for the AI routes. Every call returns null when the AI coach is unavailable
  * (no key, budget reached, rate limited, network), and callers fall back to offline behaviour.
  */
+import { byokComplete, getByok, PROVIDERS, type ByokProvider } from "./byok";
+import { finalizeGrade, GRADE_SYSTEM, gradeUserPrompt, HINT_SYSTEM, hintUserPrompt, unquote } from "./prompts";
 import type { GradeRequest, GradeResult, HintRequest } from "./schemas";
 
 export interface AiStatus {
@@ -10,7 +12,9 @@ export interface AiStatus {
   /** A key is configured on the server (true even when switched off in this browser). */
   keyConfigured?: boolean;
   provider: string;
-  role?: "guest" | "player" | "owner";
+  /** The player is using their own API key, stored in this browser and sent only to the provider. */
+  byok?: ByokProvider;
+  role?: "guest" | "player" | "admin";
   /** Calls left today for this caller (null = unlimited). */
   remaining?: { grade: number | null; hint: number | null };
   spentUsd: number;
@@ -43,6 +47,9 @@ export function setAiCoachOn(on: boolean): void {
 }
 
 export async function aiStatus(force = false): Promise<AiStatus | null> {
+  // The player's own key: no server involved, so no allowance or budget to report.
+  const own = getByok();
+  if (own) return { enabled: aiCoachOn(), keyConfigured: true, provider: `${PROVIDERS[own.provider].name} (your key)`, byok: own.provider, spentUsd: 0, calls: 0, budgetUsd: 0, month: "" };
   if (!force && statusCache && Date.now() - statusCache.at < 30_000) return statusCache.v;
   try {
     const r = await fetch("/api/ai/status", { cache: "no-store" });
@@ -70,11 +77,21 @@ async function post<T>(url: string, body: unknown): Promise<T | null> {
 }
 
 export async function gradeExplanation(req: GradeRequest): Promise<GradeResult | null> {
+  if (getByok()) {
+    if (!aiCoachOn()) return null;
+    const r = await byokComplete({ kind: "grade", system: GRADE_SYSTEM, user: gradeUserPrompt(req), maxTokens: 3000 });
+    return r.ok && r.json !== undefined ? finalizeGrade(req, r.json) : null;
+  }
   const r = await post<{ result: GradeResult }>("/api/ai/grade", req);
   return r?.result ?? null;
 }
 
 export async function askSre(req: HintRequest): Promise<string | null> {
+  if (getByok()) {
+    if (!aiCoachOn()) return null;
+    const r = await byokComplete({ kind: "hint", system: HINT_SYSTEM, user: hintUserPrompt(req), maxTokens: 700 });
+    return r.ok && r.text ? unquote(r.text) : null;
+  }
   const r = await post<{ hint: string }>("/api/ai/hint", req);
   return r?.hint ?? null;
 }

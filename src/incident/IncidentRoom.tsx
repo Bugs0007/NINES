@@ -15,7 +15,8 @@ import { useGame } from "@/game/store";
 import { useMusic } from "@/audio/useMusic";
 import { CastLine } from "@/ui/Cast";
 import { Cinematic } from "@/ui/Cinematic";
-import { Button, Chip, cx, fmtLatency, fmtPct, Led } from "@/ui/kit";
+import { Button, Chip, cx, fmtLatency, fmtPct, Led, LinkButton } from "@/ui/kit";
+import { useTrackLevelStart } from "@/analytics/hooks";
 import { spring, Ticker } from "@/ui/motion";
 import { clockAt } from "./inc-fourth-box";
 import { Dashboards, Hosts, Logs, Timeline, Traces, type Pin } from "./panels";
@@ -39,6 +40,7 @@ function mulberry(seed: number) {
 }
 
 export function IncidentRoom({ inc }: { inc: Incident }) {
+  useTrackLevelStart(inc.id);
   const [phase, setPhase] = useState<Phase>("page");
   const markSeen = useGame((s) => s.markSeen);
   const skipIntro = useGame((s) => s.hydrated && s.profile.settings.skipSeenCinematics && s.profile.seen.includes(`intro:${inc.id}`));
@@ -456,16 +458,12 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
         <HonestNotes className="mt-5" notes={inc.honestPhysics ?? []} />
         <CastLine className="mt-6" line={{ speaker: "meera", line: rootOk ? "Good. Now go fix the launch template before it does this again." : "Mitigated isn't understood. Read the real cause and come back to this one." }} />
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/">
-            <Button variant="primary" size="lg">
+          <LinkButton href="/" variant="primary" size="lg">
               Back to HQ
-            </Button>
-          </Link>
-          <Link href="/incident">
-            <Button variant="secondary" size="lg">
+            </LinkButton>
+          <LinkButton href="/incident" variant="secondary" size="lg">
               Incident list
-            </Button>
-          </Link>
+            </LinkButton>
         </div>
       </div>
     );

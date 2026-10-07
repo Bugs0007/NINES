@@ -13,7 +13,8 @@ import { formatUptime, rankFromXp, TIER_NAMES } from "@/game/rank";
 import { useGame, useRank } from "@/game/store";
 import { CastLine } from "@/ui/Cast";
 import { Cinematic } from "@/ui/Cinematic";
-import { Button, Chip, cx } from "@/ui/kit";
+import { Button, Chip, cx, LinkButton } from "@/ui/kit";
+import { useTrackLevelStart } from "@/analytics/hooks";
 import { spring, Ticker } from "@/ui/motion";
 import { Slider } from "@/ui/Slider";
 import { Widget } from "@/widgets/registry";
@@ -30,6 +31,7 @@ import { bossIntro } from "@/intro/specs";
 type Beat = "intro" | "fight" | "explain" | "debrief";
 
 export function BossRunner({ boss }: { boss: BossPack }) {
+  useTrackLevelStart(boss.id);
   const node = getNode(boss.id);
   const store = useGame();
   const [beat, setBeat] = useState<Beat>("intro");
@@ -264,11 +266,9 @@ function BossDebrief({ boss, lines, stars }: { boss: BossPack; lines: XpLine[]; 
           <Ticker value={rank.nines} format={(v) => `${formatUptime(v)}%`} className="num-display mt-2 block text-4xl font-semibold text-phos" />
         </div>
         <div className="flex gap-3">
-          <Link href="/">
-            <Button variant="primary" size="lg">
+          <LinkButton href="/" variant="primary" size="lg">
               Back to HQ
-            </Button>
-          </Link>
+            </LinkButton>
         </div>
       </div>
       <div className="flex flex-col gap-4">

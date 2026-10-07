@@ -9,8 +9,9 @@ import { sfx } from "@/audio/engine";
 import { CodexReveal } from "@/codex/CodexCard";
 import type { ConceptPack } from "@/content/schema";
 import { formatUptime } from "@/game/rank";
-import { useRank } from "@/game/store";
-import { Button, cx } from "@/ui/kit";
+import { useGame, useRank } from "@/game/store";
+import { SavePrompt } from "@/account/SavePrompt";
+import { Button, cx, LinkButton } from "@/ui/kit";
 import { spring, Ticker } from "@/ui/motion";
 import { comesBackIn, CONCEPT_LEARNING } from "@/content/learning";
 
@@ -24,6 +25,7 @@ export function Debrief({ pack, lines, firstBuild, stars, nextHref, nextLabel }:
   const rank = useRank();
   const learn = CONCEPT_LEARNING[pack.id];
   const comesBack = comesBackIn(pack.id);
+  const builtCount = useGame((s) => Object.values(s.concepts).filter((c) => c.builtAt).length);
   useEffect(() => {
     sfx.recovery();
   }, []);
@@ -87,20 +89,17 @@ export function Debrief({ pack, lines, firstBuild, stars, nextHref, nextLabel }:
           </div>
           {rank.gated && <div className="mt-2.5 text-[13px] leading-relaxed text-amber">XP banked. Beat {rank.gate?.label} to open the next nine.</div>}
         </div>
+        <SavePrompt firstLevel={firstBuild && builtCount === 1} />
         <p className="max-w-prose text-sm leading-relaxed text-ink-2">It&apos;s on your map now, and in the review queue. Retrieval tomorrow-ish keeps the lights on.</p>
         <div className="flex flex-wrap gap-3">
           {nextHref && (
-            <Link href={nextHref}>
-              <Button variant="primary" size="lg">
+            <LinkButton href={nextHref} variant="primary" size="lg">
                 {nextLabel ?? "Next mission"}
-              </Button>
-            </Link>
+              </LinkButton>
           )}
-          <Link href="/">
-            <Button variant={nextHref ? "ghost" : "secondary"} size="lg">
+          <LinkButton href="/" variant={nextHref ? "ghost" : "secondary"} size="lg">
               Back to HQ
-            </Button>
-          </Link>
+            </LinkButton>
         </div>
       </div>
       <div>

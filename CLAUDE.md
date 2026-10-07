@@ -109,9 +109,12 @@ Motion presets live in `src/ui/motion.tsx` (`spring.snap`, `soft`, `heavy`, `bou
 - Every feature must work without a key (self-graded rubric, scripted hints). The offline tokenizer (o200k) is exact for gpt-oss.
 - A per-browser switch turns the coach off (`localStorage['nines:ai'] = 'off'`, in Settings). The e2e suite starts every context with it off (`storageState` in `playwright.config.ts`), so tests never call the live provider.
 
-## Accounts, roles, editions (public build: DEPLOY.md, D-021)
+## Accounts, progress, roles (public build: DEPLOY.md, SUPABASE_SETUP.md, D-021, D-022)
 
-- Guests play fully with progress in IndexedDB. Signing in (Auth.js v5, `src/auth.ts`: Google/GitHub when their keys are set; a dev email login outside production) syncs progress via `/api/progress` (`src/game/sync.ts`: first link on a device keeps the save with more XP, then newest wins).
-- Roles: guest, player, owner (`OWNER_EMAILS`). Check roles server-side (`currentUser()` in route handlers and server components), never only in the client. `/admin` and `/dev/*` (in production) are owner-only.
-- Editions (`src/content/edition.ts`): public players never see personal content. Owner-only Codex lines are `{ text, audience: "owner" }` in `seenIn` with a public line beside them; owner titles for Track D live in `OWNER_EDITION` in `graph.ts`. `tests/content/edition.test.ts` fails if public text mentions Case Intel or the owner.
-- Server persistence is `src/server/store.ts` (users, synced progress, AI usage, feedback). Keep it the only place that touches the database.
+- Guests play fully with progress in IndexedDB; level 1 is never gated. Signing in (Supabase Auth: Google or an emailed link/code, no passwords) syncs progress: the browser sends the save and derived progress rows to `/api/progress`, which validates every row (`src/content/progress-model.ts`), rate-limits, and stores them with the service-role key. Browsers can only read their own rows (RLS in `supabase/migrations/`); never add a write policy for `anon` or `authenticated`.
+- Server identity is `currentUser()` in `src/auth.ts` (`src/server/supabase.ts` for the clients). Roles: guest, player, admin (`ADMIN_EMAILS`, confirmed addresses only). Check roles server-side, never only in the client. `/admin` and `/dev/*` (in production) are admin-only and 404 for everyone else.
+- With no Supabase env, sign-in is a dev-only email cookie (`/api/dev-login`) and `src/server/store.ts` uses `.nines/store.json`; the e2e suite relies on this. `store.ts` is the only module that touches the database.
+- Players' own AI keys (`src/ai/byok.ts`) live only in `localStorage["nines:byok"]` and go straight from the browser to Groq or Anthropic. No server code may import that module or read that key; `tests/content/byok.test.ts` enforces it. Keep them out of the save, export and analytics.
+- Analytics (`src/analytics/`) is PostHog, anonymous, cookieless, event counts only, opt-out in Settings. Report through `track()`; never send typed content.
+- First-visit overlays (the briefing and the HQ tour) are skipped by `localStorage["nines:onboarding"] = "off"`, which the e2e storage state sets. Section names and their bracketed contents come from `src/content/sections.ts`; never hard-code a section label in a component.
+- Public text must not name the author, their company, or their city: `tests/content/edition.test.ts` fails if it does.

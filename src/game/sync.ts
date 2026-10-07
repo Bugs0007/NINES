@@ -7,9 +7,12 @@
  *   real progress (and real guest progress is kept when the account is new).
  * - After that: the newer save wins, and local changes upload a few seconds after they happen.
  */
-import { useSession } from "next-auth/react";
 import { useEffect } from "react";
+import { track } from "@/analytics/track";
+import { MAX_ROWS_PER_WRITE } from "@/content/progress-model";
+import { useAccount } from "./account";
 import { exportAll, importAll, type ExportBlob } from "./db";
+import { deriveRows } from "./progress-rows";
 import { useGame } from "./store";
 
 const SAVED_AT = "nines:savedAt";
@@ -30,21 +33,24 @@ function lsSet(key: string, v: string) {
   }
 }
 
+/** Send the save and the progress rows. The server validates the rows and stores the ones that make sense. */
 async function upload(): Promise<void> {
   const blob = await exportAll();
   const trimmed: ExportBlob = { ...blob, events: blob.events.slice(-MAX_EVENTS) };
+  const rows = deriveRows(blob.concepts, blob.profile, blob.events).slice(0, MAX_ROWS_PER_WRITE);
   const savedAt = Date.now();
-  const r = await fetch("/api/progress", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ blob: trimmed, savedAt }) });
+  const r = await fetch("/api/progress", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ blob: trimmed, savedAt, rows }) });
   if (r.ok) lsSet(SAVED_AT, String(savedAt));
 }
 
 export function useProgressSync(): void {
-  const { data, status } = useSession();
+  const acct = useAccount();
   const hydrated = useGame((s) => s.hydrated);
-  const uid = data?.user?.id;
+  const status = acct.status;
+  const uid = acct.id;
 
   useEffect(() => {
-    if (status !== "authenticated" || !uid || !hydrated) return;
+    if (status !== "signed-in" || !uid || !hydrated) return;
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
     let unsub: (() => void) | null = null;
@@ -68,6 +74,7 @@ export function useProgressSync(): void {
           window.location.reload();
           return;
         }
+        if (!server && !linked) track("signed_up");
         if (!server || server.savedAt < localSavedAt || !linked) await upload();
       } catch {
         return;

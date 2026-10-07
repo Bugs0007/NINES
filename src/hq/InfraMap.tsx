@@ -8,12 +8,10 @@ import { NODE_BY_ID, type PlannedNode } from "@/content/graph";
 import { isPlayable } from "@/content/progression";
 import type { ConceptProgress } from "@/game/db";
 import { healthFrom, type BuildingHealth } from "@/game/fsrs";
-import { cx } from "@/ui/kit";
+import { cx, Tip } from "@/ui/kit";
 import { useReducedMotion } from "@/ui/motion";
 import { alpha, PALETTE as P } from "@/ui/palette";
 import { crossTrace, focusFrame, LOT, mapLayout } from "./layout";
-import { chapterFor } from "@/content/edition";
-import { useEdition } from "@/game/account";
 
 export type LotState = "locked" | "blueprint" | "available" | "built";
 
@@ -62,7 +60,6 @@ export function InfraMap({
   focusChapter?: string;
   className?: string;
 }) {
-  const edition = useEdition();
   const L = mapLayout();
   const reduced = useReducedMotion();
   const svg = useRef<SVGSVGElement>(null);
@@ -245,8 +242,7 @@ export function InfraMap({
                 Track {d.track}
               </tspan>
             </text>
-            {d.blocks.map((b0) => {
-              const b = { ...b0, title: chapterFor({ id: b0.chapter, title: b0.title, stage: "", blurb: "" }, edition).title };
+            {d.blocks.map((b) => {
               const t = titleFit(b.chapter, b.title, b.w, k);
               return (
                 <g key={b.chapter} transform={`translate(${b.x},${b.y})`}>
@@ -298,8 +294,8 @@ export function InfraMap({
           { label: "+", k: 0.7 },
           { label: "−", k: 1.4 },
         ].map((z) => (
+          <Tip key={z.label} label={z.label === "+" ? "Zoom in" : "Zoom out"} side="left">
           <button
-            key={z.label}
             aria-label={z.label === "+" ? "Zoom in" : "Zoom out"}
             onClick={() => {
               const b = svg.current!.getBoundingClientRect();
@@ -309,7 +305,9 @@ export function InfraMap({
           >
             {z.label}
           </button>
+          </Tip>
         ))}
+        <Tip label="Fit the whole map" side="left">
         <button
           aria-label="Fit the whole map"
           onClick={() => fit({ x: 0, y: 0, w: L.width, h: L.height })}
@@ -317,6 +315,7 @@ export function InfraMap({
         >
           ⤢
         </button>
+        </Tip>
       </div>
     </div>
   );

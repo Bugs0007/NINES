@@ -4,7 +4,7 @@ import { useState } from "react";
 import { PACK_BY_ID } from "@/content/packs";
 import { useGame } from "@/game/store";
 import { RichText } from "@/mission/panels";
-import { Button, Panel } from "@/ui/kit";
+import { LinkButton, Panel } from "@/ui/kit";
 import { PageBar } from "@/ui/Shell";
 import { Widget } from "@/widgets/registry";
 import { CodexCard } from "./CodexCard";
@@ -24,9 +24,9 @@ export function CodexDetail({ id }: { id: string }) {
           <div className="rounded-lg border border-dashed border-line-2/70 p-6 sm:p-8">
             <div className="font-display text-3xl font-semibold text-ink-2">Locked</div>
             <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-ink-1">This card is earned by building {pack.title} in the campaign.</p>
-            <Link href={`/mission/${id}`} className="mt-5 inline-block">
-              <Button variant="primary">Go build it</Button>
-            </Link>
+            <LinkButton href={`/mission/${id}`} variant="primary" className="mt-5">
+              Go build it
+            </LinkButton>
           </div>
         ) : (
           <>
@@ -62,9 +62,9 @@ export function CodexDetail({ id }: { id: string }) {
               </Panel>
             </div>
             <div className="flex gap-2">
-              <Link href={`/mission/${id}`}>
-                <Button variant="secondary">Replay the mission</Button>
-              </Link>
+              <LinkButton href={`/mission/${id}`} variant="secondary">
+                Replay the mission
+              </LinkButton>
             </div>
           </>
         )}

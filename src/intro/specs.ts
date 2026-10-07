@@ -57,24 +57,6 @@ export function bossIntro(bossId: string): IntroSpec | null {
   };
 }
 
-export const WELCOME_INTRO: IntroSpec = {
-  id: "welcome",
-  kicker: "Welcome to NINES",
-  title: "Keep Pigeon online",
-  story: "You're the first backend engineer at Pigeon, a messaging startup in Hyderabad. Every idea you learn becomes a running service on your map, and your uptime is your rank.",
-  scene: "launch",
-  tone: "phos",
-  learnLabel: "How it works",
-  learn: [
-    "Missions: predict what a system will do, break it in a live simulation, then use the idea",
-    "Daily Shift: a few minutes of reviews, timed for just before you'd forget",
-    "Incidents and bosses: use everything at once, when nobody tells you which idea applies",
-    "No sign-up needed: progress stays in your browser, and you can sign in later to keep it across devices",
-  ],
-  why: "Interviews and on-call both test whether you can reason about a system you haven't seen before. NINES trains that directly, then keeps it from fading.",
-  cta: "Show me HQ",
-};
-
 export const SECTION_INTROS: Record<"shift" | "incident" | "codex", IntroSpec> = {
   shift: {
     id: "section:shift",

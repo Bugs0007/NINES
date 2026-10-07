@@ -9,14 +9,18 @@ import { sfx } from "@/audio/engine";
 import { setTimeWarp } from "@/game/clock";
 import { useGame } from "@/game/store";
 import { useProgressSync } from "@/game/sync";
-import { SessionProvider } from "next-auth/react";
+import { SignInDialog } from "@/account/SignInDialog";
+import { Analytics } from "@/analytics/Analytics";
+import { AccountProvider } from "@/game/account";
+import { BriefingHost } from "@/briefing/Briefing";
+import { BriefingButton } from "@/briefing/BriefingButton";
 import { useReducedMotion } from "./motion";
 
 export function Shell({ children }: { children: ReactNode }) {
   return (
-    <SessionProvider>
+    <AccountProvider>
       <ShellInner>{children}</ShellInner>
-    </SessionProvider>
+    </AccountProvider>
   );
 }
 
@@ -54,6 +58,9 @@ function ShellInner({ children }: { children: ReactNode }) {
   return (
     <>
       {children}
+      <BriefingHost />
+      <SignInDialog />
+      <Analytics />
     </>
   );
 }
@@ -90,7 +97,10 @@ export function PageBar({
           <Title className="min-w-0 truncate font-display text-lg font-semibold text-ink-0">{title}</Title>
         </>
       )}
-      {right && <div className="ml-auto flex shrink-0 items-center gap-2">{right}</div>}
+      <div className="ml-auto flex shrink-0 items-center gap-1">
+        <BriefingButton />
+        {right}
+      </div>
     </header>
   );
 }

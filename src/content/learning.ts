@@ -119,7 +119,7 @@ export interface SectionLearning {
 
 export const SECTION_LEARNING: Record<SectionId, SectionLearning> = {
   campaign: {
-    name: "Campaign",
+    name: "Core Grid",
     does: "Learn one new idea per mission, by breaking a simulated system.",
     trains: "Understanding: why systems behave the way they do.",
     because: "You predict what will happen before you see it. A wrong guess you've committed to is the moment learning sticks best, so every mission starts with one.",

@@ -219,7 +219,6 @@ export default definePack({
       { choice: "Sticky sessions", gain: "No code change", cost: "Breaks on restarts and pool changes, unbalances load" },
     ],
     seenIn: [
-      { text: "Case Intel keeps Django sessions in Postgres (the default db backend), which is why it could scale out without this bug.", audience: "owner" },
       "Django keeps sessions in the database by default, which is why a default Django app can scale out without this bug.",
       "Any file your app writes to local disk (uploads, generated PDFs) is state that won't survive a second box.",
     ],
