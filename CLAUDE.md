@@ -16,6 +16,7 @@ A game that teaches system design, AI engineering, and dev fundamentals. Read `R
 | Every screen at both widths | `npx playwright test e2e/tour.spec.ts` (fails on any sideways scroll) |
 | Renderer perf (needs a GPU) | `npx playwright test e2e/perf.spec.ts` (stress page: `/dev/perf?n=2000`) |
 | Preview a section intro | `/dev/intro?id=chapter:a1` (also `chapter:b1`, `section:shift`, `section:incident`, `section:codex`, `boss:boss-the-bill`) |
+| Production build + local prod server | `npx next build` then `npx next start -p 3200` (sign-in needs `AUTH_SECRET` in production) |
 | Regenerate app icons | `npx tsx scripts/gen-icons.mts` (from `src/app/icon.svg`) |
 
 Windows + OneDrive notes: installs are slow here. If Vitest dies with "Cannot find native binding" run `npm i --no-save @rolldown/binding-win32-x64-msvc`. Fonts are committed in `src/fonts/` because `next/font/google` can't fetch on this network.
@@ -103,7 +104,17 @@ Motion presets live in `src/ui/motion.tsx` (`spring.snap`, `soft`, `heavy`, `bou
 - Runtime AI is Groq's OpenAI-compatible API, called with plain `fetch` from `src/server/ai.ts` (no SDK). Key: `GROQ_API_KEY` in `.env` (gitignored), read server-side only.
 - Routes: `/api/ai/status`, `/api/ai/grade` (gpt-oss-120b, strict JSON-schema output, medium reasoning), `/api/ai/hint` (gpt-oss-20b, low reasoning). `include_reasoning: false` always.
 - Model IDs and runtime prices only in `src/config/models.ts`. The lessons' price sheet (Claude list prices the AI track teaches with) is `src/content/prices.ts`; never couple the two, or a provider change moves calibrated challenges.
-- The ledger is `.nines/usage.json`; the monthly cap is `NINES_MONTHLY_BUDGET_USD` (default $5). Free tier: 30 requests/min, 8,000 tokens/min; a 429 falls back to offline behaviour.
+- Spend and quotas go through `src/server/store.ts` (Postgres when `DATABASE_URL` is set, else `.nines/store.json`). Caps: `NINES_MONTHLY_BUDGET_USD` (default $5) and a daily cap; per-person daily quotas by role (`src/config/ai.ts`). Free tier: 30 requests/min, 8,000 tokens/min; a 429, quota, or cap falls back to offline behaviour.
 - Groq caches matching prompt prefixes automatically on gpt-oss (cached tokens at half price): keep system prompts stable and first, volatile content last.
 - Every feature must work without a key (self-graded rubric, scripted hints). The offline tokenizer (o200k) is exact for gpt-oss.
 - A per-browser switch turns the coach off (`localStorage['nines:ai'] = 'off'`, in Settings). The e2e suite starts every context with it off (`storageState` in `playwright.config.ts`), so tests never call the live provider.
+
+## Accounts, progress, roles (public build: DEPLOY.md, SUPABASE_SETUP.md, D-021, D-022)
+
+- Guests play fully with progress in IndexedDB; level 1 is never gated. Signing in (Supabase Auth: Google or an emailed link/code, no passwords) syncs progress: the browser sends the save and derived progress rows to `/api/progress`, which validates every row (`src/content/progress-model.ts`), rate-limits, and stores them with the service-role key. Browsers can only read their own rows (RLS in `supabase/migrations/`); never add a write policy for `anon` or `authenticated`.
+- Server identity is `currentUser()` in `src/auth.ts` (`src/server/supabase.ts` for the clients). Roles: guest, player, admin (`ADMIN_EMAILS`, confirmed addresses only). Check roles server-side, never only in the client. `/admin` and `/dev/*` (in production) are admin-only and 404 for everyone else.
+- With no Supabase env, sign-in is a dev-only email cookie (`/api/dev-login`) and `src/server/store.ts` uses `.nines/store.json`; the e2e suite relies on this. `store.ts` is the only module that touches the database.
+- Players' own AI keys (`src/ai/byok.ts`) live only in `localStorage["nines:byok"]` and go straight from the browser to Groq or Anthropic. No server code may import that module or read that key; `tests/content/byok.test.ts` enforces it. Keep them out of the save, export and analytics.
+- Analytics (`src/analytics/`) is PostHog, anonymous, cookieless, event counts only, opt-out in Settings. Report through `track()`; never send typed content.
+- First-visit overlays (the briefing and the HQ tour) are skipped by `localStorage["nines:onboarding"] = "off"`, which the e2e storage state sets. Section names and their bracketed contents come from `src/content/sections.ts`; never hard-code a section label in a component.
+- Public text must not name the author, their company, or their city: `tests/content/edition.test.ts` fails if it does.

@@ -58,7 +58,7 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
   },
   tokens: {
     canDo: "Explain what a token is, why counts differ by language and format, and what a prompt costs per month.",
-    why: "Tokens are the unit of cost, speed, and context limits for every LLM feature you'll build, Case Intel included.",
+    why: "Tokens are the unit of cost, speed, and context limits for every LLM feature you'll build.",
     keyIdea: "Cost = tokens × price × volume, and tokens aren't words.",
   },
   "context-windows": {
@@ -80,7 +80,7 @@ export interface ChapterLearning {
   outcomes: string[];
   /** Why this chapter comes where it does, and why it matters. */
   why: string;
-  /** Concrete payoff: interviews, work, Case Intel. */
+  /** Concrete payoff: interviews and work. */
   payoff: string;
 }
 
@@ -119,7 +119,7 @@ export interface SectionLearning {
 
 export const SECTION_LEARNING: Record<SectionId, SectionLearning> = {
   campaign: {
-    name: "Campaign",
+    name: "Core Grid",
     does: "Learn one new idea per mission, by breaking a simulated system.",
     trains: "Understanding: why systems behave the way they do.",
     because: "You predict what will happen before you see it. A wrong guess you've committed to is the moment learning sticks best, so every mission starts with one.",

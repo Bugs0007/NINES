@@ -233,7 +233,7 @@ export default definePack({
       { choice: "Shed load when the queue grows", gain: "Protects latency for the requests you accept", cost: "Some users get fast errors instead of slow successes" },
     ],
     seenIn: [
-      "Case Intel's t3.micro that went unreachable during the fan-out: one suspect is CPU credits. In standard credit mode an empty balance drops the box to its 10% baseline and the queue grows without limit; in T3's default unlimited mode it keeps bursting and bills for it instead.",
+      "A small burstable instance (t3, t4g) that goes unreachable under load: one suspect is CPU credits. In standard credit mode an empty balance drops the box to its 10% baseline and the queue grows without limit; in T3's default unlimited mode it keeps bursting and bills for it instead.",
       "Every Postgres that is fine at noon and crawling at month-end is sitting on the steep part of this curve.",
     ],
     interviewAngle: "Say your utilization target out loud when sizing: 'I'll plan for roughly 60 to 70% at peak because latency goes nonlinear past that.' Then back it with ρ/(1−ρ).",

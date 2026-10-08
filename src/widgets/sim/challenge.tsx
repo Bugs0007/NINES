@@ -93,6 +93,9 @@ export function useSimChallenge(o: SimChallengeOptions) {
 
 export type SimChallenge = ReturnType<typeof useSimChallenge>;
 
+/** Why a Run button is greyed out: the controls unlock once the predictions are locked in. */
+export const WAIT_REASON = "Lock in your predictions first to unlock this.";
+
 /** Run / fast-forward / replay controls and the post-run cause readout. */
 export function ChallengeControls({
   ch,
@@ -118,9 +121,12 @@ export function ChallengeControls({
     <div className={cx("flex flex-col gap-3", className)}>
       <div className="flex flex-wrap items-center gap-2">
         {phase === "setup" && (
-          <Button variant="go" onClick={onRun} disabled={disabled} sound="thunk">
-            {runLabel}
-          </Button>
+          <>
+            <Button variant="go" onClick={onRun} disabled={disabled} sound="thunk" title={disabled ? WAIT_REASON : undefined}>
+              {runLabel}
+            </Button>
+            {disabled && <span className="text-[13px] text-ink-2">{WAIT_REASON}</span>}
+          </>
         )}
         {(phase === "running" || phase === "replay") && (
           <>

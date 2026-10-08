@@ -15,7 +15,16 @@ export const MODELS = {
   fast: "openai/gpt-oss-20b",
 } as const;
 
-export type ModelId = (typeof MODELS)[keyof typeof MODELS];
+/**
+ * Models used when a player brings their own key (src/ai/byok.ts). Billed to their account, not ours. Groq uses the
+ * same models as above; Claude uses a capable model to grade and a small fast one for hints.
+ */
+export const BYOK_MODELS = {
+  groq: { grader: MODELS.grader, fast: MODELS.fast },
+  anthropic: { grader: "claude-sonnet-5-5", fast: "claude-haiku-4-5-20251001" },
+} as const;
+
+export type ModelId =(typeof MODELS)[keyof typeof MODELS];
 
 /**
  * USD per million tokens (Groq on-demand list prices). Prompt caching is automatic on the gpt-oss models:

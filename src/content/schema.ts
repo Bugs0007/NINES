@@ -197,7 +197,7 @@ export const CodexSchema = z.object({
   oneLiner: z.string().min(1),
   keyNumbers: z.array(KeyNumberSchema).min(1),
   tradeoffs: z.array(z.object({ choice: z.string(), gain: z.string(), cost: z.string() })).min(1),
-  /** Where Bhagath has met this concept in real life (Case Intel callouts). */
+  /** Where you meet this concept in real life. */
   seenIn: z.array(z.string()).min(1),
   interviewAngle: z.string().min(1),
   aws: z.array(z.object({ concept: z.string(), service: z.string(), note: z.string().optional() })).default([]),

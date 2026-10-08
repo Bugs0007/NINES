@@ -18,11 +18,13 @@ import { gradeReview, REVIEW_XP, scoreEstimate } from "@/game/scoring";
 import { dueConcepts, istDay, useGame } from "@/game/store";
 import { ReviewCard, parseNumber, type ReviewOutcome } from "@/review/ReviewCard";
 import { CastLine } from "@/ui/Cast";
-import { Button, Chip, cx, fmtPct } from "@/ui/kit";
+import { Button, Chip, cx, fmtPct, LinkButton } from "@/ui/kit";
 import { spring, Ticker } from "@/ui/motion";
 import { problemFor, scaffoldLevel, type EstProblem } from "./estimation";
 import { useIntro } from "@/intro/useIntro";
 import { SECTION_INTROS } from "@/intro/specs";
+import { SectionHeader } from "@/ui/SectionLabel";
+import { BriefingButton } from "@/briefing/BriefingButton";
 
 const MAX_REVIEWS = 8;
 
@@ -140,8 +142,9 @@ export function Shift() {
         <Link href="/" className="shrink-0 text-[13px] font-medium text-ink-2 transition-colors hover:text-amber">
           ← HQ
         </Link>
-        <span className="truncate font-display text-lg font-semibold text-ink-0">Daily shift</span>
-        <div className="ml-auto flex shrink-0 items-center gap-1.5" aria-label={`Task ${Math.max(0, i) + 1} of ${tasks.length}`}>
+        <span className="truncate font-display text-lg font-semibold text-ink-0">Daily Shift</span>
+        <BriefingButton className="ml-auto" />
+        <div className="flex shrink-0 items-center gap-1.5 sm:ml-2" role="img" aria-label={`Task ${Math.max(0, i) + 1} of ${tasks.length}`}>
           {tasks.map((t, k) => (
             <span
               key={k}
@@ -162,6 +165,7 @@ export function Shift() {
                   <div className="eyebrow text-xs text-amber">{new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" })}</div>
                   <h1 className="mt-2 font-display text-4xl font-semibold leading-tight text-ink-0 sm:text-5xl">Clocking in</h1>
                 </div>
+                <SectionHeader id="daily-shift" />
                 <CastLine
                   line={{
                     speaker: "meera",
@@ -352,17 +356,13 @@ function ShiftReport({ done, report }: { done: Done[]; report: { streak: number;
       )}
       <CastLine line={{ speaker: "meera", line: repairs.length ? "Lights are back on. Same time tomorrow, roughly." : "Good. Now go build something worth repairing." }} />
       <div className="flex flex-wrap gap-3">
-        <Link href="/">
-          <Button variant="primary" size="lg">
+        <LinkButton href="/" variant="primary" size="lg">
             Back to HQ
-          </Button>
-        </Link>
+          </LinkButton>
         {repairs.length === 0 && (
-          <Link href="/campaign/a1">
-            <Button variant="secondary" size="lg">
+          <LinkButton href="/campaign/a1" variant="secondary" size="lg">
               Campaign
-            </Button>
-          </Link>
+            </LinkButton>
         )}
       </div>
     </div>

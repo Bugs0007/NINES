@@ -15,6 +15,7 @@ import { PALETTE } from "@/ui/palette";
 import { PageBar } from "@/ui/Shell";
 import { useIntro } from "@/intro/useIntro";
 import { SECTION_INTROS } from "@/intro/specs";
+import { SectionHeader } from "@/ui/SectionLabel";
 
 export function CodexHome() {
   const intro = useIntro(SECTION_INTROS.codex);
@@ -50,6 +51,7 @@ export function CodexHome() {
         }
       />
       <div className="mx-auto w-full max-w-6xl px-4 py-8 lg:px-8">
+        <SectionHeader id="codex" className="mb-6 max-w-3xl" />
         <div className="flex flex-wrap items-center gap-3">
           <Segmented value={tab} onChange={setTab} label="Codex view" options={[{ value: "cards", label: "Cards" }, { value: "profile", label: "Profile" }]} />
           {tab === "cards" && (

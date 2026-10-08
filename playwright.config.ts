@@ -13,7 +13,7 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}`,
     trace: "retain-on-failure",
     // The suite never calls the live AI provider: the coach starts switched off (see src/ai/client.ts).
-    storageState: { cookies: [], origins: [{ origin: `http://localhost:${PORT}`, localStorage: [{ name: "nines:ai", value: "off" }] }] },
+    storageState: { cookies: [], origins: [{ origin: `http://localhost:${PORT}`, localStorage: [{ name: "nines:ai", value: "off" }, { name: "nines:onboarding", value: "off" }] }] },
   },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } } },
@@ -23,6 +23,8 @@ export default defineConfig({
     command: `npx next dev -p ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: true,
+    // A test admin, so e2e can check /admin (real admins come from ADMIN_EMAILS in .env).
+    env: { ADMIN_EMAILS: [process.env.ADMIN_EMAILS, "admin@nines.test"].filter(Boolean).join(",") },
     timeout: 180_000,
   },
 });

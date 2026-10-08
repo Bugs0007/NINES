@@ -1,14 +1,14 @@
 import "server-only";
 /**
- * Server-side AI access (Groq, OpenAI-compatible chat completions): the call, the cost ledger, and the hard
- * monthly budget. The key lives in .env (GROQ_API_KEY) and never reaches the browser.
+ * Server-side AI access (Groq, OpenAI-compatible chat completions): the call, spend accounting, the hard
+ * monthly and daily caps, and per-person daily quotas. The key lives in .env (GROQ_API_KEY) and never
+ * reaches the browser. Usage is stored through src/server/store.ts (Postgres in production).
  */
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
-import { monthlyBudgetUsd } from "@/config/ai";
+import { createHash } from "node:crypto";
+import { currentUser } from "@/auth";
+import { dailyBudgetUsd, dailyQuota, monthlyBudgetUsd, type AiRoute } from "@/config/ai";
 import { AI_PROVIDER, PRICING } from "@/config/models";
-
-const LEDGER = path.join(process.cwd(), ".nines", "usage.json");
+import { dayKey, store, type Role } from "./store";
 
 export interface Ledger {
   month: string;
@@ -17,34 +17,11 @@ export interface Ledger {
   byRoute: Record<string, { calls: number; usd: number }>;
 }
 
-const thisMonth = () => new Date().toISOString().slice(0, 7);
-
-async function readLedger(): Promise<Ledger> {
-  try {
-    const l = JSON.parse(await readFile(LEDGER, "utf8")) as Ledger;
-    if (l.month === thisMonth()) return l;
-  } catch {
-    /* first run */
-  }
-  return { month: thisMonth(), spentUsd: 0, calls: 0, byRoute: {} };
-}
-
-let memLedger: Ledger | null = null;
-
-async function writeLedger(l: Ledger) {
-  memLedger = l;
-  try {
-    await mkdir(path.dirname(LEDGER), { recursive: true });
-    await writeFile(LEDGER, JSON.stringify(l, null, 2));
-  } catch {
-    /* read-only FS (e.g. serverless): keep the in-memory copy */
-  }
-}
-
+/** Spend this month, across everyone. */
 export async function ledger(): Promise<Ledger> {
-  if (memLedger && memLedger.month === thisMonth()) return memLedger;
-  memLedger = await readLedger();
-  return memLedger;
+  const month = dayKey().slice(0, 7);
+  const s = await store().spend(month);
+  return { month, spentUsd: s.usd, calls: s.calls, byRoute: s.byRoute };
 }
 
 export function hasKey(): boolean {
@@ -52,6 +29,7 @@ export function hasKey(): boolean {
 }
 
 export class BudgetExceeded extends Error {}
+export class QuotaExceeded extends Error {}
 /** The provider said no: rate limit (429), auth, or a server error. Callers fall back to offline behaviour. */
 export class ProviderError extends Error {
   constructor(
@@ -62,9 +40,48 @@ export class ProviderError extends Error {
   }
 }
 
+export interface Caller {
+  /** Stable id for quotas: "u:<user id>" when signed in, else a salted hash of the network address. */
+  subject: string;
+  role: Role;
+  email: string | null;
+}
+
+/** Who is calling. Guests are identified only by a one-way hash; no address is stored. */
+export async function caller(req: Request): Promise<Caller> {
+  const u = await currentUser().catch(() => null);
+  if (u) return { subject: `u:${u.id}`, role: u.role, email: u.email };
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "local";
+  const ua = req.headers.get("user-agent") ?? "";
+  const salt = process.env.IP_HASH_SALT ?? "nines-dev-salt";
+  return { subject: `g:${createHash("sha256").update(`${salt}|${ip}|${ua}`).digest("hex").slice(0, 20)}`, role: "guest", email: null };
+}
+
 export async function assertBudget(): Promise<void> {
-  const l = await ledger();
-  if (l.spentUsd >= monthlyBudgetUsd()) throw new BudgetExceeded(`Monthly AI budget of $${monthlyBudgetUsd()} reached`);
+  const day = dayKey();
+  const [month, today] = await Promise.all([store().spend(day.slice(0, 7)), store().spend(day)]);
+  if (month.usd >= monthlyBudgetUsd()) throw new BudgetExceeded(`Monthly AI budget of $${monthlyBudgetUsd()} reached`);
+  if (today.usd >= dailyBudgetUsd()) throw new BudgetExceeded(`Daily AI budget of $${dailyBudgetUsd().toFixed(2)} reached`);
+}
+
+export async function assertQuota(c: Caller, route: AiRoute): Promise<void> {
+  const limit = dailyQuota(c.role, route);
+  if (!Number.isFinite(limit)) return;
+  const used = (await store().usageFor(c.subject, dayKey()))[route] ?? 0;
+  if (used >= limit) {
+    await store().noteQuotaHit(dayKey());
+    throw new QuotaExceeded(`Daily ${route} allowance (${limit}) used`);
+  }
+}
+
+/** Remaining calls today for this caller (shown in Settings). */
+export async function remaining(c: Caller): Promise<Record<AiRoute, number | null>> {
+  const used = await store().usageFor(c.subject, dayKey());
+  const left = (r: AiRoute) => {
+    const q = dailyQuota(c.role, r);
+    return Number.isFinite(q) ? Math.max(0, q - (used[r] ?? 0)) : null;
+  };
+  return { grade: left("grade"), hint: left("hint") };
 }
 
 export interface Usage {
@@ -81,16 +98,9 @@ export function costOf(model: string, u: Usage): number {
   return ((u.prompt_tokens - cached) * p.input + cached * p.cachedInput + u.completion_tokens * p.output) / 1e6;
 }
 
-export async function record(route: string, model: string, usage: Usage): Promise<number> {
+export async function record(route: AiRoute, model: string, usage: Usage, subject: string): Promise<number> {
   const usd = costOf(model, usage);
-  const l = await ledger();
-  const r = l.byRoute[route] ?? { calls: 0, usd: 0 };
-  await writeLedger({
-    ...l,
-    spentUsd: l.spentUsd + usd,
-    calls: l.calls + 1,
-    byRoute: { ...l.byRoute, [route]: { calls: r.calls + 1, usd: r.usd + usd } },
-  });
+  await store().addUsage(subject, dayKey(), route, usd);
   return usd;
 }
 
@@ -165,6 +175,7 @@ export function unavailable(reason: string, status = 200) {
 
 export function reasonOf(e: unknown): string {
   if (e instanceof BudgetExceeded) return "budget";
+  if (e instanceof QuotaExceeded) return "quota";
   if (e instanceof ProviderError) return e.status === 429 ? "rate-limited" : `provider-${e.status || e.message}`;
   return "error";
 }

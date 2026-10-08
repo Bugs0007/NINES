@@ -2,10 +2,12 @@
 import Link from "next/link";
 import { GRAPH, NODE_BY_ID } from "@/content/graph";
 import { useGame } from "@/game/store";
-import { Button, Chip, cx } from "@/ui/kit";
+import { buttonClass, Chip, cx } from "@/ui/kit";
 import { INCIDENT_BY_ID } from ".";
 import { useIntro } from "@/intro/useIntro";
 import { SECTION_INTROS } from "@/intro/specs";
+import { SectionHeader } from "@/ui/SectionLabel";
+import { BriefingButton } from "@/briefing/BriefingButton";
 
 export function IncidentList() {
   const intro = useIntro(SECTION_INTROS.incident);
@@ -24,8 +26,10 @@ export function IncidentList() {
           ← HQ
         </Link>
         <span className="font-display text-lg font-semibold text-ink-0">Incident Room</span>
+        <BriefingButton className="ml-auto" />
       </header>
-      <div className="mx-auto w-full max-w-4xl px-4 pb-16 pt-10 lg:px-8">
+      <div className="mx-auto w-full max-w-4xl px-4 pb-16 pt-8 lg:px-8">
+        <SectionHeader id="incident-room" className="mb-8" />
         <div className="eyebrow text-xs text-alert">On call</div>
         <h1 className="mt-2 font-display text-5xl font-semibold leading-none text-ink-0 sm:text-6xl">Pages</h1>
         <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-ink-1">Real-time incidents on the simulation. The error budget burns while you investigate. Scored on time to mitigate, root cause, evidence, and what you broke on the way.</p>
@@ -42,7 +46,7 @@ export function IncidentList() {
                   <div className="mt-1.5 text-[13px] leading-relaxed text-ink-2">{!inc ? "" : open ? `Needs: ${n.prereqs.map((p) => NODE_BY_ID.get(p)?.title).join(", ")}` : `Locked · build ${n.prereqs.filter((p) => !built.has(p)).map((p) => NODE_BY_ID.get(p)?.title).join(", ")}`}</div>
                 </div>
                 {done && <Chip tone="ok">Resolved</Chip>}
-                {inc && open && <Button variant="danger">{done ? "Replay" : "Take the page"}</Button>}
+                {inc && open && <span className={buttonClass("danger", "md")}>{done ? "Replay" : "Take the page"}</span>}
               </div>
             );
             return inc && open ? (

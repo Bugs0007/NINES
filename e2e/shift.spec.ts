@@ -55,7 +55,7 @@ test("daily shift with decayed services", async ({ page }, info) => {
   await expect(page.getByText(/shift complete/i)).toBeVisible();
   await page.waitForTimeout(1200);
   await shot("9-report");
-  await page.getByRole("button", { name: /back to hq/i }).click();
+  await page.getByRole("link", { name: /back to hq/i }).click();
   await page.waitForTimeout(2500);
   await shot("10-hq-after");
 });

@@ -216,7 +216,7 @@ export default definePack({
       { choice: "Many few-shot examples", gain: "Steadier output format", cost: "Every example is paid for on every request" },
     ],
     seenIn: [
-      "Case Intel's legal RAG: long judgment chunks and Indian-language text inflate token counts per chunk.",
+      "A legal or document-search RAG: long chunks and Indian-language text inflate token counts per chunk.",
       "Every JSON tool result you've passed back to a model was billed at JSON's token density.",
     ],
     interviewAngle: "When costing an LLM feature, show the math: tokens per request × requests per day × price, input and output separately. Then name the levers: trim context, cache the stable prefix, shorten outputs, route easy requests to a cheaper model, and batch anything that isn't interactive at half price.",

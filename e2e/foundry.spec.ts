@@ -82,7 +82,7 @@ test("boss: the bill", async ({ page }, info) => {
   await page.keyboard.press("Escape");
   await page.waitForTimeout(500);
   await shot("0-chapter");
-  await page.getByRole("button", { name: /cut the bill/i }).click();
+  await page.getByRole("link", { name: /cut the bill/i }).click();
   await page.waitForTimeout(1200);
   await shot("1-intro");
   await page.getByRole("button", { name: /skip/i }).click();

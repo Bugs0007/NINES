@@ -39,7 +39,7 @@ describe("curriculum graph", () => {
 
   it("covers the brief's required breadth", () => {
     expect(GRAPH.length).toBeGreaterThan(180);
-    for (const id of ["latency-numbers", "littles-law", "consistent-hashing", "consensus-raft", "hybrid-search-rrf", "prompt-injection-indirect", "docker-images-layers", "git-dag", "ci-polling-storm", "capstone-case-intel-india"]) {
+    for (const id of ["latency-numbers", "littles-law", "consistent-hashing", "consensus-raft", "hybrid-search-rrf", "prompt-injection-indirect", "docker-images-layers", "git-dag", "prod-polling-storm", "capstone-legal-search"]) {
       expect(NODE_BY_ID.has(id), id).toBe(true);
     }
   });
