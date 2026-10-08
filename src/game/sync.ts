@@ -12,6 +12,7 @@ import { track } from "@/analytics/track";
 import { MAX_ROWS_PER_WRITE } from "@/content/progress-model";
 import { useAccount } from "./account";
 import { exportAll, importAll, type ExportBlob } from "./db";
+import { withMergedSeen } from "./merge";
 import { deriveRows } from "./progress-rows";
 import { useGame } from "./store";
 
@@ -69,7 +70,7 @@ export function useProgressSync(): void {
         lsSet(linkKey, "1");
         if (cancelled) return;
         if (useServer && server) {
-          await importAll(server.blob);
+          await importAll(withMergedSeen(server.blob, local.profile));
           lsSet(SAVED_AT, String(server.savedAt));
           window.location.reload();
           return;

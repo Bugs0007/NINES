@@ -11,6 +11,16 @@ test.use({ storageState: { cookies: [], origins: [{ origin: ORIGIN, localStorage
 
 const briefing = (page: Page) => page.getByRole("dialog", { name: /^briefing$/i });
 const tour = (page: Page) => page.getByRole("dialog", { name: /guided tour/i });
+const startPrompt = (page: Page) => page.getByRole("dialog", { name: /create your engineer profile/i });
+
+/** Close whatever first-visit overlays are up (briefing, sign-in prompt, tour), as a player pressing Escape would. */
+async function clearOverlays(page: Page) {
+  for (let i = 0; i < 6; i++) {
+    await page.waitForTimeout(700);
+    if (!(await page.locator('[role="dialog"]').count())) break;
+    await page.keyboard.press("Escape");
+  }
+}
 
 test("a first-time visitor gets the briefing, then the tour, once", async ({ page }, info) => {
   test.setTimeout(120_000);
@@ -31,6 +41,13 @@ test("a first-time visitor gets the briefing, then the tour, once", async ({ pag
   await page.screenshot({ path: `e2e/__shots__/briefing-4-${info.project.name}.png` });
   await page.getByRole("button", { name: /show me hq/i }).click();
   await expect(briefing(page)).toBeHidden();
+
+  // Right after the lore: an invitation to sign in, with a clear way to carry on as a guest.
+  await expect(startPrompt(page)).toBeVisible({ timeout: 10_000 });
+  await expect(startPrompt(page).getByRole("button", { name: /continue as a guest/i })).toBeVisible();
+  await expect(tour(page)).toBeHidden(); // the tour waits its turn
+  await page.screenshot({ path: `e2e/__shots__/start-prompt-${info.project.name}.png` });
+  await startPrompt(page).getByRole("button", { name: /continue as a guest/i }).click();
 
   // Then the one-time tour of the main controls.
   await expect(tour(page)).toBeVisible({ timeout: 10_000 });
@@ -76,10 +93,7 @@ test("the briefing can be skipped at any point, and replayed from the Briefing b
 
 test("the HQ names the next step, labels sections plainly, and explains what is locked", async ({ page }) => {
   await page.goto("/");
-  await page.keyboard.press("Escape"); // briefing
-  await page.waitForTimeout(500);
-  await page.keyboard.press("Escape"); // tour
-  await page.waitForTimeout(500);
+  await clearOverlays(page);
 
   // A brand-new player is told exactly where to start.
   const next = page.getByRole("region", { name: /your next step/i });
@@ -114,6 +128,11 @@ test("keyboard only: the briefing and tour are operable without a mouse", async 
   await page.keyboard.press("ArrowRight");
   await expect(page.getByRole("button", { name: /show me hq/i })).toBeFocused();
   await page.keyboard.press("Enter");
+  // The sign-in prompt takes focus (the email field); Escape carries on as a guest.
+  await expect(startPrompt(page)).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole("textbox", { name: /email address/i })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(startPrompt(page)).toBeHidden();
   await expect(tour(page)).toBeVisible({ timeout: 10_000 });
   await expect(page.getByRole("button", { name: /^next$/i })).toBeFocused();
   for (let i = 0; i < 5; i++) await page.keyboard.press("Enter");
@@ -134,6 +153,12 @@ for (const [name, w, h] of [["375", 375, 812], ["768", 768, 1024], ["desktop", 1
     await noSideScroll(page);
     await expect(page.getByRole("button", { name: /show me hq/i })).toBeInViewport();
     await page.getByRole("button", { name: /show me hq/i }).click();
+    await expect(startPrompt(page)).toBeVisible({ timeout: 10_000 });
+    await noSideScroll(page);
+    const guest = startPrompt(page).getByRole("button", { name: /continue as a guest/i });
+    await expect(guest).toBeInViewport();
+    await expect(startPrompt(page).getByRole("textbox", { name: /email address/i })).toBeInViewport();
+    await guest.click();
     await expect(tour(page)).toBeVisible({ timeout: 10_000 });
     for (let i = 0; i < 5; i++) {
       await noSideScroll(page);

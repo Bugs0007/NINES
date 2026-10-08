@@ -61,7 +61,7 @@ export function SignInDialog() {
   }, [open, acct.status, hide]);
 
   function close() {
-    if (reason === "first-level") track("signup_prompt_dismissed");
+    if (reason === "first-level" || reason === "start") track("signup_prompt_dismissed");
     setError(null);
     hide();
   }
@@ -69,6 +69,7 @@ export function SignInDialog() {
   if (!open) return null;
   const sb = supabaseBrowser();
   const firstLevel = reason === "first-level";
+  const start = reason === "start";
 
   const google = async () => {
     if (!sb) return;
@@ -119,9 +120,9 @@ export function SignInDialog() {
       <div role="dialog" aria-modal="true" aria-labelledby="signin-title" className="w-full max-w-md rounded-xl border border-line-2 bg-bg-1 p-5 shadow-lift sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="eyebrow text-xs text-amber">{firstLevel ? "Level 1 cleared" : "Your progress"}</div>
+            <div className="eyebrow text-xs text-amber">{start ? "Welcome aboard" : firstLevel ? "Level 1 cleared" : "Your progress"}</div>
             <h2 id="signin-title" className="mt-1 font-display text-2xl font-semibold leading-tight text-ink-0">
-              {firstLevel ? "Save it so it's yours" : "Save your progress"}
+              {start ? "Create your engineer profile" : firstLevel ? "Save it so it's yours" : "Save your progress"}
             </h2>
           </div>
           <button onClick={close} aria-label="Close" title="Close" className="-mr-2 -mt-1 grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink-2 hover:bg-bg-2 hover:text-ink-0">
@@ -189,7 +190,7 @@ export function SignInDialog() {
           : we store your email address, your name if Google shares it, and your progress, and nothing else. You can delete it all in Settings.
         </p>
         <button onClick={close} className="mt-3 w-full rounded-sm py-2 text-[13px] font-medium text-ink-2 hover:text-ink-0">
-          {firstLevel ? "Not now, keep playing" : "Close"}
+          {start ? "Continue as a guest" : firstLevel ? "Not now, keep playing" : "Close"}
         </button>
       </div>
     </div>

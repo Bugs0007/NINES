@@ -16,6 +16,7 @@ export interface UserSummary {
   id: string;
   email: string | null;
   displayName: string | null;
+  username: string | null;
   createdAt: number;
   lastActiveAt: number;
   completedLevels: number;
@@ -55,6 +56,9 @@ export interface Store {
   upsertUser(u: { id: string; email: string | null; name: string | null }): Promise<void>;
   /** Delete the account and everything stored about it. */
   deleteUser(id: string): Promise<void>;
+  getUsername(userId: string): Promise<string | null>;
+  /** Set the (already validated) username. "taken" when another player has it. */
+  setUsername(userId: string, username: string): Promise<"ok" | "taken">;
   getSave(userId: string): Promise<{ blob: unknown; savedAt: number } | null>;
   putSave(userId: string, blob: unknown, savedAt: number): Promise<void>;
   getProgress(userId: string): Promise<ProgressRow[]>;
@@ -105,6 +109,25 @@ class SupabaseStore implements Store {
     const { error } = await this.sb.auth.admin.deleteUser(id);
     fail("delete user", error);
     this.touched.delete(id);
+  }
+
+  async getUsername(userId: string) {
+    const { data, error } = await this.sb.from("profiles").select("username").eq("id", userId).maybeSingle();
+    fail("get username", error);
+    return (data?.username as string | null | undefined) ?? null;
+  }
+
+  async setUsername(userId: string, username: string) {
+    // Update the profile the sign-up trigger made; if for any reason there is none, create it, so this never "succeeds" silently.
+    const upd = await this.sb.from("profiles").update({ username }).eq("id", userId).select("id");
+    if (upd.error?.code === "23505") return "taken";
+    fail("set username", upd.error);
+    if (!upd.data?.length) {
+      const ins = await this.sb.from("profiles").upsert({ id: userId, username }, { onConflict: "id" });
+      if (ins.error?.code === "23505") return "taken";
+      fail("set username", ins.error);
+    }
+    return "ok";
   }
 
   async getSave(userId: string) {
@@ -201,6 +224,7 @@ class SupabaseStore implements Store {
       id: r.id as string,
       email: (r.email as string | null) ?? null,
       displayName: (r.display_name as string | null) ?? null,
+      username: (r.username as string | null) ?? null,
       createdAt: Date.parse(r.created_at as string),
       lastActiveAt: Date.parse(r.last_active_at as string),
       completedLevels: Number(r.completed_levels),
@@ -221,6 +245,7 @@ interface FileUser {
   id: string;
   email: string | null;
   name: string | null;
+  username?: string | null;
   createdAt: number;
   lastSeen: number;
 }
@@ -263,7 +288,7 @@ class FileStore implements Store {
   async upsertUser(u: { id: string; email: string | null; name: string | null }) {
     const d = await this.load();
     const now = Date.now();
-    d.users[u.id] = { ...u, createdAt: d.users[u.id]?.createdAt ?? now, lastSeen: now };
+    d.users[u.id] = { ...d.users[u.id], ...u, createdAt: d.users[u.id]?.createdAt ?? now, lastSeen: now };
     await this.save();
   }
   async deleteUser(id: string) {
@@ -274,6 +299,17 @@ class FileStore implements Store {
     d.feedback = d.feedback.filter((f) => f.subject !== `u:${id}`);
     for (const k of Object.keys(d.usage)) if (k.startsWith(`u:${id}|`)) delete d.usage[k];
     await this.save();
+  }
+  async getUsername(userId: string) {
+    return (await this.load()).users[userId]?.username ?? null;
+  }
+  async setUsername(userId: string, username: string) {
+    const d = await this.load();
+    if (Object.values(d.users).some((u) => u.id !== userId && u.username === username)) return "taken";
+    const now = Date.now();
+    d.users[userId] = { id: userId, email: null, name: null, createdAt: now, lastSeen: now, ...d.users[userId], username };
+    await this.save();
+    return "ok";
   }
   async getSave(userId: string) {
     return (await this.load()).saves[userId] ?? null;
@@ -357,7 +393,7 @@ class FileStore implements Store {
       .slice(0, limit)
       .map((u) => {
         const rows = d.progress[u.id] ?? [];
-        return { id: u.id, email: u.email, displayName: u.name, createdAt: u.createdAt, lastActiveAt: u.lastSeen, completedLevels: rows.filter((r) => r.status === "completed").length, startedLevels: rows.length };
+        return { id: u.id, email: u.email, displayName: u.name, username: u.username ?? null, createdAt: u.createdAt, lastActiveAt: u.lastSeen, completedLevels: rows.filter((r) => r.status === "completed").length, startedLevels: rows.length };
       });
   }
   async completedBySection() {

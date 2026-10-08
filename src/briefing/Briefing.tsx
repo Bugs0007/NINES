@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
 import { track } from "@/analytics/track";
 import { sfx } from "@/audio/engine";
 import { SCENES } from "@/intro/scenes";
+import { markSeenEverywhere, useSeen } from "@/game/seen";
 import { useGame } from "@/game/store";
 import { CastLine } from "@/ui/Cast";
 import { Button, cx, Kbd } from "@/ui/kit";
@@ -38,8 +39,7 @@ const QUIET_PATHS = ["/dev", "/admin", "/privacy", "/auth"];
 /** Mounted once in the app shell: opens the briefing on a first visit and renders it when asked. */
 export function BriefingHost() {
   const hydrated = useGame((s) => s.hydrated);
-  const seen = useGame((s) => s.profile.seen.includes(BRIEFING_SEEN_KEY));
-  const markSeen = useGame((s) => s.markSeen);
+  const seen = useSeen(BRIEFING_SEEN_KEY);
   const open = useBriefingUi((s) => s.open);
   const show = useBriefingUi((s) => s.show);
   const hide = useBriefingUi((s) => s.hide);
@@ -50,6 +50,8 @@ export function BriefingHost() {
     if (!hydrated || seen || auto.current || onboardingOff()) return;
     if (QUIET_PATHS.some((p) => path.startsWith(p))) return;
     auto.current = true;
+    // Seen from the moment it opens: leaving half way (reload, back, closing the tab) must not replay it.
+    markSeenEverywhere(BRIEFING_SEEN_KEY);
     show();
   }, [hydrated, seen, path, show]);
 
@@ -58,7 +60,6 @@ export function BriefingHost() {
     <Briefing
       onClose={(how) => {
         hide();
-        if (!seen) void markSeen(BRIEFING_SEEN_KEY);
         track(how === "done" ? "briefing_done" : "briefing_skipped");
       }}
     />

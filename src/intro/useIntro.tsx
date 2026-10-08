@@ -7,6 +7,7 @@ import { useState, type ReactNode } from "react";
 import { BRIEFING_SEEN_KEY } from "@/briefing/screens";
 import { onboardingOff } from "@/briefing/flags";
 import { useBriefingUi } from "@/briefing/Briefing";
+import { useSeen } from "@/game/seen";
 import { useGame } from "@/game/store";
 import { SectionIntro, type IntroSpec } from "./SectionIntro";
 
@@ -15,7 +16,7 @@ export function useIntro(spec: IntroSpec | null): { node: ReactNode; replay: () 
   const seen = useGame((s) => (spec ? s.profile.seen.includes(`intro:${spec.id}`) : true));
   const markSeen = useGame((s) => s.markSeen);
   // The briefing goes first: section intros wait until it has been seen (or skipped) and is closed.
-  const briefingSeen = useGame((s) => s.profile.seen.includes(BRIEFING_SEEN_KEY));
+  const briefingSeen = useSeen(BRIEFING_SEEN_KEY);
   const briefingOpen = useBriefingUi((s) => s.open);
   const [forced, setForced] = useState(false);
   const [dismissed, setDismissed] = useState(false);

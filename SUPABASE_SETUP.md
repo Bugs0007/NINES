@@ -16,9 +16,12 @@ Menu names in the Supabase, Google and PostHog dashboards change now and then; i
 
 ## 2. Create the tables
 
-1. In the project, open **SQL Editor → New query**.
-2. Paste the whole of [`supabase/migrations/20261007000000_init.sql`](supabase/migrations/20261007000000_init.sql) and press **Run**. It is safe to run twice.
-3. Check **Table Editor** shows `profiles`, `progress`, `saves`, `ai_usage`, `feedback`, `counters` and `rate_limits`, each with the RLS (row level security) shield on.
+Run **every** file in [`supabase/migrations/`](supabase/migrations/) in order (currently `20261007000000_init.sql`, then `20261008000000_username.sql`). Each is safe to run twice.
+
+- **From your machine:** put the database connection string in `.env` as `SUPABASE_DB_URL` (Connect → Connection string → URI; use the Session pooler string if your network has no IPv6), then `npm run db:migrate`. It applies the files and prints a check of RLS, policies, functions and the sign-up trigger. Never add `SUPABASE_DB_URL` to Vercel.
+- **Or in the dashboard:** **SQL Editor → New query**, paste each file in order, **Run**.
+
+Then check **Table Editor** shows `profiles`, `progress`, `saves`, `ai_usage`, `feedback`, `counters` and `rate_limits`, each with the RLS (row level security) shield on, and `profiles` has a `username` column.
 
 What this sets up: a profile row is created automatically for every new account; browsers can **read their own** profile, progress and save and nothing else; **all writes go through the NINES server**, which validates them first and rate-limits them. There are deliberately no insert/update/delete policies for browsers. (If you use the Supabase CLI: `supabase link` then `supabase db push` does the same.)
 
@@ -110,6 +113,15 @@ Run `npm run dev` (port 3100) and, in a private window:
 4. Settings → **Delete my account and data**: the profile, progress and save rows disappear.
 5. Sign in with an `ADMIN_EMAILS` address and open `/admin`.
 
+## Share the right address (Vercel Deployment Protection)
+
+Vercel gives every project several addresses. The short production one (for example `https://nines-neon.vercel.app`) is public. Team-scoped addresses such as `https://<project>-<team>.vercel.app`, and per-deployment preview URLs, can sit behind **Vercel Authentication**, which sends anyone not logged in to Vercel to a Vercel login page (it can look like an emailed "OTP"). That is what a phone without a Vercel session sees. Those addresses also contain your team name.
+
+- Post and share only the production address, or a custom domain.
+- Check it from a device that is not logged in to Vercel (a phone on mobile data): it must open the game with no Vercel page.
+- To make other addresses public too: Vercel → Project → **Settings → Deployment Protection → Vercel Authentication** → set it to *Disabled*, or to *Only Preview Deployments*.
+- Add the address you actually share to Supabase **Redirect URLs** (`/auth/callback`) and the Google client's **Authorized JavaScript origins**.
+
 ## Troubleshooting
 
 | Symptom | Likely cause |
@@ -120,6 +132,7 @@ Run `npm run dev` (port 3100) and, in a private window:
 | Back from Google but still a guest | Add `/auth/callback` to Supabase **Redirect URLs** (step 4). |
 | Email link opens but sign-in fails | Links work only in the browser that asked for them; use the code from the same email instead. |
 | No email arrives | Built-in sender limits (step 5), or spam. Set up SMTP. |
+| Phone asks for a Vercel login or code | You opened a Vercel-protected address (see the section above). Use the production address. |
 | Signed in, but progress isn't saved | `SUPABASE_SERVICE_ROLE_KEY` is missing; reads work with the public key but writes need the server key. Check `/api/me` shows `"storage":"supabase"`. |
 | `/admin` is a 404 | Your email isn't in `ADMIN_EMAILS`, or you're signed in with a different address. |
 

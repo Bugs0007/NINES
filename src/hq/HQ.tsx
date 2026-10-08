@@ -151,6 +151,11 @@ function TopBar() {
         How NINES teaches
       </Link>
       <BriefingButton />
+      {acct.status === "signed-in" && (
+        <Link href="/settings" title="Your profile and settings" className={cx(link, "max-w-[9rem] truncate text-phos hover:text-phos")}>
+          {acct.username ? `@${acct.username}` : "Account"}
+        </Link>
+      )}
       {acct.status === "guest" && (
         <button type="button" onClick={() => showSignIn("manual")} aria-label="Save progress" className={cx(link, "text-amber hover:text-amber-2")} title="Sign in to keep your progress and use it on another device">
           <span className="sm:hidden">Save</span>

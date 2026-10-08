@@ -5,7 +5,7 @@
  */
 import { create } from "zustand";
 
-export type SignInReason = "manual" | "first-level";
+export type SignInReason = "manual" | "first-level" | "start";
 
 interface SignInUi {
   open: boolean;
@@ -20,3 +20,11 @@ export const useSignInUi = create<SignInUi>()((set) => ({
   show: (reason = "manual") => set({ open: true, reason }),
   hide: () => set({ open: false }),
 }));
+
+/** The username dialog: opens itself after sign-in until a name is chosen, and from Settings to change it. */
+interface UsernameUi {
+  open: boolean;
+  show: () => void;
+  hide: () => void;
+}
+export const useUsernameUi = create<UsernameUi>()((set) => ({ open: false, show: () => set({ open: true }), hide: () => set({ open: false }) }));

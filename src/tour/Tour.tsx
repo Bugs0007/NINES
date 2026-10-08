@@ -10,7 +10,8 @@ import { track } from "@/analytics/track";
 import { onboardingOff } from "@/briefing/flags";
 import { useBriefingUi } from "@/briefing/Briefing";
 import { BRIEFING_SEEN_KEY } from "@/briefing/screens";
-import { useGame } from "@/game/store";
+import { useAccountStepsDone } from "@/account/gate";
+import { markSeenEverywhere, useSeen } from "@/game/seen";
 import { Button, cx, Kbd } from "@/ui/kit";
 
 export interface TourStep {
@@ -34,17 +35,17 @@ export const useTourUi = create<{ requested: boolean; request: () => void; clear
 
 /** Runs the tour on the HQ the first time (after the briefing), or when requested from Settings. */
 export function HqTour({ ready }: { ready: boolean }) {
-  const seen = useGame((s) => s.profile.seen.includes(HQ_TOUR_KEY));
-  const briefingSeen = useGame((s) => s.profile.seen.includes(BRIEFING_SEEN_KEY));
+  const seen = useSeen(HQ_TOUR_KEY);
+  const briefingSeen = useSeen(BRIEFING_SEEN_KEY);
   const briefingOpen = useBriefingUi((s) => s.open);
-  const markSeen = useGame((s) => s.markSeen);
+  const accountStepsDone = useAccountStepsDone();
   const requested = useTourUi((s) => s.requested);
   const clear = useTourUi((s) => s.clear);
   const [running, setRunning] = useState(false);
   const auto = useRef(false);
 
   useEffect(() => {
-    if (!ready || briefingOpen || running) return;
+    if (!ready || briefingOpen || running || !accountStepsDone) return;
     if (requested) {
       clear();
       setRunning(true);
@@ -52,9 +53,11 @@ export function HqTour({ ready }: { ready: boolean }) {
     }
     if (!seen && briefingSeen && !auto.current && !onboardingOff()) {
       auto.current = true;
+      // Seen from the moment it starts, so leaving half way never replays it.
+      markSeenEverywhere(HQ_TOUR_KEY);
       setRunning(true);
     }
-  }, [ready, briefingOpen, requested, seen, briefingSeen, running, clear]);
+  }, [ready, briefingOpen, accountStepsDone, requested, seen, briefingSeen, running, clear]);
 
   if (!running) return null;
   return (
@@ -62,7 +65,6 @@ export function HqTour({ ready }: { ready: boolean }) {
       steps={HQ_TOUR}
       onClose={(how) => {
         setRunning(false);
-        if (!seen) void markSeen(HQ_TOUR_KEY);
         track(how === "done" ? "tour_done" : "tour_skipped");
       }}
     />

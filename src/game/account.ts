@@ -22,6 +22,8 @@ export interface Account {
   id: string | null;
   email: string | null;
   name: string | null;
+  /** The handle the player chose ("pigeon_dev"), or null until they pick one. */
+  username: string | null;
   role: Role;
   auth: AuthConfig;
   /** The last sign-in attempt failed (the link expired, the code was wrong, Google said no). */
@@ -31,11 +33,11 @@ export interface Account {
 }
 
 const NO_AUTH: AuthConfig = { supabase: false, storage: "local", dev: false };
-const Ctx = createContext<Account>({ status: "loading", id: null, email: null, name: null, role: "guest", auth: NO_AUTH, authError: false, refresh: async () => undefined, signOut: async () => undefined });
+const Ctx = createContext<Account>({ status: "loading", id: null, email: null, name: null, username: null, role: "guest", auth: NO_AUTH, authError: false, refresh: async () => undefined, signOut: async () => undefined });
 
 interface MeResponse {
   status: "guest" | "signed-in";
-  user: { id: string; email: string | null; name: string | null; role: Role } | null;
+  user: { id: string; email: string | null; name: string | null; username?: string | null; role: Role } | null;
   auth: AuthConfig;
 }
 
@@ -77,9 +79,9 @@ export function AccountProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<Account>(() => {
     const auth = me?.auth ?? NO_AUTH;
-    if (!me) return { status: "loading", id: null, email: null, name: null, role: "guest", auth, authError, refresh, signOut };
-    if (!me.user) return { status: "guest", id: null, email: null, name: null, role: "guest", auth, authError, refresh, signOut };
-    return { status: "signed-in", id: me.user.id, email: me.user.email, name: me.user.name, role: me.user.role, auth, authError, refresh, signOut };
+    if (!me) return { status: "loading", id: null, email: null, name: null, username: null, role: "guest", auth, authError, refresh, signOut };
+    if (!me.user) return { status: "guest", id: null, email: null, name: null, username: null, role: "guest", auth, authError, refresh, signOut };
+    return { status: "signed-in", id: me.user.id, email: me.user.email, name: me.user.name, username: me.user.username ?? null, role: me.user.role, auth, authError, refresh, signOut };
   }, [me, authError, refresh, signOut]);
 
   return createElement(Ctx.Provider, { value }, children);
