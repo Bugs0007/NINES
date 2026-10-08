@@ -16,3 +16,7 @@ Thumbs.db
 
 # local working notes, never shipped
 /briefing/
+
+# credentials downloaded from consoles (Google OAuth client JSON etc.): never commit
+secrets/
+client_secret*.json
