@@ -12,6 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:real": "playwright test -c playwright.real.config.ts",
+    "db:migrate": "tsx --env-file=.env scripts/db-migrate.mts",
     "content:lint": "vitest run tests/content",
     "content:plan": "tsx scripts/gen-content-plan.ts",
     "shots": "playwright test e2e/screenshots.spec.ts"

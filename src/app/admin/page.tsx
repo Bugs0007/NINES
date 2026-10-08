@@ -90,9 +90,10 @@ export default async function AdminPage() {
       <section className="mt-6 rounded-lg border border-line/80 bg-bg-1/75 p-5 shadow-card">
         <h2 className="font-display text-xl font-semibold text-ink-0">Players ({users.length})</h2>
         <div className="mt-3 overflow-x-auto">
-          <table className="w-full min-w-[34rem] text-sm">
+          <table className="w-full min-w-[40rem] text-sm">
             <thead>
               <tr className="text-left text-xs text-ink-3">
+                <th className="pb-2 pr-3 font-medium">Username</th>
                 <th className="pb-2 pr-3 font-medium">Email</th>
                 <th className="pb-2 pr-3 font-medium">Signed up</th>
                 <th className="pb-2 pr-3 font-medium">Last active</th>
@@ -102,7 +103,8 @@ export default async function AdminPage() {
             <tbody>
               {users.map((p) => (
                 <tr key={p.id} className="border-t border-line/60">
-                  <td className="max-w-[16rem] truncate py-2 pr-3 text-ink-0">{p.email ?? p.displayName ?? p.id}</td>
+                  <td className="py-2 pr-3 text-ink-0">{p.username ? `@${p.username}` : <span className="text-ink-3">none</span>}</td>
+                  <td className="max-w-[16rem] truncate py-2 pr-3 text-ink-1">{p.email ?? p.displayName ?? p.id}</td>
                   <td className="py-2 pr-3 tabular text-ink-2">{fmtDate(p.createdAt)}</td>
                   <td className="py-2 pr-3 tabular text-ink-2">{fmtDate(p.lastActiveAt)}</td>
                   <td className="py-2 text-right tabular text-ink-0">
@@ -112,7 +114,7 @@ export default async function AdminPage() {
               ))}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="py-2 text-ink-3">
+                  <td colSpan={5} className="py-2 text-ink-3">
                     No signups yet.
                   </td>
                 </tr>

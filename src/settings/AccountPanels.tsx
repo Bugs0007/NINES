@@ -5,13 +5,14 @@
  */
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useSignInUi } from "@/account/ui";
+import { useSignInUi, useUsernameUi } from "@/account/ui";
 import { useAccount } from "@/game/account";
 import { Button, Chip, Panel } from "@/ui/kit";
 
 export function AccountPanel() {
   const acct = useAccount();
   const showSignIn = useSignInUi((s) => s.show);
+  const showUsername = useUsernameUi((s) => s.show);
   const [armed, setArmed] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -48,6 +49,13 @@ export function AccountPanel() {
           <p>
             Signed in as <span className="font-medium text-ink-0">{acct.email ?? acct.name}</span>. Your progress syncs across devices automatically.
           </p>
+          <div className="flex flex-wrap items-center gap-2 text-[13px]">
+            <span className="text-ink-2">Username</span>
+            <span className="font-medium text-ink-0">{acct.username ? `@${acct.username}` : "not chosen yet"}</span>
+            <Button size="sm" variant="secondary" onClick={showUsername}>
+              {acct.username ? "Change" : "Choose one"}
+            </Button>
+          </div>
           {acct.role === "admin" && (
             <p className="text-[13px] text-ink-2">
               You are an admin. Open the{" "}

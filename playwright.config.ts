@@ -4,6 +4,7 @@ const PORT = Number(process.env.E2E_PORT ?? 3100);
 
 export default defineConfig({
   testDir: "./e2e",
+  testIgnore: ["**/_*.spec.ts"],
   timeout: 90_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,
@@ -24,7 +25,16 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     reuseExistingServer: true,
     // A test admin, so e2e can check /admin (real admins come from ADMIN_EMAILS in .env).
-    env: { ADMIN_EMAILS: [process.env.ADMIN_EMAILS, "admin@nines.test"].filter(Boolean).join(",") },
+    // Local mode on purpose: Supabase is switched off (empty values beat .env), so sign-in is the dev email login and data
+    // goes to .nines/store.json. The opt-in real-Supabase suite is playwright.real.config.ts.
+    env: {
+      ADMIN_EMAILS: [process.env.ADMIN_EMAILS, "admin@nines.test"].filter(Boolean).join(","),
+      NEXT_PUBLIC_SUPABASE_URL: "",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "",
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "",
+      SUPABASE_SERVICE_ROLE_KEY: "",
+      NEXT_PUBLIC_POSTHOG_KEY: "",
+    },
     timeout: 180_000,
   },
 });

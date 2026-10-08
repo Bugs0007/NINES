@@ -10,6 +10,8 @@ import { setTimeWarp } from "@/game/clock";
 import { useGame } from "@/game/store";
 import { useProgressSync } from "@/game/sync";
 import { SignInDialog } from "@/account/SignInDialog";
+import { StartPrompt } from "@/account/StartPrompt";
+import { UsernameDialog } from "@/account/UsernameDialog";
 import { Analytics } from "@/analytics/Analytics";
 import { AccountProvider } from "@/game/account";
 import { BriefingHost } from "@/briefing/Briefing";
@@ -60,6 +62,8 @@ function ShellInner({ children }: { children: ReactNode }) {
       {children}
       <BriefingHost />
       <SignInDialog />
+      <UsernameDialog />
+      <StartPrompt />
       <Analytics />
     </>
   );
