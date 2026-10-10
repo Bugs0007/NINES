@@ -137,6 +137,6 @@ describe("computeFunnel", () => {
   });
   it("is all zeros with no progress", () => {
     const f = computeFunnel(0, []);
-    expect([f.signedUp, f.finishedLevel1, ...f.sections.map((s) => s.finished)]).toEqual([0, 0, 0, 0]);
+    expect([f.signedUp, f.finishedLevel1, ...f.sections.map((s) => s.finished)].every((n) => n === 0)).toBe(true);
   });
 });

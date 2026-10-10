@@ -8,6 +8,8 @@ export interface WidgetManifest {
   scenes: string[];
 }
 
+import { ALL_MODELS } from "./model-lab/models";
+
 export const MANIFEST: Record<string, WidgetManifest> = {
   "queue-lab": {
     metrics: ["p99", "p50", "errorRate", "workers", "cores", "memGiB", "costPerMonth", "util"],
@@ -23,6 +25,8 @@ export const MANIFEST: Record<string, WidgetManifest> = {
   "context-tetris": { metrics: ["overflow", "quality", "costPerConversation", "monthly", "ttft"], observes: ["history-cost", "forgot", "overflow"], scenes: ["window", "stateless", "policies"] },
   "launch-builder": { metrics: ["p99", "errorRate", "sessionLoss", "costPerMonth", "memFits", "launches"], observes: [], scenes: [] },
   "session-lab": { metrics: ["sessionLoss", "errorRate", "p99", "costPerMonth", "revocable"], observes: ["session-loss", "sticky-reshuffle", "fixed"], scenes: ["state", "store"] },
+  // Model Lab models: each model is its own widget id.
+  ...Object.fromEntries(ALL_MODELS.map((m) => [m.id, { metrics: m.metrics, observes: m.observes, scenes: m.scenes }])),
 };
 
 export function widgetMetrics(id: string): string[] | undefined {

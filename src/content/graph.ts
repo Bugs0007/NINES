@@ -407,6 +407,13 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   tokens: "built",
   "context-windows": "built",
   "boss-the-bill": "built",
+  "tail-latency": "built",
+  "estimation-qps": "built",
+  "estimation-storage": "built",
+  "estimation-memory": "built",
+  "connection-pooling": "built",
+  autoscaling: "built",
+  "boss-viral-tuesday": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

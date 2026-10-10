@@ -1,0 +1,3 @@
+import { autoRun } from "../src/widgets/model-lab/models/a2";
+const ac = { baseRps: 200, peakRps: 1800, riseS: 240, holdS: 240, durationS: 720, perInstanceRps: 100, bootS: 150, warmBootS: 30, periodS: 60, startInstances: 3, maxInstances: 40, serviceMs: 50, queueS: 2, usdPerInstanceHour: 0.1008 };
+for (const w of [false, true]) for (const t of [0.3, 0.4, 0.5, 0.6]) { const row: string[] = []; for (const m of [4, 8, 10, 12, 14, 16, 18, 20]) { const r = autoRun(ac, t, m, w); row.push(`${m}:${(r.dropShare*100).toFixed(1)}%/${r.peakLatency.toFixed(1)}`); } console.log(w ? "warm" : "cold", t, row.join("  ")); }

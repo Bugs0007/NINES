@@ -71,6 +71,41 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Cost reviews come with every AI feature that ships, and 'how would you cut this bill' is a favourite AI-engineering interview question.",
     keyIdea: "Fewer tokens, cheaper tokens, cheaper model where it's safe.",
   },
+  "tail-latency": {
+    canDo: "Predict how a page that waits on many parallel calls behaves, and cut the tail with fewer calls and hedged reads.",
+    why: "Every page that fans out to services is slower than any one of them. This is why a dashboard of healthy services can sit next to unhappy users.",
+    keyIdea: "A fan-out is as slow as its slowest call.",
+  },
+  "estimation-qps": {
+    canDo: "Turn a user count into peak requests per second with a chain you can defend, and round it to the right power of ten.",
+    why: "Every capacity discussion and system design interview starts with this arithmetic. A written chain beats a confident guess.",
+    keyIdea: "Users × actions ÷ 86,400 × peak factor.",
+  },
+  "estimation-storage": {
+    canDo: "Estimate storage and bandwidth from items, sizes, and retention, and decide what counts before you multiply.",
+    why: "Budgets, disk plans, and interview questions all need a storage number. Scope (replicas, indexes) moves it more than rounding does.",
+    keyIdea: "Rate × size × time × copies, with the scope stated.",
+  },
+  "estimation-memory": {
+    canDo: "Size a cache from the hot working set, the bytes per entry, and the overhead the software adds.",
+    why: "An undersized cache evicts the entries you wanted and sends the load back to the database. Sizing on purpose avoids both that and an oversized bill.",
+    keyIdea: "Size the hot set, not the dataset.",
+  },
+  "connection-pooling": {
+    canDo: "Work out how many database connections a deployment asks for, and fix it with right-sized pools or a transaction-mode pooler.",
+    why: "'Too many clients' appears the first time you autoscale or add workers. The database looks idle while it refuses new connections.",
+    keyIdea: "Connections multiply: workers × pool × instances.",
+  },
+  autoscaling: {
+    canDo: "Explain why autoscaling arrives late, and choose headroom, warm pools, or scheduled scaling to cover a spike.",
+    why: "Autoscaling is often presented as the answer to spikes. Knowing its lag is what separates a design that survives launch day from one that merely has the feature.",
+    keyIdea: "Autoscaling reacts late; headroom covers the gap.",
+  },
+  "boss-viral-tuesday": {
+    canDo: "Combine autoscaling lag, the connection budget, and fan-out tails into one design that survives a surprise spike.",
+    why: "Real spikes break layers together, and a fix in one layer often overloads the next. Seeing the interactions is the skill.",
+    keyIdea: "Every layer needs its own budget.",
+  },
 };
 
 export interface ChapterLearning {
@@ -96,6 +131,17 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     ],
     why: "These are the fundamentals every system design interview assumes, and the root cause of most incidents at small and medium scale. Everything later in the Core Grid builds on them.",
     payoff: "In an interview you can size a service from traffic and latency and defend losing a box. At work you'll recognise pool exhaustion and bad routing in your own Django and Postgres stack.",
+  },
+  a2: {
+    story: "Pigeon trends on social media and every cushion you thought you had turns out to be thin.",
+    outcomes: [
+      "Explain why a page that fans out has a worse tail than any one call",
+      "Estimate traffic, storage, and cache memory from a user count",
+      "Budget database connections before autoscaling multiplies them",
+      "Plan for autoscaling lag with headroom and warm capacity",
+    ],
+    why: "Growth turns small effects into outages: tails compound, pools multiply, and automation arrives late. This chapter teaches the arithmetic that predicts each one before it pages you.",
+    payoff: "In an interview you can size a service from users and name the first thing that breaks. At work you will recognise 'too many clients' and the three-minute autoscaling gap on sight.",
   },
   b1: {
     story: "Pigeon ships an AI copilot and learns what the model actually sees, and what it costs.",
