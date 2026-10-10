@@ -488,6 +488,15 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "distributed-locks": "built",
   "two-pc-vs-sagas": "built",
   "outbox-pattern": "built",
+  "queues-vs-logs": "built",
+  "delivery-semantics": "built",
+  "dlq-poison": "built",
+  "backpressure": "built",
+  "fan-out-pubsub": "built",
+  "event-driven": "built",
+  "cqrs": "built",
+  "event-sourcing": "built",
+  "postgres-queue": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

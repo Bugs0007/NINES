@@ -93,8 +93,17 @@ import consensusRaft from "./consensus-raft";
 import distributedLocks from "./distributed-locks";
 import twoPcVsSagas from "./two-pc-vs-sagas";
 import outboxPattern from "./outbox-pattern";
+import queuesVsLogs from "./queues-vs-logs";
+import deliverySemantics from "./delivery-semantics";
+import dlqPoison from "./dlq-poison";
+import backpressure from "./backpressure";
+import fanOutPubsub from "./fan-out-pubsub";
+import eventDriven from "./event-driven";
+import cqrs from "./cqrs";
+import eventSourcing from "./event-sourcing";
+import postgresQueue from "./postgres-queue";
 
-export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows, tailLatency, estimationQps, estimationStorage, estimationMemory, connectionPooling, autoscaling, dns, tcpUdp, tlsHandshake, httpVersions, keepAlive, reverseProxy, cdn, anycast, requestJourney, cacheAside, zipfAndSizing, evictionPolicies, writePolicies, ttlInvalidation, cacheStampede, hotKeys, cdnCaching, indexesBtree, queryPlans, normalization, transactionsAcid, isolationLevels, mvcc, sqlVsNosql, lsmVsBtree, postgresIsEnough, sampling, hallucination, ttftThroughput, llmCostMath, systemPrompts, promptStructure, extendedThinking, structuredOutputs, promptCaching, promptVersioning, embeddings, cosineSimilarity, biVsCrossEncoder, chunking, bm25, hybridSearchRrf, hyde, reranking, metadataFiltering, annIndexes, retrievalEval, leaderFollower, syncAsyncReplication, replicationLag, failover, multiLeader, leaderlessQuorums, shardingStrategies, shardKeys, hotPartitions, consistentHashing, rebalancing, timeouts, retriesBackoffJitter, idempotency, circuitBreakers, bulkheads, capPacelc, consistencyModels, clocksOrdering, consensusRaft, distributedLocks, twoPcVsSagas, outboxPattern];
+export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows, tailLatency, estimationQps, estimationStorage, estimationMemory, connectionPooling, autoscaling, dns, tcpUdp, tlsHandshake, httpVersions, keepAlive, reverseProxy, cdn, anycast, requestJourney, cacheAside, zipfAndSizing, evictionPolicies, writePolicies, ttlInvalidation, cacheStampede, hotKeys, cdnCaching, indexesBtree, queryPlans, normalization, transactionsAcid, isolationLevels, mvcc, sqlVsNosql, lsmVsBtree, postgresIsEnough, sampling, hallucination, ttftThroughput, llmCostMath, systemPrompts, promptStructure, extendedThinking, structuredOutputs, promptCaching, promptVersioning, embeddings, cosineSimilarity, biVsCrossEncoder, chunking, bm25, hybridSearchRrf, hyde, reranking, metadataFiltering, annIndexes, retrievalEval, leaderFollower, syncAsyncReplication, replicationLag, failover, multiLeader, leaderlessQuorums, shardingStrategies, shardKeys, hotPartitions, consistentHashing, rebalancing, timeouts, retriesBackoffJitter, idempotency, circuitBreakers, bulkheads, capPacelc, consistencyModels, clocksOrdering, consensusRaft, distributedLocks, twoPcVsSagas, outboxPattern, queuesVsLogs, deliverySemantics, dlqPoison, backpressure, fanOutPubsub, eventDriven, cqrs, eventSourcing, postgresQueue];
 export const BOSSES: BossPack[] = [bossLaunchDay, bossTheBill, bossViralTuesday, bossFarAwayUsers, bossCelebrityPost, bossSeatRush, bossPrimaryDown];
 
 export const PACK_BY_ID: ReadonlyMap<string, ConceptPack> = new Map(PACKS.map((p) => [p.id, p]));

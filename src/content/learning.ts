@@ -476,6 +476,51 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "The dual-write problem appears in every event-driven design. The outbox is the pattern interviewers expect.",
     keyIdea: "Put the event in the same transaction as the data.",
   },
+  "queues-vs-logs": {
+    canDo: "Choose between a queue and a log for a workload, size the partitions, and estimate retention storage.",
+    why: "Queue versus log is the first question in most messaging designs. Knowing partitions, offsets and replay shows you have used both.",
+    keyIdea: "The queue forgets so you do not have to; the log remembers so you can.",
+  },
+  "delivery-semantics": {
+    canDo: "Explain at-most-once and at-least-once, estimate losses and duplicates, and get exactly-once effects with dedup by id.",
+    why: "Every messaging interview probes exactly-once. The clear answer is at-least-once plus idempotent consumers.",
+    keyIdea: "Delivery is at least once; the effect can be once.",
+  },
+  "dlq-poison": {
+    canDo: "Set a retry limit and dead-letter queue so poison messages leave without losing healthy ones or blocking an ordered queue.",
+    why: "A single bad message can take down a worker fleet. Bounded retries and an alarmed dead-letter queue are the standard defence.",
+    keyIdea: "Retry with a limit, then set aside.",
+  },
+  "backpressure": {
+    canDo: "Predict the backlog and wait from a spike, and choose bounded buffers, dropping or backpressure over an unbounded queue.",
+    why: "Queues hide overload until it is late. Bounding them and pushing back is how real systems survive spikes.",
+    keyIdea: "A queue converts overload into delay; it does not remove it.",
+  },
+  "fan-out-pubsub": {
+    canDo: "Replace chains of synchronous calls with a topic and a queue per subscriber, and compute the latency and failure savings.",
+    why: "Fan-out is the standard way to add consumers without touching the producer. The queue-per-subscriber detail is the follow-up.",
+    keyIdea: "Publishers announce; subscribers decide.",
+  },
+  "event-driven": {
+    canDo: "Decide which calls become events, accept eventual consistency, and keep flows traceable with correlation ids.",
+    why: "Event-driven designs are faster and looser and harder to debug. Naming both sides is what interviewers want.",
+    keyIdea: "Events for what can follow; calls for what must come first.",
+  },
+  "cqrs": {
+    canDo: "Separate a write model from a read model, estimate the read savings, and handle the lag for the user who just wrote.",
+    why: "CQRS is easy to over-apply. Knowing when reads dominate, and what the projection costs, shows judgement.",
+    keyIdea: "Do the expensive work where it happens least often.",
+  },
+  "event-sourcing": {
+    canDo: "Explain events as the record, estimate replay time, and plan snapshots and parallel rebuilds.",
+    why: "Event sourcing gives audit and replay and costs replay time and versioning. Snapshots are the standard follow-up.",
+    keyIdea: "A snapshot is a cache of a replay; the log stays the truth.",
+  },
+  "postgres-queue": {
+    canDo: "Build a job queue on Postgres with FOR UPDATE SKIP LOCKED and LISTEN/NOTIFY, and say when to move to a broker.",
+    why: "Many systems never need a broker. Knowing how to make the database you have do the job is a practical senior skill.",
+    keyIdea: "Use the system you already run until it is the limit.",
+  },
 };
 
 export interface ChapterLearning {
@@ -572,6 +617,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Set timeouts, retries and breakers that contain failures instead of spreading them", "Make operations safe to repeat", "Choose consistency and ordering guarantees for a given kind of data", "Coordinate across services without distributed locks that lie"],
     why: "Failure in a distributed system is partial, slow and ambiguous. Each tool in this chapter closes one gap, and each also opens another if used carelessly.",
     payoff: "In an interview you can walk a request through its failures and say what contains each. At work you will read an outage review and see which of these was missing.",
+  },
+  a9: {
+    story: "Pigeon starts moving work between services instead of waiting on it, and the team learns what queues really promise.",
+    outcomes: ["Choose between queues and logs and size them", "Reason about delivery guarantees, duplicates and poison messages", "Handle overload with bounded queues and backpressure", "Decide when events, CQRS or event sourcing are worth their cost"],
+    why: "Messaging decouples services and moves failure around rather than removing it. Each guarantee has a cost, and each missing guarantee shows up as a customer-visible bug.",
+    payoff: "In an interview you can pick a broker, state its delivery guarantee, and say what happens under overload. At work you will know why a queue is growing before the pager does.",
   },
 };
 
