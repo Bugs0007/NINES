@@ -447,6 +447,12 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "hallucination": "built",
   "ttft-throughput": "built",
   "llm-cost-math": "built",
+  "system-prompts": "built",
+  "prompt-structure": "built",
+  "extended-thinking": "built",
+  "structured-outputs": "built",
+  "prompt-caching": "built",
+  "prompt-versioning": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

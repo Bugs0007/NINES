@@ -5,8 +5,9 @@ import { A3_MODELS } from "./a3";
 import { A4_MODELS } from "./a4";
 import { A5_MODELS } from "./a5";
 import { B2_MODELS } from "./b2";
+import { B3_MODELS } from "./b3";
 import { estimateLab } from "./estimate";
 
-export const ALL_MODELS: LabModel[] = [estimateLab, ...A2_MODELS, ...A3_MODELS, ...A4_MODELS, ...A5_MODELS, ...B2_MODELS];
+export const ALL_MODELS: LabModel[] = [estimateLab, ...A2_MODELS, ...A3_MODELS, ...A4_MODELS, ...A5_MODELS, ...B2_MODELS, ...B3_MODELS];
 
 export const LAB_MODELS: Record<string, LabModel> = Object.fromEntries(ALL_MODELS.map((m) => [m.id, m]));

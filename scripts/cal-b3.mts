@@ -1,0 +1,12 @@
+import { LAB_MODELS } from "../src/widgets/model-lab/models";
+const run = (id: string, v: Record<string, number | string | boolean>, keys: string[], cfg: Record<string, unknown> = {}) => { const m = LAB_MODELS[id]!; const o = m.evaluate({ ...m.init(cfg), ...((cfg.start ?? {}) as object), ...v }, cfg); console.log(id, JSON.stringify(v), keys.map((k) => `${k}=${o.metrics[k]!.toFixed(4)}`).join(" ")); };
+const S = "stated", E = "example", N = "none";
+for (const v of [{}, { json: S, scope: S, short: S, refund: S, tone: S }, { json: E, scope: E, short: E, refund: E, tone: S }, { json: E, scope: E, short: S, refund: E, tone: E }, { json: E, scope: S, short: S, refund: E, tone: S }, { json: E, scope: E, short: S, refund: E, tone: S }]) run("prompt-lab", v, ["passAll", "tokens"]);
+const sc = { docTokens: 8000, lockDocs: true };
+for (const v of [{ examples: 0 }, { examples: 3 }, { examples: 3, docsFirst: true }, { examples: 3, docsFirst: true, tags: true }, { examples: 2, docsFirst: true, tags: true }, { examples: 8, docsFirst: true, tags: true }]) run("structure-lab", v, ["accuracy", "tokens", "costPerRequest"], sc);
+const tc = { task: "hard", lockTask: true };
+for (const b of [0, 2000, 4000, 6000, 8000, 10000, 16000, 24000]) run("think-lab", { task: "hard", budget: b }, ["accuracy", "latencyS", "costPerCall"], tc);
+for (const [m, r] of [["prompt", 0], ["prompt", 2], ["json", 2], ["tool", 0], ["tool", 1], ["strict", 0]] as const) run("schema-lab", { method: m, retries: r }, ["failRate", "avgCalls"]);
+const pc = { staticTokens: 10000, dynamicTokens: 500, lockTokens: true };
+for (const v of [{ perMin: 0.2, ttl: "5m" }, { perMin: 0.2, ttl: "1h" }, { perMin: 2, ttl: "5m" }, { perMin: 0.05, ttl: "1h" }, { perMin: 0.05, ttl: "5m" }, { perMin: 2, ttl: "5m", dynamicFirst: true }]) run("prefix-lab", v, ["hitRate", "costPerRequest", "savingsPct"], pc);
+for (const [n, m] of [[50, 0.02], [100, 0.025], [200, 0.03], [300, 0.03], [400, 0.03], [400, 0.025], [400, 0.035], [500, 0.03], [1000, 0.03], [400, 0.04]] as const) run("version-lab", { cases: n, margin: m }, ["power", "falseAlarm", "evalCostUsd"]);

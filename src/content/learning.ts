@@ -271,6 +271,36 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "The AI line item is often the fastest-growing cost in a product. Doing the arithmetic aloud is expected in AI-engineering interviews.",
     keyIdea: "Requests × tokens × price, split input and output.",
   },
+  "system-prompts": {
+    canDo: "Write a system prompt as separate, explicit rules with examples where needed, and see why compliance multiplies across rules.",
+    why: "Most production prompt bugs are rules the prompt never stated or stated badly. A prompt is a spec you can test.",
+    keyIdea: "Reliability multiplies across rules.",
+  },
+  "prompt-structure": {
+    canDo: "Lay out a long prompt with documents first, tags, a few examples, and the question last, and test each choice.",
+    why: "Layout is the cheapest lever on a long-context prompt, and a few points of accuracy cost almost nothing in tokens.",
+    keyIdea: "Stable and long first, the question last.",
+  },
+  "extended-thinking": {
+    canDo: "Set a thinking budget at the knee of the accuracy curve, and decide which tasks deserve reasoning tokens.",
+    why: "Reasoning modes can turn a failing task into a working one, and they can burn money on tasks that never needed them.",
+    keyIdea: "Spend thinking where the curve is steep.",
+  },
+  "structured-outputs": {
+    canDo: "Get reliably parseable output with schemas and constrained decoding, and know what no schema guarantees.",
+    why: "Parse errors at volume are a daily incident. A contract enforced by the decoder beats a polite request.",
+    keyIdea: "Structure is enforced; truth is not.",
+  },
+  "prompt-caching": {
+    canDo: "Lay out a prompt so a stable prefix is cached, and judge whether the hit rate justifies the write premium.",
+    why: "Repeated context is the largest, easiest saving in most LLM bills, and one timestamp at the front can erase it.",
+    keyIdea: "Stable prefix first; a change early breaks the rest.",
+  },
+  "prompt-versioning": {
+    canDo: "Version prompts, gate releases on a regression set, and size the set so noise does not hide real changes.",
+    why: "A small wording tweak can quietly break a feature. A gate that ignores noise either misses regressions or blocks good changes.",
+    keyIdea: "A small test set gives a number, not an answer.",
+  },
 };
 
 export interface ChapterLearning {
@@ -337,6 +367,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Control sampling for stable or creative output", "Layer defences against hallucination", "Separate time to first token from output speed", "Estimate and cut an LLM bill"],
     why: "Everything that goes wrong after a demo is a behaviour of the model under real conditions: variation, fabrication, delay, and cost. This chapter makes each of those a number you can reason about.",
     payoff: "You can explain why outputs vary, how to keep a bot honest, why a response feels slow, and what a feature will cost, which are the first questions in an AI-engineering interview.",
+  },
+  b3: {
+    story: "Prompts become production code, and Pigeon learns that wording tweaks can break things quietly.",
+    outcomes: ["Write system prompts as explicit, testable rules", "Structure long prompts and choose examples", "Spend reasoning tokens where they pay", "Enforce output schemas, cache prefixes, and gate prompt releases"],
+    why: "Once a prompt is in production it needs the discipline of any other code: a spec, a layout, a contract for its output, a cost model, and a release gate. This chapter gives each one a number.",
+    payoff: "You can describe how you would build and ship a prompt like an engineer, with the numbers to back each choice, which is the core of an AI-engineering interview.",
   },
 };
 
