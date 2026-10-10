@@ -356,6 +356,41 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Without a measurement, retrieval is a matter of opinion. Choosing the right metric is the first step toward evals that mean something.",
     keyIdea: "Recall asks if it was found; nDCG asks how soon.",
   },
+  "leader-follower": {
+    canDo: "Add read replicas, work out the load per node, and explain why writes still do not scale.",
+    why: "Read replicas are the first scaling step for most databases, and 'replicas do not scale writes' is the answer interviewers listen for.",
+    keyIdea: "Replication copies; it does not divide.",
+  },
+  "sync-async-replication": {
+    canDo: "Choose synchronous, semi-synchronous, or asynchronous commits per failure domain, and say how much data each can lose.",
+    why: "The commit rule decides what 'saved' means when a primary dies. Stating the loss window is how strong designs are judged.",
+    keyIdea: "Async says yes before the copy exists.",
+  },
+  "replication-lag": {
+    canDo: "Predict how often replica lag shows a user their own write missing, and fix it with pinning or log-position waits.",
+    why: "Vanishing posts after a refresh are a classic read-replica bug. Matching the fix to the anomaly is a favourite follow-up question.",
+    keyIdea: "Pay for freshness only where it is noticed.",
+  },
+  "failover": {
+    canDo: "Tune failure detection against needless failovers, add a proxy, and prevent split brain with fencing.",
+    why: "Real outages are often made worse by the failover itself. Detection, redirection, and fencing are three separate things to get right.",
+    keyIdea: "Silence is ambiguous; fence the old primary.",
+  },
+  "multi-leader": {
+    canDo: "Estimate conflicts in multi-region writes and choose last-writer-wins, merging, or a home region.",
+    why: "Multi-region writes are tempting and risky. Knowing the conflict rule is the difference between a design and a hope.",
+    keyIdea: "Convergence is not correctness.",
+  },
+  "leaderless-quorums": {
+    canDo: "Choose N, W, and R for a Dynamo-style system, and say when reads are guaranteed to see the latest write.",
+    why: "Consistency levels in Cassandra and DynamoDB are quorum choices. R + W > N is one of the most-asked distributed systems facts.",
+    keyIdea: "Two big sets in a small room must meet.",
+  },
+  "boss-primary-down": {
+    canDo: "Combine commit rules, detection timing, a proxy, fencing, and read policy into one failover design within a budget.",
+    why: "A primary failure tests every replication choice at once. The skill is knowing which setting guards which failure.",
+    keyIdea: "Each setting guards one failure; check the bill.",
+  },
 };
 
 export interface ChapterLearning {
@@ -434,6 +469,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Explain embeddings and cosine similarity, and where they fail", "Combine keyword and vector search with rank fusion", "Chunk, filter, and index documents for retrieval at scale", "Rerank candidates and measure retrieval with recall, MRR, and nDCG"],
     why: "A RAG system is only as good as what it retrieves. This chapter takes retrieval apart: how text becomes vectors, how results are found, fused, filtered, and reranked, and how to measure all of it.",
     payoff: "You can design and defend a retrieval pipeline in an interview, with the numbers for each stage, and you will know which metric to look at when a RAG system gives wrong answers.",
+  },
+  a6: {
+    story: "Pigeon's primary database becomes the single point everyone depends on, and the team starts making copies.",
+    outcomes: ["Scale reads with replicas and know why writes do not scale", "Choose commit rules by what data you can afford to lose", "Prevent stale reads and split brain", "Use quorums and know their limits"],
+    why: "Copies are how databases survive failures and serve more reads, and each copy brings a new way to be wrong: lag, loss, conflict, and split brain. This chapter puts a number on each.",
+    payoff: "In an interview you can design replication for a service and state, for each failure, what is lost and for how long. At work you will read a failover postmortem and know which setting mattered.",
   },
 };
 

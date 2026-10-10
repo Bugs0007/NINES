@@ -69,9 +69,16 @@ import reranking from "./reranking";
 import metadataFiltering from "./metadata-filtering";
 import annIndexes from "./ann-indexes";
 import retrievalEval from "./retrieval-eval";
+import leaderFollower from "./leader-follower";
+import syncAsyncReplication from "./sync-async-replication";
+import replicationLag from "./replication-lag";
+import failover from "./failover";
+import multiLeader from "./multi-leader";
+import leaderlessQuorums from "./leaderless-quorums";
+import bossPrimaryDown from "./boss-primary-down";
 
-export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows, tailLatency, estimationQps, estimationStorage, estimationMemory, connectionPooling, autoscaling, dns, tcpUdp, tlsHandshake, httpVersions, keepAlive, reverseProxy, cdn, anycast, requestJourney, cacheAside, zipfAndSizing, evictionPolicies, writePolicies, ttlInvalidation, cacheStampede, hotKeys, cdnCaching, indexesBtree, queryPlans, normalization, transactionsAcid, isolationLevels, mvcc, sqlVsNosql, lsmVsBtree, postgresIsEnough, sampling, hallucination, ttftThroughput, llmCostMath, systemPrompts, promptStructure, extendedThinking, structuredOutputs, promptCaching, promptVersioning, embeddings, cosineSimilarity, biVsCrossEncoder, chunking, bm25, hybridSearchRrf, hyde, reranking, metadataFiltering, annIndexes, retrievalEval];
-export const BOSSES: BossPack[] = [bossLaunchDay, bossTheBill, bossViralTuesday, bossFarAwayUsers, bossCelebrityPost, bossSeatRush];
+export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows, tailLatency, estimationQps, estimationStorage, estimationMemory, connectionPooling, autoscaling, dns, tcpUdp, tlsHandshake, httpVersions, keepAlive, reverseProxy, cdn, anycast, requestJourney, cacheAside, zipfAndSizing, evictionPolicies, writePolicies, ttlInvalidation, cacheStampede, hotKeys, cdnCaching, indexesBtree, queryPlans, normalization, transactionsAcid, isolationLevels, mvcc, sqlVsNosql, lsmVsBtree, postgresIsEnough, sampling, hallucination, ttftThroughput, llmCostMath, systemPrompts, promptStructure, extendedThinking, structuredOutputs, promptCaching, promptVersioning, embeddings, cosineSimilarity, biVsCrossEncoder, chunking, bm25, hybridSearchRrf, hyde, reranking, metadataFiltering, annIndexes, retrievalEval, leaderFollower, syncAsyncReplication, replicationLag, failover, multiLeader, leaderlessQuorums];
+export const BOSSES: BossPack[] = [bossLaunchDay, bossTheBill, bossViralTuesday, bossFarAwayUsers, bossCelebrityPost, bossSeatRush, bossPrimaryDown];
 
 export const PACK_BY_ID: ReadonlyMap<string, ConceptPack> = new Map(PACKS.map((p) => [p.id, p]));
 export const BOSS_BY_ID: ReadonlyMap<string, BossPack> = new Map(BOSSES.map((b) => [b.id, b]));

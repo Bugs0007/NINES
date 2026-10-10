@@ -464,6 +464,13 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "metadata-filtering": "built",
   "ann-indexes": "built",
   "retrieval-eval": "built",
+  "leader-follower": "built",
+  "sync-async-replication": "built",
+  "replication-lag": "built",
+  "failover": "built",
+  "multi-leader": "built",
+  "leaderless-quorums": "built",
+  "boss-primary-down": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

@@ -1,0 +1,14 @@
+import { LAB_MODELS } from "../src/widgets/model-lab/models";
+const run = (id: string, v: Record<string, number | string | boolean>, keys: string[], cfg: Record<string, unknown> = {}) => { const m = LAB_MODELS[id]!; const o = m.evaluate({ ...m.init(cfg), ...((cfg.start ?? {}) as object), ...v }, cfg); console.log(id, JSON.stringify(v), keys.map((k) => `${k}=${typeof o.metrics[k] === "number" ? o.metrics[k]!.toPrecision(4) : o.metrics[k]}`).join(" ")); };
+const rc = { lockLoad: true, reads: 12000, writes: 600 };
+for (const f of [0, 1, 2, 3, 4, 5]) run("repl-lab", { followers: f }, ["util", "readCapacity", "costPerMonth", "lagSeconds"], rc);
+run("repl-lab", { followers: 4, writes: 9000, reads: 12000 }, ["util", "lagSeconds"]);
+const sc = { lockRtt: true, rtt: 80, writes: 2000 };
+for (const r of ["0", "1", "2"]) run("sync-lab", { required: r }, ["commitMs", "lostAzWrites", "lostRegionWrites"], sc);
+const lc = { lockLag: true, lagMs: 800 };
+for (const [s, t] of [["replica", 1], ["pin", 0.3], ["pin", 1], ["pin", 3], ["pin", 10], ["lsn", 1]] as const) run("lag-lab", { strategy: s, pinS: t }, ["missRate", "primaryShare", "extraP99Ms"], lc);
+for (const [i, m, p, f] of [[2, 3, false, false], [2, 7, true, true], [2, 8, true, false], [3, 5, true, true], [1, 2, true, true], [3, 6, true, true], [5, 3, true, true]] as const) run("failover-lab", { interval: i, missed: m, proxy: p, fencing: f }, ["downtimeS", "falseFailovers", "splitBrains"]);
+for (const [r, s] of [[3, "lww"], [3, "merge"], [3, "home"], [2, "lww"], [5, "lww"]] as const) run("multi-lab", { regions: r, strategy: s }, ["conflictsPerDay", "lostWritesPerDay", "remoteWriteMs"]);
+const qc = { lockN: true, n: 5 };
+for (const [w, r] of [[1, 1], [3, 3], [5, 1], [1, 5], [2, 4], [4, 2], [3, 2]] as const) run("quorum-lab", { w, r }, ["consistent", "staleProb", "writeAvail", "readAvail", "writeP99", "readP99"], qc);
+for (const v of [{}, { commit: "semi", proxy: true, fencing: true, interval: 2, missed: 7, reads: "pin", replicas: 2 }, { commit: "sync", replicas: 3, proxy: true, fencing: true, interval: 2, missed: 7, reads: "pin" }]) run("primary-lab", v, ["downtimeS", "lostWrites", "staleRate", "commitMs", "falseFailovers", "costPerMonth"]);
