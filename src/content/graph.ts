@@ -471,6 +471,11 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "multi-leader": "built",
   "leaderless-quorums": "built",
   "boss-primary-down": "built",
+  "sharding-strategies": "built",
+  "shard-keys": "built",
+  "hot-partitions": "built",
+  "consistent-hashing": "built",
+  "rebalancing": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

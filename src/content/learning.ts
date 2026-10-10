@@ -391,6 +391,31 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "A primary failure tests every replication choice at once. The skill is knowing which setting guards which failure.",
     keyIdea: "Each setting guards one failure; check the bill.",
   },
+  "sharding-strategies": {
+    canDo: "Choose range, hash, compound, or directory sharding for a workload and say which queries stay on one shard.",
+    why: "The sharding scheme decides whether writes spread and which queries are cheap. Naming the hot tail of a time-ordered range is a standard design-review catch.",
+    keyIdea: "Ranges keep neighbours together; hashes spread them.",
+  },
+  "shard-keys": {
+    canDo: "Pick a shard key from the main access paths and serve a second path with a copy, counting the write cost.",
+    why: "The shard key is the hardest decision to undo. Interviewers listen for whether you start from the queries or from the data.",
+    keyIdea: "The key chooses which query is cheap.",
+  },
+  "hot-partitions": {
+    canDo: "Work out how overloaded a shard gets from one hot key, and relieve it with a cache and salting.",
+    why: "Celebrity keys overload a single shard while the cluster looks healthy. Knowing that more shards will not help is the first step.",
+    keyIdea: "More shards spread keys, not one key.",
+  },
+  "consistent-hashing": {
+    canDo: "Explain why hash mod N reshuffles everything, and use a ring with virtual nodes so only about 1 in N+1 keys move.",
+    why: "Consistent hashing is one of the most-asked distributed systems topics, and the virtual node follow-up separates memorised answers from understood ones.",
+    keyIdea: "Only the new node's arc moves.",
+  },
+  "rebalancing": {
+    canDo: "Estimate how much data a rebalance moves and pick a throttle that balances duration against user-visible latency.",
+    why: "Adding nodes under load is where sharded systems hurt. The honest answer names the amount moved, the time it takes, and the cost to users.",
+    keyIdea: "Rebalancing is a tax on live traffic.",
+  },
 };
 
 export interface ChapterLearning {
@@ -475,6 +500,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Scale reads with replicas and know why writes do not scale", "Choose commit rules by what data you can afford to lose", "Prevent stale reads and split brain", "Use quorums and know their limits"],
     why: "Copies are how databases survive failures and serve more reads, and each copy brings a new way to be wrong: lag, loss, conflict, and split brain. This chapter puts a number on each.",
     payoff: "In an interview you can design replication for a service and state, for each failure, what is lost and for how long. At work you will read a failover postmortem and know which setting mattered.",
+  },
+  a7: {
+    story: "Pigeon's data no longer fits on one machine, and the team has to decide which rows live where.",
+    outcomes: ["Choose a sharding scheme and shard key from the access paths", "Recognise and relieve hot keys", "Add nodes with a consistent hashing ring and virtual nodes", "Estimate and throttle a rebalance"],
+    why: "Splitting data is the first step that cannot be undone cheaply. The key you choose decides what is fast, what fans out, and where the hot spots appear.",
+    payoff: "In an interview you can shard a table, justify the key, and say what happens when a node is added or a celebrity appears. At work you will spot a hot partition from a graph.",
   },
 };
 
