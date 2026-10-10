@@ -38,9 +38,19 @@ import cacheStampede from "./cache-stampede";
 import hotKeys from "./hot-keys";
 import cdnCaching from "./cdn-caching";
 import bossCelebrityPost from "./boss-celebrity-post";
+import indexesBtree from "./indexes-btree";
+import queryPlans from "./query-plans";
+import normalization from "./normalization";
+import transactionsAcid from "./transactions-acid";
+import isolationLevels from "./isolation-levels";
+import mvcc from "./mvcc";
+import sqlVsNosql from "./sql-vs-nosql";
+import lsmVsBtree from "./lsm-vs-btree";
+import postgresIsEnough from "./postgres-is-enough";
+import bossSeatRush from "./boss-seat-rush";
 
-export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows, tailLatency, estimationQps, estimationStorage, estimationMemory, connectionPooling, autoscaling, dns, tcpUdp, tlsHandshake, httpVersions, keepAlive, reverseProxy, cdn, anycast, requestJourney, cacheAside, zipfAndSizing, evictionPolicies, writePolicies, ttlInvalidation, cacheStampede, hotKeys, cdnCaching];
-export const BOSSES: BossPack[] = [bossLaunchDay, bossTheBill, bossViralTuesday, bossFarAwayUsers, bossCelebrityPost];
+export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows, tailLatency, estimationQps, estimationStorage, estimationMemory, connectionPooling, autoscaling, dns, tcpUdp, tlsHandshake, httpVersions, keepAlive, reverseProxy, cdn, anycast, requestJourney, cacheAside, zipfAndSizing, evictionPolicies, writePolicies, ttlInvalidation, cacheStampede, hotKeys, cdnCaching, indexesBtree, queryPlans, normalization, transactionsAcid, isolationLevels, mvcc, sqlVsNosql, lsmVsBtree, postgresIsEnough];
+export const BOSSES: BossPack[] = [bossLaunchDay, bossTheBill, bossViralTuesday, bossFarAwayUsers, bossCelebrityPost, bossSeatRush];
 
 export const PACK_BY_ID: ReadonlyMap<string, ConceptPack> = new Map(PACKS.map((p) => [p.id, p]));
 export const BOSS_BY_ID: ReadonlyMap<string, BossPack> = new Map(BOSSES.map((b) => [b.id, b]));

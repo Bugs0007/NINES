@@ -201,6 +201,56 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "A viral post breaks the cache layer in several ways at once. Choosing fixes in order, within a bill, is the job.",
     keyIdea: "Each layer needs its own fix, and its own budget.",
   },
+  "indexes-btree": {
+    canDo: "Explain why a B-tree lookup stays cheap as a table grows, and choose indexes by what the queries ask and what writes will pay.",
+    why: "A missing index is the most common cause of a slow query, and too many indexes quietly slow every write. Interviewers expect both halves.",
+    keyIdea: "Depth grows with the log; every index taxes writes.",
+  },
+  "query-plans": {
+    canDo: "Read an EXPLAIN plan, spot the expensive node, and design a composite or covering index that removes it.",
+    why: "An index that exists is not an index that is used. Reading the plan is how you find out why a query is slow and prove your fix.",
+    keyIdea: "Equality columns first, then the sort column.",
+  },
+  "normalization": {
+    canDo: "Decide per column whether to join, copy, or cache, by comparing how often it is read with how often it changes.",
+    why: "Join-heavy feeds are slow and copied columns drift. The choice is a trade of read speed for write cost, made one fact at a time.",
+    keyIdea: "Copy what is read hot and changes cold.",
+  },
+  "transactions-acid": {
+    canDo: "Use a transaction to make multi-step changes atomic, and explain how the write-ahead log makes commits durable.",
+    why: "A crash between two statements is a real incident, and money or orders silently vanish. Atomicity and durability are the first things you check.",
+    keyIdea: "Log first, pages later; commit means the log is on disk.",
+  },
+  "isolation-levels": {
+    canDo: "Name the anomalies each isolation level permits, and choose between Serializable and explicit row locks.",
+    why: "Double bookings and negative stock come from races that pass every unit test. Matching the tool to the anomaly is a staple of design interviews.",
+    keyIdea: "Different rows, shared rule: that is write skew.",
+  },
+  "mvcc": {
+    canDo: "Explain row versions and vacuum, and find why a table is bloated when one long transaction is the cause.",
+    why: "Bloat and slow scans on update-heavy Postgres tables usually trace back to something holding a snapshot open, not to vacuum settings.",
+    keyIdea: "Vacuum cannot remove what an old snapshot might see.",
+  },
+  "sql-vs-nosql": {
+    canDo: "Match a workload to relational, key-value, document, wide-column, or graph storage by its access pattern and guarantees.",
+    why: "Choosing a database by fashion is expensive to undo. Starting from the access pattern is the habit interviewers look for.",
+    keyIdea: "Match the store to the access pattern.",
+  },
+  "lsm-vs-btree": {
+    canDo: "Compare B-tree and LSM storage by write, read, and space amplification, and say what compaction costs.",
+    why: "Write-heavy systems choose engines by how many bytes hit the disk per row. Knowing the three amplifications explains most storage engine choices.",
+    keyIdea: "Append and merge: cheap writes, paid for by compaction.",
+  },
+  "postgres-is-enough": {
+    canDo: "Decide when Postgres can carry a workload and when a measured load justifies one more system, adding them one at a time.",
+    why: "Every new datastore is a permanent operating cost. 'Start boring and justify each addition' is both good engineering and a good interview answer.",
+    keyIdea: "Each extra system needs a measured reason.",
+  },
+  "boss-seat-rush": {
+    canDo: "Combine indexes, locking, short holds, and replica reports to run a ticket sale that never sells a seat twice.",
+    why: "A sale puts every database fundamental under pressure at once. Choosing which tool fixes which failure is the skill.",
+    keyIdea: "Hold locks for milliseconds, not through payment.",
+  },
 };
 
 export interface ChapterLearning {
@@ -255,6 +305,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Size a cache from skewed traffic and read its hit ratio", "Choose eviction and write policies by access pattern", "Keep caches fresh with TTLs and invalidation", "Stop stampedes and spread hot keys"],
     why: "Most of the internet's read traffic is skewed, so caching is the cheapest scaling lever. It is also where subtle bugs live: stale data, stampedes, and hot keys. This chapter turns each into a number.",
     payoff: "In an interview you can add a cache to any design and say how you would size it, keep it fresh, and stop it falling over. At work you will read a hit-ratio graph and know what is behind it.",
+  },
+  a5: {
+    story: "Pigeon's Postgres starts to sweat, and every shortcut taken earlier shows up in the query log.",
+    outcomes: ["Choose indexes and read EXPLAIN plans", "Decide when to join, copy, or cache a column", "Use transactions and isolation levels to prevent races", "Explain MVCC, vacuum, and bloat; compare B-trees and LSM trees; know when Postgres is enough"],
+    why: "The database is where most systems finally hit their limits, and where mistakes are hardest to undo. This chapter turns indexes, transactions, and storage into numbers you can reason about.",
+    payoff: "In an interview you can design a schema, name the index, and say what isolation level a booking needs. At work you will read a slow-query log and know where to look.",
   },
 };
 

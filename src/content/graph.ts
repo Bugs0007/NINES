@@ -433,6 +433,16 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "hot-keys": "built",
   "cdn-caching": "built",
   "boss-celebrity-post": "built",
+  "indexes-btree": "built",
+  "query-plans": "built",
+  "normalization": "built",
+  "transactions-acid": "built",
+  "isolation-levels": "built",
+  "mvcc": "built",
+  "sql-vs-nosql": "built",
+  "lsm-vs-btree": "built",
+  "postgres-is-enough": "built",
+  "boss-seat-rush": "built",
 };
 
 function chapterTrack(chapterId: string): Track {
