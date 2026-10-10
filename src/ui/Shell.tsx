@@ -9,6 +9,7 @@ import { sfx } from "@/audio/engine";
 import { setTimeWarp } from "@/game/clock";
 import { useGame } from "@/game/store";
 import { useProgressSync } from "@/game/sync";
+import { AccountButton } from "@/account/AccountButton";
 import { SignInDialog } from "@/account/SignInDialog";
 import { StartPrompt } from "@/account/StartPrompt";
 import { UsernameDialog } from "@/account/UsernameDialog";
@@ -104,6 +105,7 @@ export function PageBar({
       <div className="ml-auto flex shrink-0 items-center gap-1">
         <BriefingButton />
         {right}
+        <AccountButton />
       </div>
     </header>
   );
