@@ -156,6 +156,51 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Going global means choosing which round trips to remove and what freshness and money to spend. Real launches force exactly this trade.",
     keyIdea: "Shorten the long trips first.",
   },
+  "cache-aside": {
+    canDo: "Add a cache-aside layer, read its hit ratio, and say how much database load it removes.",
+    why: "Read-heavy products hit database limits long before they run out of ideas. A cache is the cheapest way to buy headroom, and the hit ratio tells you what you bought.",
+    keyIdea: "The database only sees the misses.",
+  },
+  "zipf-and-sizing": {
+    canDo: "Size a cache from skewed traffic, reading the knee in the hit-ratio curve, and turn entries into memory and cost.",
+    why: "Buying memory for the long tail is a common, quiet waste. Zipf traffic means a small head does most of the work.",
+    keyIdea: "Each tenfold of cache buys the same slice.",
+  },
+  "eviction-policies": {
+    canDo: "Choose between LRU, LFU, and others by access pattern, and explain what a scan does to each.",
+    why: "A nightly job can empty a cache that took all day to warm. Knowing which policy resists it is a favourite follow-up in design interviews.",
+    keyIdea: "Recency is a guess; scans make it lie.",
+  },
+  "write-policies": {
+    canDo: "Pick write-through, write-back, or write-around, and compute what write-back saves and risks.",
+    why: "Write storms on counters take down databases that read caches never touched. The right policy turns thousands of writes into a few.",
+    keyIdea: "Write-back trades a loss window for fewer writes.",
+  },
+  "ttl-invalidation": {
+    canDo: "Trade staleness against hit ratio with a TTL, and keep a cache fresh by deleting on write with a TTL backstop.",
+    why: "Invalidation is the hard half of caching. Stale profile photos and prices are what users actually notice.",
+    keyIdea: "Delete after the write; keep the TTL as a net.",
+  },
+  "cache-stampede": {
+    canDo: "Recognise the sawtooth of a stampede, and stop it with single-flight, early refresh or stale serving, and TTL jitter.",
+    why: "A cache that works until it expires is a timed outage. Hot keys expiring together is a classic cause of database collapse.",
+    keyIdea: "One rebuild per key, and never all at once.",
+  },
+  "hot-keys": {
+    canDo: "Find a hot key in a sharded cache and spread it with replicas or a local cache.",
+    why: "Adding nodes does not help a key that lives on one. Skewed traffic makes this the first thing to break in a growing cache cluster.",
+    keyIdea: "A key lives on one node.",
+  },
+  "cdn-caching": {
+    canDo: "Design a CDN cache key and Cache-Control headers that keep a high hit ratio without caching personal data.",
+    why: "A single marketing parameter can drop a hit ratio from the nineties to a few percent. The cache key is where that is decided.",
+    keyIdea: "Key only on what changes the response.",
+  },
+  "boss-celebrity-post": {
+    canDo: "Combine edge caching, expiry protection, hot-key handling, and write-back counters inside a budget.",
+    why: "A viral post breaks the cache layer in several ways at once. Choosing fixes in order, within a bill, is the job.",
+    keyIdea: "Each layer needs its own fix, and its own budget.",
+  },
 };
 
 export interface ChapterLearning {
@@ -204,6 +249,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Trace a lookup through DNS caches and pick a TTL", "Count the round trips in TCP, TLS, and HTTP, and cut them", "Explain why a reverse proxy frees application workers", "Predict a CDN's hit ratio and choose between DNS and anycast routing"],
     why: "For users far away, the network path costs more than the code. This chapter turns that path into numbers you can reason about, so you know which trip to remove first.",
     payoff: "In an interview you can walk a request from thumb to server and say where the time goes. At work you will read a network waterfall and know which step to fix.",
+  },
+  a4: {
+    story: "A celebrity discovers Pigeon, and the cache layer you built for ordinary days meets a very uneven internet.",
+    outcomes: ["Size a cache from skewed traffic and read its hit ratio", "Choose eviction and write policies by access pattern", "Keep caches fresh with TTLs and invalidation", "Stop stampedes and spread hot keys"],
+    why: "Most of the internet's read traffic is skewed, so caching is the cheapest scaling lever. It is also where subtle bugs live: stale data, stampedes, and hot keys. This chapter turns each into a number.",
+    payoff: "In an interview you can add a cache to any design and say how you would size it, keep it fresh, and stop it falling over. At work you will read a hit-ratio graph and know what is behind it.",
   },
 };
 

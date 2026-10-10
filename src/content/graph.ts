@@ -424,6 +424,15 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "anycast": "built",
   "request-journey": "built",
   "boss-far-away-users": "built",
+  "cache-aside": "built",
+  "zipf-and-sizing": "built",
+  "eviction-policies": "built",
+  "write-policies": "built",
+  "ttl-invalidation": "built",
+  "cache-stampede": "built",
+  "hot-keys": "built",
+  "cdn-caching": "built",
+  "boss-celebrity-post": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

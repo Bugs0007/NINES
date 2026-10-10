@@ -29,9 +29,18 @@ import cdn from "./cdn";
 import anycast from "./anycast";
 import requestJourney from "./request-journey";
 import bossFarAwayUsers from "./boss-far-away-users";
+import cacheAside from "./cache-aside";
+import zipfAndSizing from "./zipf-and-sizing";
+import evictionPolicies from "./eviction-policies";
+import writePolicies from "./write-policies";
+import ttlInvalidation from "./ttl-invalidation";
+import cacheStampede from "./cache-stampede";
+import hotKeys from "./hot-keys";
+import cdnCaching from "./cdn-caching";
+import bossCelebrityPost from "./boss-celebrity-post";
 
-export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows, tailLatency, estimationQps, estimationStorage, estimationMemory, connectionPooling, autoscaling, dns, tcpUdp, tlsHandshake, httpVersions, keepAlive, reverseProxy, cdn, anycast, requestJourney];
-export const BOSSES: BossPack[] = [bossLaunchDay, bossTheBill, bossViralTuesday, bossFarAwayUsers];
+export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows, tailLatency, estimationQps, estimationStorage, estimationMemory, connectionPooling, autoscaling, dns, tcpUdp, tlsHandshake, httpVersions, keepAlive, reverseProxy, cdn, anycast, requestJourney, cacheAside, zipfAndSizing, evictionPolicies, writePolicies, ttlInvalidation, cacheStampede, hotKeys, cdnCaching];
+export const BOSSES: BossPack[] = [bossLaunchDay, bossTheBill, bossViralTuesday, bossFarAwayUsers, bossCelebrityPost];
 
 export const PACK_BY_ID: ReadonlyMap<string, ConceptPack> = new Map(PACKS.map((p) => [p.id, p]));
 export const BOSS_BY_ID: ReadonlyMap<string, BossPack> = new Map(BOSSES.map((b) => [b.id, b]));
