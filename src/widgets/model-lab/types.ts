@@ -59,7 +59,16 @@ export type View =
       target?: { ms: number; label: string };
     }
   | { kind: "grid"; cols: number; cells: { label?: string; tone?: Tone; title?: string }[]; caption?: string; legend?: { tone: Tone; label: string }[] }
-  | { kind: "steps"; steps: { label: string; detail?: string; value?: string; tone?: Tone }[] };
+  | { kind: "steps"; steps: { label: string; detail?: string; value?: string; tone?: Tone }[] }
+  | {
+      kind: "scatter";
+      /** Points in a 0..1 square. A point with `ring` is drawn as the query. */
+      points: { x: number; y: number; label?: string; tone?: Tone; ring?: boolean; size?: number }[];
+      /** A circle (radius in the same 0..1 units) around the first ring point. */
+      radius?: number;
+      caption?: string;
+      legend?: { tone: Tone; label: string }[];
+    };
 
 export interface LabOutput {
   metrics: Record<string, number>;

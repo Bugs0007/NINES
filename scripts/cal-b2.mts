@@ -1,0 +1,13 @@
+import { LAB_MODELS } from "../src/widgets/model-lab/models";
+const run = (id: string, v: Record<string, number | string | boolean>, keys: string[], cfg: Record<string, unknown> = {}) => { const m = LAB_MODELS[id]!; const o = m.evaluate({ ...m.init(cfg), ...((cfg.start ?? {}) as object), ...v }, cfg); console.log(id, JSON.stringify(v), keys.map((k) => `${k}=${o.metrics[k]!.toFixed(3)}`).join(" ")); };
+for (const [t, p, k] of [[1, 1, 8], [0, 1, 8], [0.3, 1, 8], [0.7, 1, 8], [1.5, 1, 8], [2, 1, 8], [1.5, 0.8, 8], [1.2, 0.9, 8], [1, 0.9, 8], [1.5, 0.9, 5]] as const) { run("sampling-lab", { temperature: t, topP: p, topK: k }, ["pTop", "pBad", "entropyBits", "nucleus"], { set: "capital" }); }
+console.log("---tagline");
+for (const [t, p, k] of [[0.3, 1, 8], [0.7, 1, 8], [1, 1, 8], [1.5, 1, 8], [1.5, 0.9, 8], [1.2, 0.9, 8], [2, 0.8, 8], [1, 0.95, 8], [1.3, 0.85, 8]] as const) { run("sampling-lab", { temperature: t, topP: p, topK: k }, ["pTop", "pBad", "entropyBits", "nucleus"], { set: "tagline" }); }
+for (const v of [{}, { retrieval: true }, { retrieval: true, abstain: true }, { retrieval: true, abstain: true, verify: true }, { abstain: true }]) run("hallucination-lab", v, ["wrongRate", "correctRate", "abstainRate"]);
+for (const v of [{ model: "big", promptTokens: 2000, outputTokens: 300 }, { model: "big", promptTokens: 50000, outputTokens: 300 }, { model: "big", promptTokens: 50000, outputTokens: 300, cached: true }, { model: "small", promptTokens: 50000, outputTokens: 300 }, { model: "big", promptTokens: 2000, outputTokens: 1500, stream: true }, { model: "big", promptTokens: 2000, outputTokens: 1500 }]) run("ttft-lab", v, ["ttftMs", "totalMs", "perceivedMs"]);
+for (const v of [{}, { cachedShare: 0.7 }, { small: 0.6 }, { cachedShare: 0.7, small: 0.6 }, { batch: true }, { cachedShare: 0.7, small: 0.6, batch: true }]) run("cost-lab", v, ["monthlyUsd", "perRequestUsd"]);
+console.log("---round2");
+const cc = { lockLoad: true, requests: 50000, inTok: 3000, outTok: 400 };
+for (const v of [{}, { cachedShare: 0.7 }, { small: 0.6 }, { cachedShare: 0.7, small: 0.6 }, { cachedShare: 0.9, small: 0.6 }, { cachedShare: 0.9, small: 0.8 }, { cachedShare: 0.5, small: 0.5 }, { cachedShare: 0.9, small: 0.9 }]) run("cost-lab", v, ["monthlyUsd", "perRequestUsd"], cc);
+const lc = { lockTokens: true, promptTokens: 50000, outputTokens: 300 };
+for (const v of [{ model: "big" }, { model: "big", cached: true }, { model: "big", cached: true, stream: true }, { model: "small", cached: true, stream: true }, { model: "big", stream: true }]) run("ttft-lab", v, ["ttftMs", "perceivedMs", "decodeTokPerSec"], lc);

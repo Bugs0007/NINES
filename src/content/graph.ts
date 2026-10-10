@@ -443,6 +443,10 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "lsm-vs-btree": "built",
   "postgres-is-enough": "built",
   "boss-seat-rush": "built",
+  "sampling": "built",
+  "hallucination": "built",
+  "ttft-throughput": "built",
+  "llm-cost-math": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

@@ -251,6 +251,26 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "A sale puts every database fundamental under pressure at once. Choosing which tool fixes which failure is the skill.",
     keyIdea: "Hold locks for milliseconds, not through payment.",
   },
+  "sampling": {
+    canDo: "Explain what temperature, top-p, and top-k do to the next-token choice, and set them for extraction versus brainstorming.",
+    why: "The same prompt giving different answers confuses every team once. Knowing the sampler is the difference between flaky tests and a controlled feature.",
+    keyIdea: "Temperature adds probability to the unlikely.",
+  },
+  "hallucination": {
+    canDo: "Explain why models fabricate when knowledge runs out, and layer retrieval, abstention, citation, and verification against it.",
+    why: "A confident wrong answer in production is a refund, a legal issue, or a lost customer. Defending against it is the first question in any AI interview.",
+    keyIdea: "Plausible is not the same as true.",
+  },
+  "ttft-throughput": {
+    canDo: "Separate prefill delay from decode speed, and fix a slow response with streaming, caching, shorter prompts, or a smaller model.",
+    why: "Users judge an AI feature by how soon it starts and how long it takes. The two delays have different causes and different fixes.",
+    keyIdea: "Prefill sets the first token; decode sets the rest.",
+  },
+  "llm-cost-math": {
+    canDo: "Estimate an LLM feature's monthly bill from traffic and tokens, and cut it with caching, routing, and batching.",
+    why: "The AI line item is often the fastest-growing cost in a product. Doing the arithmetic aloud is expected in AI-engineering interviews.",
+    keyIdea: "Requests × tokens × price, split input and output.",
+  },
 };
 
 export interface ChapterLearning {
@@ -311,6 +331,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Choose indexes and read EXPLAIN plans", "Decide when to join, copy, or cache a column", "Use transactions and isolation levels to prevent races", "Explain MVCC, vacuum, and bloat; compare B-trees and LSM trees; know when Postgres is enough"],
     why: "The database is where most systems finally hit their limits, and where mistakes are hardest to undo. This chapter turns indexes, transactions, and storage into numbers you can reason about.",
     payoff: "In an interview you can design a schema, name the index, and say what isolation level a booking needs. At work you will read a slow-query log and know where to look.",
+  },
+  b2: {
+    story: "The demo goes well. Then Pigeon Copilot meets real users, real traffic, and a real invoice.",
+    outcomes: ["Control sampling for stable or creative output", "Layer defences against hallucination", "Separate time to first token from output speed", "Estimate and cut an LLM bill"],
+    why: "Everything that goes wrong after a demo is a behaviour of the model under real conditions: variation, fabrication, delay, and cost. This chapter makes each of those a number you can reason about.",
+    payoff: "You can explain why outputs vary, how to keep a bot honest, why a response feels slow, and what a feature will cost, which are the first questions in an AI-engineering interview.",
   },
 };
 

@@ -48,8 +48,12 @@ import sqlVsNosql from "./sql-vs-nosql";
 import lsmVsBtree from "./lsm-vs-btree";
 import postgresIsEnough from "./postgres-is-enough";
 import bossSeatRush from "./boss-seat-rush";
+import sampling from "./sampling";
+import hallucination from "./hallucination";
+import ttftThroughput from "./ttft-throughput";
+import llmCostMath from "./llm-cost-math";
 
-export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows, tailLatency, estimationQps, estimationStorage, estimationMemory, connectionPooling, autoscaling, dns, tcpUdp, tlsHandshake, httpVersions, keepAlive, reverseProxy, cdn, anycast, requestJourney, cacheAside, zipfAndSizing, evictionPolicies, writePolicies, ttlInvalidation, cacheStampede, hotKeys, cdnCaching, indexesBtree, queryPlans, normalization, transactionsAcid, isolationLevels, mvcc, sqlVsNosql, lsmVsBtree, postgresIsEnough];
+export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows, tailLatency, estimationQps, estimationStorage, estimationMemory, connectionPooling, autoscaling, dns, tcpUdp, tlsHandshake, httpVersions, keepAlive, reverseProxy, cdn, anycast, requestJourney, cacheAside, zipfAndSizing, evictionPolicies, writePolicies, ttlInvalidation, cacheStampede, hotKeys, cdnCaching, indexesBtree, queryPlans, normalization, transactionsAcid, isolationLevels, mvcc, sqlVsNosql, lsmVsBtree, postgresIsEnough, sampling, hallucination, ttftThroughput, llmCostMath];
 export const BOSSES: BossPack[] = [bossLaunchDay, bossTheBill, bossViralTuesday, bossFarAwayUsers, bossCelebrityPost, bossSeatRush];
 
 export const PACK_BY_ID: ReadonlyMap<string, ConceptPack> = new Map(PACKS.map((p) => [p.id, p]));
