@@ -14,7 +14,7 @@ export function labTune(model: string, config: Record<string, unknown>, param: s
     ...NO_SIM,
     evaluate: (v) => {
       const m = LAB_MODELS[model]!;
-      return m.evaluate({ ...m.init(config), ...values, [param]: v }, config).metrics;
+      return m.evaluate({ ...m.init(config), ...((config.start ?? {}) as Values), ...values, [param]: v }, config).metrics;
     },
   };
 }

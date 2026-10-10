@@ -414,6 +414,16 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "connection-pooling": "built",
   autoscaling: "built",
   "boss-viral-tuesday": "built",
+  "dns": "built",
+  "tcp-udp": "built",
+  "tls-handshake": "built",
+  "http-versions": "built",
+  "keep-alive": "built",
+  "reverse-proxy": "built",
+  "cdn": "built",
+  "anycast": "built",
+  "request-journey": "built",
+  "boss-far-away-users": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

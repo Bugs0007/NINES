@@ -37,7 +37,7 @@ export const VERIFIERS: Record<string, (p: Params) => number> = {
     const m = LAB_MODELS[String(p.model)];
     if (!m) throw new Error(`unknown lab model ${String(p.model)}`);
     const cfg = (p.config ?? {}) as Record<string, unknown>;
-    return m.evaluate({ ...m.init(cfg), ...((p.values ?? {}) as Record<string, number | string | boolean>) }, cfg).metrics[String(p.metric)] ?? NaN;
+    return m.evaluate({ ...m.init(cfg), ...((cfg.start ?? {}) as Record<string, number | string | boolean>), ...((p.values ?? {}) as Record<string, number | string | boolean>) }, cfg).metrics[String(p.metric)] ?? NaN;
   },
   /** Token count of a Tokenizer Slicer sample: o200k by default, or cl100k (GPT-4's older vocabulary). */
   "token-count": (p) => (p.encoding === "cl100k" ? encodeCl100k : encode)(SAMPLES.find((s) => s.id === p.sample)!.text).length,

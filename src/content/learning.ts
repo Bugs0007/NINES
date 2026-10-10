@@ -106,6 +106,56 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Real spikes break layers together, and a fix in one layer often overloads the next. Seeing the interactions is the skill.",
     keyIdea: "Every layer needs its own budget.",
   },
+  "dns": {
+    canDo: "Trace a DNS lookup through its caches, and choose a TTL that balances lookup speed against how fast a change spreads.",
+    why: "Every migration and failover plan meets DNS caching. Knowing why half the office still sees the old server saves a bad afternoon.",
+    keyIdea: "A TTL is a promise to every cache.",
+  },
+  "tcp-udp": {
+    canDo: "Explain what TCP's handshake costs, when UDP is the better base, and how QUIC combines the two.",
+    why: "Round trips set the first-byte time for distant users, and the transport decides how many you pay before any data moves.",
+    keyIdea: "Count round trips before data.",
+  },
+  "tls-handshake": {
+    canDo: "Describe what a TLS handshake agrees on, why 1.3 saves a round trip, and what resumption and 0-RTT trade away.",
+    why: "Security teams ask for TLS 1.3, and on long links it is also a free speed-up. Expired certificates are a classic outage.",
+    keyIdea: "TLS 1.3 needs one round trip, resumption can skip it.",
+  },
+  "http-versions": {
+    canDo: "Compare HTTP/1.1, 2, and 3 on a real page, and explain when HTTP/2 loses on a lossy link.",
+    why: "Upgrading protocols is easy to claim and easy to get wrong. The right answer depends on loss and latency, which is where mobile users live.",
+    keyIdea: "Multiplexing needs independent loss recovery.",
+  },
+  "keep-alive": {
+    canDo: "Spot a handshake tax in a chatty service and fix it with connection reuse, pools, and sensible idle timeouts.",
+    why: "A service that opens a fresh connection per call pays more for the handshake than for the work. It is one of the cheapest big wins in service-to-service latency.",
+    keyIdea: "Pay the handshake once.",
+  },
+  "reverse-proxy": {
+    canDo: "Explain why workers sit idle behind slow clients, and use a buffering reverse proxy to restore capacity.",
+    why: "A busy worker pool at low CPU is a classic production puzzle. Nginx in front of the app is the standard answer, and knowing why is what interviewers ask.",
+    keyIdea: "A worker is a seat; slow clients keep it warm.",
+  },
+  "cdn": {
+    canDo: "Predict a CDN's hit ratio from request rate and TTL, and choose edges, TTLs, and headers for fast, fresh content.",
+    why: "Distance is the one latency you cannot tune away. A CDN is the standard way to avoid it for everything that can be cached.",
+    keyIdea: "Hit ratio follows request rate times TTL.",
+  },
+  "anycast": {
+    canDo: "Compare anycast with DNS routing for nearest-site routing and failover, and say what each does to a dead site.",
+    why: "Multi-region designs depend on how users find a site and how fast they leave a failed one. DNS and anycast answer that differently.",
+    keyIdea: "Anycast moves the road, DNS moves the user.",
+  },
+  "request-journey": {
+    canDo: "List every step between a tap and the first byte, find which ones cross the long distance, and remove or shorten them.",
+    why: "For distant users, the handshakes and the request dominate the time, not your code. Finding that early stops you optimising the wrong thing.",
+    keyIdea: "Distance sets the floor; code sits on top.",
+  },
+  "boss-far-away-users": {
+    canDo: "Combine an edge, TTLs, newer protocols, and connection reuse to make a far-away market fast within a budget.",
+    why: "Going global means choosing which round trips to remove and what freshness and money to spend. Real launches force exactly this trade.",
+    keyIdea: "Shorten the long trips first.",
+  },
 };
 
 export interface ChapterLearning {
@@ -148,6 +198,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Count and price tokens, and know why languages and formats differ", "Design context: keep, pin, summarise, retrieve", "Cut an LLM bill with trimming, caching, and routing"],
     why: "Every AI-engineering role starts here: the cost, speed, and memory of an LLM feature are all decided by what goes into the context window. It has no prerequisites, so you can start it on day one.",
     payoff: "You'll be able to estimate and defend the cost of an LLM feature, design its memory, and answer the cost and context questions AI-engineering interviews lean on.",
+  },
+  a3: {
+    story: "Pigeon launches in Jakarta and Frankfurt, and learns that the server was never the slow part.",
+    outcomes: ["Trace a lookup through DNS caches and pick a TTL", "Count the round trips in TCP, TLS, and HTTP, and cut them", "Explain why a reverse proxy frees application workers", "Predict a CDN's hit ratio and choose between DNS and anycast routing"],
+    why: "For users far away, the network path costs more than the code. This chapter turns that path into numbers you can reason about, so you know which trip to remove first.",
+    payoff: "In an interview you can walk a request from thumb to server and say where the time goes. At work you will read a network waterfall and know which step to fix.",
   },
 };
 

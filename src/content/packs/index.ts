@@ -19,9 +19,19 @@ import estimationMemory from "./estimation-memory";
 import connectionPooling from "./connection-pooling";
 import autoscaling from "./autoscaling";
 import bossViralTuesday from "./boss-viral-tuesday";
+import dns from "./dns";
+import tcpUdp from "./tcp-udp";
+import tlsHandshake from "./tls-handshake";
+import httpVersions from "./http-versions";
+import keepAlive from "./keep-alive";
+import reverseProxy from "./reverse-proxy";
+import cdn from "./cdn";
+import anycast from "./anycast";
+import requestJourney from "./request-journey";
+import bossFarAwayUsers from "./boss-far-away-users";
 
-export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows, tailLatency, estimationQps, estimationStorage, estimationMemory, connectionPooling, autoscaling];
-export const BOSSES: BossPack[] = [bossLaunchDay, bossTheBill, bossViralTuesday];
+export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows, tailLatency, estimationQps, estimationStorage, estimationMemory, connectionPooling, autoscaling, dns, tcpUdp, tlsHandshake, httpVersions, keepAlive, reverseProxy, cdn, anycast, requestJourney];
+export const BOSSES: BossPack[] = [bossLaunchDay, bossTheBill, bossViralTuesday, bossFarAwayUsers];
 
 export const PACK_BY_ID: ReadonlyMap<string, ConceptPack> = new Map(PACKS.map((p) => [p.id, p]));
 export const BOSS_BY_ID: ReadonlyMap<string, BossPack> = new Map(BOSSES.map((b) => [b.id, b]));
