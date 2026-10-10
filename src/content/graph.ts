@@ -453,6 +453,17 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "structured-outputs": "built",
   "prompt-caching": "built",
   "prompt-versioning": "built",
+  "embeddings": "built",
+  "cosine-similarity": "built",
+  "bi-vs-cross-encoder": "built",
+  "chunking": "built",
+  "bm25": "built",
+  "hybrid-search-rrf": "built",
+  "hyde": "built",
+  "reranking": "built",
+  "metadata-filtering": "built",
+  "ann-indexes": "built",
+  "retrieval-eval": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

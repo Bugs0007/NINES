@@ -58,8 +58,19 @@ import extendedThinking from "./extended-thinking";
 import structuredOutputs from "./structured-outputs";
 import promptCaching from "./prompt-caching";
 import promptVersioning from "./prompt-versioning";
+import embeddings from "./embeddings";
+import cosineSimilarity from "./cosine-similarity";
+import biVsCrossEncoder from "./bi-vs-cross-encoder";
+import chunking from "./chunking";
+import bm25 from "./bm25";
+import hybridSearchRrf from "./hybrid-search-rrf";
+import hyde from "./hyde";
+import reranking from "./reranking";
+import metadataFiltering from "./metadata-filtering";
+import annIndexes from "./ann-indexes";
+import retrievalEval from "./retrieval-eval";
 
-export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows, tailLatency, estimationQps, estimationStorage, estimationMemory, connectionPooling, autoscaling, dns, tcpUdp, tlsHandshake, httpVersions, keepAlive, reverseProxy, cdn, anycast, requestJourney, cacheAside, zipfAndSizing, evictionPolicies, writePolicies, ttlInvalidation, cacheStampede, hotKeys, cdnCaching, indexesBtree, queryPlans, normalization, transactionsAcid, isolationLevels, mvcc, sqlVsNosql, lsmVsBtree, postgresIsEnough, sampling, hallucination, ttftThroughput, llmCostMath, systemPrompts, promptStructure, extendedThinking, structuredOutputs, promptCaching, promptVersioning];
+export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows, tailLatency, estimationQps, estimationStorage, estimationMemory, connectionPooling, autoscaling, dns, tcpUdp, tlsHandshake, httpVersions, keepAlive, reverseProxy, cdn, anycast, requestJourney, cacheAside, zipfAndSizing, evictionPolicies, writePolicies, ttlInvalidation, cacheStampede, hotKeys, cdnCaching, indexesBtree, queryPlans, normalization, transactionsAcid, isolationLevels, mvcc, sqlVsNosql, lsmVsBtree, postgresIsEnough, sampling, hallucination, ttftThroughput, llmCostMath, systemPrompts, promptStructure, extendedThinking, structuredOutputs, promptCaching, promptVersioning, embeddings, cosineSimilarity, biVsCrossEncoder, chunking, bm25, hybridSearchRrf, hyde, reranking, metadataFiltering, annIndexes, retrievalEval];
 export const BOSSES: BossPack[] = [bossLaunchDay, bossTheBill, bossViralTuesday, bossFarAwayUsers, bossCelebrityPost, bossSeatRush];
 
 export const PACK_BY_ID: ReadonlyMap<string, ConceptPack> = new Map(PACKS.map((p) => [p.id, p]));

@@ -301,6 +301,61 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "A small wording tweak can quietly break a feature. A gate that ignores noise either misses regressions or blocks good changes.",
     keyIdea: "A small test set gives a number, not an answer.",
   },
+  "embeddings": {
+    canDo: "Explain what an embedding is, how nearest-neighbour search finds meaning without shared words, and where it fails.",
+    why: "Semantic search and RAG start here. Knowing that distance stands in for meaning, and where that breaks, is the foundation for every later retrieval choice.",
+    keyIdea: "Distance in the space stands in for meaning.",
+  },
+  "cosine-similarity": {
+    canDo: "Choose between dot product, cosine, and Euclidean distance, and know when normalised vectors make them agree.",
+    why: "A mismatched metric gives plausible, quietly wrong rankings, and the longest document wins. It is a small detail that interviewers use to test depth.",
+    keyIdea: "Dot product mixes in length; cosine is the angle.",
+  },
+  "bi-vs-cross-encoder": {
+    canDo: "Explain why bi-encoders are fast and cross-encoders accurate, and pick K for a retrieve-then-rerank pipeline.",
+    why: "Almost every serious search or RAG system is a two-stage cascade. The skill is choosing how wide the first stage is and what it costs.",
+    keyIdea: "Anything that needs the query cannot be precomputed.",
+  },
+  "chunking": {
+    canDo: "Pick chunk size and overlap from the size of real answers, and say what too small and too large each break.",
+    why: "Many RAG failures are cutting failures: the right document was found but the answer was split. Chunking sets the ceiling on everything after it.",
+    keyIdea: "Chunk near the answer's size, with overlap.",
+  },
+  "bm25": {
+    canDo: "Explain BM25's three ingredients, tune k1 and b, and say when keyword search beats embeddings.",
+    why: "BM25 is the baseline every retriever must beat, and it is excellent at exact words, names, and IDs where embeddings are weak.",
+    keyIdea: "Rare words, saturating counts, length normalised.",
+  },
+  "hybrid-search-rrf": {
+    canDo: "Combine keyword and vector results with reciprocal rank fusion and explain why adding raw scores fails.",
+    why: "Production search almost always mixes both. Fusing by rank is the robust, no-tuning default, and the score trap is a common interview probe.",
+    keyIdea: "Fuse ranks, not scores.",
+  },
+  "hyde": {
+    canDo: "Use query rewriting and HyDE to close the question-answer gap, and recognise when they drift or cost too much.",
+    why: "Short questions and long answers rarely embed near each other. Rewriting helps, and each trick adds latency and a failure mode to measure.",
+    keyIdea: "Borrow the shape of an answer, not its truth.",
+  },
+  "reranking": {
+    canDo: "Add a reranker, choose its depth K, and weigh cross-encoders against LLM rerankers by latency and cost.",
+    why: "Reranking is usually the cheapest big quality gain in RAG, and it also shortens the context you pay for.",
+    keyIdea: "Retrieve wide for recall, rerank narrow for precision.",
+  },
+  "metadata-filtering": {
+    canDo: "Choose post-filtering, pre-filtering, or partitions for filtered vector search, and design multi-tenant retrieval safely.",
+    why: "A small tenant getting one result in ten is a classic production bug, and cross-tenant leaks are worse. Isolation by construction avoids both.",
+    keyIdea: "Post-filtering starves narrow filters.",
+  },
+  "ann-indexes": {
+    canDo: "Compare flat, HNSW, and IVF indexes, do the memory arithmetic, and tune recall against latency with quantisation.",
+    why: "Index choice decides cost and latency at scale. Starting from memory arithmetic is how strong candidates answer vector-search design questions.",
+    keyIdea: "Memory decides your index before speed does.",
+  },
+  "retrieval-eval": {
+    canDo: "Measure a retriever with recall@k, MRR, and nDCG on labelled queries, and pick the metric that matches the task.",
+    why: "Without a measurement, retrieval is a matter of opinion. Choosing the right metric is the first step toward evals that mean something.",
+    keyIdea: "Recall asks if it was found; nDCG asks how soon.",
+  },
 };
 
 export interface ChapterLearning {
@@ -373,6 +428,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Write system prompts as explicit, testable rules", "Structure long prompts and choose examples", "Spend reasoning tokens where they pay", "Enforce output schemas, cache prefixes, and gate prompt releases"],
     why: "Once a prompt is in production it needs the discipline of any other code: a spec, a layout, a contract for its output, a cost model, and a release gate. This chapter gives each one a number.",
     payoff: "You can describe how you would build and ship a prompt like an engineer, with the numbers to back each choice, which is the core of an AI-engineering interview.",
+  },
+  b4: {
+    story: "Copilot has to answer from Pigeon's own documents, and retrieval turns out to be the hard part.",
+    outcomes: ["Explain embeddings and cosine similarity, and where they fail", "Combine keyword and vector search with rank fusion", "Chunk, filter, and index documents for retrieval at scale", "Rerank candidates and measure retrieval with recall, MRR, and nDCG"],
+    why: "A RAG system is only as good as what it retrieves. This chapter takes retrieval apart: how text becomes vectors, how results are found, fused, filtered, and reranked, and how to measure all of it.",
+    payoff: "You can design and defend a retrieval pipeline in an interview, with the numbers for each stage, and you will know which metric to look at when a RAG system gives wrong answers.",
   },
 };
 
