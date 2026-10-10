@@ -521,6 +521,41 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Many systems never need a broker. Knowing how to make the database you have do the job is a practical senior skill.",
     keyIdea: "Use the system you already run until it is the limit.",
   },
+  "api-styles": {
+    canDo: "Choose REST, GraphQL or gRPC for a caller and network, and spot the N+1 problem in GraphQL.",
+    why: "API style is a standard design question. Tying the choice to the client and the network, not to fashion, is what interviewers look for.",
+    keyIdea: "Match the style to the caller.",
+  },
+  "pagination": {
+    canDo: "Explain why offset pagination slows and drifts, and use cursor pagination on an indexed unique sort key.",
+    why: "Deep offsets and repeated items are common production bugs. Cursor pagination is the expected answer.",
+    keyIdea: "A cursor remembers the item, not a position.",
+  },
+  "idempotency-keys": {
+    canDo: "Specify what a server does with an idempotency key in each edge case: in flight, mismatched, failed, and cross-account.",
+    why: "Adding a key is easy. The edge cases decide whether it works, and they are where follow-up questions go.",
+    keyIdea: "Claim first, work second.",
+  },
+  "api-versioning": {
+    canDo: "Choose between URL versions, additive evolution and pinned versions, and size a deprecation window from client upgrade data.",
+    why: "Breaking partners costs trust. A versioning plan with numbers shows maturity.",
+    keyIdea: "You decide who pays for slow upgraders.",
+  },
+  "rate-limiting": {
+    canDo: "Compare fixed window, token bucket and sliding window limiters on worst-case burst, rejection and memory.",
+    why: "Rate limiter design is a staple interview case, and the boundary burst is the detail that separates answers.",
+    keyIdea: "The window edge doubles a fixed limit.",
+  },
+  "realtime-transport": {
+    canDo: "Compare polling, long polling, SSE and WebSockets on requests, delay and connection memory.",
+    why: "Real-time features start with this choice. Quoting the cost of each shows you have run one.",
+    keyIdea: "Polling spends effort on the question, not the answer.",
+  },
+  "webhooks": {
+    canDo: "Design webhook delivery with long backoff, HMAC signing, timestamp checks and receiver-side dedup.",
+    why: "Webhooks are the way most products integrate. Reliability and security are both on the checklist.",
+    keyIdea: "A secret URL is obscure; a signature is the lock.",
+  },
 };
 
 export interface ChapterLearning {
@@ -623,6 +658,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Choose between queues and logs and size them", "Reason about delivery guarantees, duplicates and poison messages", "Handle overload with bounded queues and backpressure", "Decide when events, CQRS or event sourcing are worth their cost"],
     why: "Messaging decouples services and moves failure around rather than removing it. Each guarantee has a cost, and each missing guarantee shows up as a customer-visible bug.",
     payoff: "In an interview you can pick a broker, state its delivery guarantee, and say what happens under overload. At work you will know why a queue is growing before the pager does.",
+  },
+  a10: {
+    story: "Pigeon opens up to partners and apps, and the team discovers how an API is a promise.",
+    outcomes: ["Choose an API style by caller and network", "Paginate and rate limit without surprises", "Make requests safe to retry and changes safe to ship", "Push events to clients and partners reliably and securely"],
+    why: "An API is read by code you did not write and cannot update. Every shortcut shows up later as someone else's outage.",
+    payoff: "In an interview you can design an API and defend each choice. At work you will review one and know which promises it makes.",
   },
 };
 

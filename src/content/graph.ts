@@ -497,6 +497,13 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "cqrs": "built",
   "event-sourcing": "built",
   "postgres-queue": "built",
+  "api-styles": "built",
+  "pagination": "built",
+  "idempotency-keys": "built",
+  "api-versioning": "built",
+  "rate-limiting": "built",
+  "realtime-transport": "built",
+  "webhooks": "built",
 };
 
 function chapterTrack(chapterId: string): Track {
