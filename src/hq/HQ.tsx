@@ -16,9 +16,9 @@ import { Chip, cx, Led, LinkButton, Tip } from "@/ui/kit";
 import { spring, Ticker, useReducedMotion } from "@/ui/motion";
 import { InfraMap, lotInfo, type LotInfo } from "./InfraMap";
 import { BriefingButton } from "@/briefing/BriefingButton";
-import { useSignInUi } from "@/account/ui";
+import { AccountButton } from "@/account/AccountButton";
+import { HomeSignInBanner } from "@/account/HomeSignInBanner";
 import { HqTour } from "@/tour/Tour";
-import { useAccount } from "@/game/account";
 import { getSection, sectionForTrack, type SectionId } from "@/content/sections";
 
 export function HQ() {
@@ -67,6 +67,7 @@ export function HQ() {
       <HqTour ready={hydrated} />
       <TopBar />
       <NextStepCard step={step} firstTime={done.size === 0} />
+      <HomeSignInBanner />
       <section className="grid grid-cols-1 gap-4 px-4 pt-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:px-8">
         {/* uptime */}
         <div data-tour="uptime" className="relative overflow-hidden rounded-lg border border-line/80 bg-bg-1/75 p-5 shadow-card sm:p-6">
@@ -138,8 +139,6 @@ function Boot() {
 }
 
 function TopBar() {
-  const acct = useAccount();
-  const showSignIn = useSignInUi((u) => u.show);
   const link = "inline-flex h-9 items-center rounded-full px-3 text-[13px] font-medium text-ink-2 transition-colors duration-200 hover:bg-bg-2 hover:text-ink-0";
   return (
     <header className="flex h-14 shrink-0 items-center gap-0.5 border-b border-line/70 px-4 sm:gap-1 lg:gap-3 lg:px-8">
@@ -151,17 +150,7 @@ function TopBar() {
         How NINES teaches
       </Link>
       <BriefingButton />
-      {acct.status === "signed-in" && (
-        <Link href="/settings" title="Your profile and settings" className={cx(link, "max-w-[9rem] truncate text-phos hover:text-phos")}>
-          {acct.username ? `@${acct.username}` : "Account"}
-        </Link>
-      )}
-      {acct.status === "guest" && (
-        <button type="button" onClick={() => showSignIn("manual")} aria-label="Save progress" className={cx(link, "text-amber hover:text-amber-2")} title="Sign in to keep your progress and use it on another device">
-          <span className="sm:hidden">Save</span>
-          <span className="hidden sm:inline">Save progress</span>
-        </button>
-      )}
+      <AccountButton />
       <Link href="/settings" className={cx(link, "-mr-2")}>
         Settings
       </Link>
