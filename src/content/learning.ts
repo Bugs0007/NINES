@@ -416,6 +416,66 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Adding nodes under load is where sharded systems hurt. The honest answer names the amount moved, the time it takes, and the cost to users.",
     keyIdea: "Rebalancing is a tax on live traffic.",
   },
+  "timeouts": {
+    canDo: "Set timeouts as a budget down a call chain, and pass the deadline along so abandoned work stops.",
+    why: "A timeout longer than the caller's is wasted load. Deadline propagation is the standard answer to cascading slowness.",
+    keyIdea: "Inner timeouts shorter than outer.",
+  },
+  "retries-backoff-jitter": {
+    canDo: "Estimate how retries multiply load in an outage, and combine backoff, jitter and a retry budget to stay safe.",
+    why: "Retry storms turn short blips into long outages. Naming the amplification and the budget is a standard resilience answer.",
+    keyIdea: "Backoff changes timing; only a cap changes the total.",
+  },
+  "idempotency": {
+    canDo: "Make a non-idempotent API retry-safe with a per-action key, a long enough key lifetime, and atomic reservation.",
+    why: "Every client times out sometimes. Without idempotency, a lost response becomes a double charge.",
+    keyIdea: "The key belongs to the action, not the attempt.",
+  },
+  "circuit-breakers": {
+    canDo: "Tune a circuit breaker so it sheds a failing dependency quickly without tripping on noise or lingering shut.",
+    why: "Breakers keep one dead dependency from tying up every thread. Tuning them is where candidates differ.",
+    keyIdea: "Fail fast, probe gently.",
+  },
+  "bulkheads": {
+    canDo: "Size separate pools per dependency from calls per second times duration, and show a shared pool failing together.",
+    why: "A slow dependency can starve a shared pool and take healthy features with it. Isolation is the fix.",
+    keyIdea: "One slow dependency should exhaust only its own pool.",
+  },
+  "cap-pacelc": {
+    canDo: "Choose consistency or availability during a partition for a given kind of data, and name the latency trade-off otherwise.",
+    why: "CAP is asked in nearly every distributed systems interview. PACELC is what shows you understand it beyond the slogan.",
+    keyIdea: "Partitions are a given; choose C or A, then latency or consistency.",
+  },
+  "consistency-models": {
+    canDo: "Compare linearizable, causal and eventual reads by what a user can notice, and pick the cheapest that is enough.",
+    why: "Most products need session guarantees, not linearizability. Knowing the ladder lets you avoid both over- and under-paying.",
+    keyIdea: "Guarantee only what a user can notice.",
+  },
+  "clocks-ordering": {
+    canDo: "Explain why wall clocks misorder writes, and choose logical, hybrid, bounded or vector clocks for the need.",
+    why: "Last-writer-wins by timestamp silently loses data. Clock questions come up in every replicated-database design.",
+    keyIdea: "Counters track causes, not clocks.",
+  },
+  "consensus-raft": {
+    canDo: "Explain Raft's election and majority commit, and tune the election timeout against needless elections and slow failover.",
+    why: "Raft underlies etcd, Consul and many databases. Interviewers ask how it elects a leader and what the timers do.",
+    keyIdea: "Any two majorities overlap.",
+  },
+  "distributed-locks": {
+    canDo: "Explain why a lease can expire under a paused holder, and protect a resource with fencing tokens.",
+    why: "Distributed locks look simple and fail in subtle ways. Fencing is the answer that distinguishes careful designs.",
+    keyIdea: "Enforce at the point of effect.",
+  },
+  "two-pc-vs-sagas": {
+    canDo: "Choose between two-phase commit and a saga for a cross-service workflow, and make the saga's steps and compensations safe to retry.",
+    why: "Microservices cannot share a transaction. Sagas are the standard answer, and their weaknesses are the follow-up.",
+    keyIdea: "Sagas trade atomicity for availability.",
+  },
+  "outbox-pattern": {
+    canDo: "Avoid lost or phantom events with a transactional outbox, and get exactly-once effects from at-least-once delivery.",
+    why: "The dual-write problem appears in every event-driven design. The outbox is the pattern interviewers expect.",
+    keyIdea: "Put the event in the same transaction as the data.",
+  },
 };
 
 export interface ChapterLearning {
@@ -506,6 +566,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Choose a sharding scheme and shard key from the access paths", "Recognise and relieve hot keys", "Add nodes with a consistent hashing ring and virtual nodes", "Estimate and throttle a rebalance"],
     why: "Splitting data is the first step that cannot be undone cheaply. The key you choose decides what is fast, what fans out, and where the hot spots appear.",
     payoff: "In an interview you can shard a table, justify the key, and say what happens when a node is added or a celebrity appears. At work you will spot a hot partition from a graph.",
+  },
+  a8: {
+    story: "Pigeon now depends on many services, and the team learns what happens when each of them is slow, wrong or gone.",
+    outcomes: ["Set timeouts, retries and breakers that contain failures instead of spreading them", "Make operations safe to repeat", "Choose consistency and ordering guarantees for a given kind of data", "Coordinate across services without distributed locks that lie"],
+    why: "Failure in a distributed system is partial, slow and ambiguous. Each tool in this chapter closes one gap, and each also opens another if used carelessly.",
+    payoff: "In an interview you can walk a request through its failures and say what contains each. At work you will read an outage review and see which of these was missing.",
   },
 };
 

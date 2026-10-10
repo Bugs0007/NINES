@@ -6,11 +6,13 @@ import { A4_MODELS } from "./a4";
 import { A5_MODELS } from "./a5";
 import { A6_MODELS } from "./a6";
 import { A7_MODELS } from "./a7";
+import { A8A_MODELS } from "./a8a";
+import { A8B_MODELS } from "./a8b";
 import { B2_MODELS } from "./b2";
 import { B3_MODELS } from "./b3";
 import { B4_MODELS } from "./b4";
 import { estimateLab } from "./estimate";
 
-export const ALL_MODELS: LabModel[] = [estimateLab, ...A2_MODELS, ...A3_MODELS, ...A4_MODELS, ...A5_MODELS, ...A6_MODELS, ...A7_MODELS, ...B2_MODELS, ...B3_MODELS, ...B4_MODELS];
+export const ALL_MODELS: LabModel[] = [estimateLab, ...A2_MODELS, ...A3_MODELS, ...A4_MODELS, ...A5_MODELS, ...A6_MODELS, ...A7_MODELS, ...A8A_MODELS, ...A8B_MODELS, ...B2_MODELS, ...B3_MODELS, ...B4_MODELS];
 
 export const LAB_MODELS: Record<string, LabModel> = Object.fromEntries(ALL_MODELS.map((m) => [m.id, m]));

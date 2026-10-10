@@ -476,6 +476,18 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "hot-partitions": "built",
   "consistent-hashing": "built",
   "rebalancing": "built",
+  "timeouts": "built",
+  "retries-backoff-jitter": "built",
+  "idempotency": "built",
+  "circuit-breakers": "built",
+  "bulkheads": "built",
+  "cap-pacelc": "built",
+  "consistency-models": "built",
+  "clocks-ordering": "built",
+  "consensus-raft": "built",
+  "distributed-locks": "built",
+  "two-pc-vs-sagas": "built",
+  "outbox-pattern": "built",
 };
 
 function chapterTrack(chapterId: string): Track {
