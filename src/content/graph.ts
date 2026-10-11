@@ -556,6 +556,10 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "guardrails": "built",
   "pii-handling": "built",
   "llm-cost-controls": "built",
+  "prompt-injection-direct": "built",
+  "prompt-injection-indirect": "built",
+  "tool-exfiltration": "built",
+  "least-privilege-tools": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

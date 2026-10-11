@@ -816,6 +816,26 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Bills are set by the tail. Controls go where the tail is.",
     keyIdea: "Bills are paid on the mean, not the median.",
   },
+  "prompt-injection-direct": {
+    canDo: "Explain why instructions and user input are not separable, layer defences, and limit what an injection can reach.",
+    why: "Prompt injection is the top-ranked LLM risk. Interviewers expect you to say filters are not a boundary.",
+    keyIdea: "Assume the prompt will be read out loud.",
+  },
+  "prompt-injection-indirect": {
+    canDo: "Describe attacks carried by retrieved content, estimate exposure from retrieval volume, and contain them by quarantining and restricting actions.",
+    why: "Agents that read untrusted content and act are the real attack surface. This is how you reason about it.",
+    keyIdea: "The attacker writes the data.",
+  },
+  "tool-exfiltration": {
+    canDo: "List the channels a hijacked agent can use to move data out and close them in rendering and tools.",
+    why: "Stealing needs a channel. Closing channels beats detecting intent.",
+    keyIdea: "Each tool is a door.",
+  },
+  "least-privilege-tools": {
+    canDo: "Add up an agent's worst case from its grants and cut it with narrow tools and scoped, short-lived credentials.",
+    why: "Least privilege holds even when the model fails. It is the control interviewers want to hear.",
+    keyIdea: "The permissions list is the blast radius.",
+  },
 };
 
 export interface ChapterLearning {
@@ -972,6 +992,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Put a gateway between teams and providers", "Route, cache and cap to control cost", "Retry, stream and trace without making incidents", "Keep bad inputs, bad outputs and personal data in check"],
     why: "A prototype calls a model. A product runs it for thousands of users, which makes cost, limits, speed, visibility and safety all engineering problems.",
     payoff: "In an interview you can design the infrastructure around a model. At work you will find where the money, the 429s and the unseen failures are.",
+  },
+  b10: {
+    story: "A security review of the assistant finds that anyone who can write text it reads can steer it.",
+    outcomes: ["Explain direct and indirect prompt injection", "Estimate exposure from retrieval", "Close the channels data can leave through", "Scope tools and credentials to cap the worst case"],
+    why: "A model follows text, and text comes from strangers. Security here means limiting what a fooled model can reach, not trusting it to resist.",
+    payoff: "In an interview you can threat-model an agent. At work you will review an agent's tools and credentials for blast radius.",
   },
 };
 
