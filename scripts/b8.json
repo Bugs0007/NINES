@@ -1,0 +1,33 @@
+{
+ "packs": [
+  {
+   "id": "claude-code-anatomy",
+   "import": "claudeCodeAnatomy",
+   "learn": {
+    "canDo": "Explain what fills a coding agent's context and keep a long session healthy with lean setup, subagents and compaction.",
+    "why": "Coding agents are the most common daily use of AI engineering. Context management is what separates good sessions from bad.",
+    "keyIdea": "One window holds everything; the permanent part is rent."
+   }
+  },
+  {
+   "id": "directing-coding-agents",
+   "import": "directingCodingAgents",
+   "learn": {
+    "canDo": "Brief a coding agent with tests, constraints, files and a plan so each change is small and reviewable.",
+    "why": "Directing an agent is delegation. Reviewers who brief well get better changes in less time.",
+    "keyIdea": "Give it a way to know it is wrong."
+   }
+  }
+ ],
+ "chapter": {
+  "id": "b8",
+  "story": "The team starts using a coding agent on the codebase and learns that the quality of the work depends on how it is directed.",
+  "outcomes": [
+   "Explain how a coding agent uses its context",
+   "Keep long sessions lean with subagents",
+   "Brief an agent so changes are small and verifiable"
+  ],
+  "why": "A coding agent is the agent loop with a code editor. Its limits are the context window and the quality of the brief.",
+  "payoff": "In an interview you can describe how you work with coding agents. At work you will get better changes in fewer rounds."
+ }
+}

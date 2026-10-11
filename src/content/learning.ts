@@ -741,6 +741,36 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "A runaway agent tests every agent safeguard at once. The skill is knowing which control stops what.",
     keyIdea: "Bound the loop, gate the damage, alert independently.",
   },
+  "mcp-architecture": {
+    canDo: "Explain hosts, clients and servers, and compute why a shared protocol turns M times N integrations into M plus N.",
+    why: "MCP is how tools reach models. Knowing what it standardises, and what it costs in context, is a current interview topic.",
+    keyIdea: "Write the integration once, use it everywhere.",
+  },
+  "mcp-transports": {
+    canDo: "Choose between stdio and streamable HTTP, and add authentication to a remote server.",
+    why: "Where a server runs decides who can reach it and what it costs. Remote servers without auth are a common mistake.",
+    keyIdea: "Local is one process per user; remote is shared and must be authenticated.",
+  },
+  "mcp-primitives": {
+    canDo: "Decide whether a capability should be a tool, a resource or a prompt, and say who controls each.",
+    why: "Mapping capabilities to the right primitive is the core design decision when writing a server.",
+    keyIdea: "Tools act, resources inform, prompts guide.",
+  },
+  "mcp-build-server": {
+    canDo: "Design an MCP server whose tools are task-shaped, trimmed, well-described, scoped per user and protocol-clean.",
+    why: "Most servers fail from too many tools and noisy output. Design for the model, not for the API.",
+    keyIdea: "Design tools for the model that reads them.",
+  },
+  "claude-code-anatomy": {
+    canDo: "Explain what fills a coding agent's context and keep a long session healthy with lean setup, subagents and compaction.",
+    why: "Coding agents are the most common daily use of AI engineering. Context management is what separates good sessions from bad.",
+    keyIdea: "One window holds everything; the permanent part is rent.",
+  },
+  "directing-coding-agents": {
+    canDo: "Brief a coding agent with tests, constraints, files and a plan so each change is small and reviewable.",
+    why: "Directing an agent is delegation. Reviewers who brief well get better changes in less time.",
+    keyIdea: "Give it a way to know it is wrong.",
+  },
 };
 
 export interface ChapterLearning {
@@ -879,6 +909,18 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Design tools and loops that work and stay bounded", "Plan, remember and verify across long tasks", "Put people where mistakes cannot be undone", "Choose between workflows, agents and teams of agents"],
     why: "An agent is a model with permission to act. Every capability here comes with a way to fail, and each safeguard removes one.",
     payoff: "In an interview you can design an agent and say how it fails and what bounds it. At work you will review an agent design for loops, scope and cost.",
+  },
+  b7: {
+    story: "The assistant needs to reach the company's systems without a custom connector for each one.",
+    outcomes: ["Explain what MCP standardises", "Pick a transport and secure it", "Map capabilities to tools, resources and prompts", "Build a server a model can use well"],
+    why: "A model is only as useful as what it can reach. A shared protocol makes that reach cheap to build, and context cost is the price.",
+    payoff: "In an interview you can explain MCP and design a server. At work you will decide which servers to connect and which to write.",
+  },
+  b8: {
+    story: "The team starts using a coding agent on the codebase and learns that the quality of the work depends on how it is directed.",
+    outcomes: ["Explain how a coding agent uses its context", "Keep long sessions lean with subagents", "Brief an agent so changes are small and verifiable"],
+    why: "A coding agent is the agent loop with a code editor. Its limits are the context window and the quality of the brief.",
+    payoff: "In an interview you can describe how you work with coding agents. At work you will get better changes in fewer rounds.",
   },
 };
 

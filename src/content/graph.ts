@@ -541,6 +541,12 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "parallelization": "built",
   "multi-agent": "built",
   "boss-agent-meltdown": "built",
+  "mcp-architecture": "built",
+  "mcp-transports": "built",
+  "mcp-primitives": "built",
+  "mcp-build-server": "built",
+  "claude-code-anatomy": "built",
+  "directing-coding-agents": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

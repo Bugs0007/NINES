@@ -18,8 +18,10 @@ import { B3_MODELS } from "./b3";
 import { B4_MODELS } from "./b4";
 import { B5_MODELS } from "./b5";
 import { B6_MODELS } from "./b6";
+import { B7_MODELS } from "./b7";
+import { B8_MODELS } from "./b8";
 import { estimateLab } from "./estimate";
 
-export const ALL_MODELS: LabModel[] = [estimateLab, ...A2_MODELS, ...A3_MODELS, ...A4_MODELS, ...A5_MODELS, ...A6_MODELS, ...A7_MODELS, ...A8A_MODELS, ...A8B_MODELS, ...A9_MODELS, ...A10_MODELS, ...A11_MODELS, ...A12_MODELS, ...A13_MODELS, ...B2_MODELS, ...B3_MODELS, ...B4_MODELS, ...B5_MODELS, ...B6_MODELS];
+export const ALL_MODELS: LabModel[] = [estimateLab, ...A2_MODELS, ...A3_MODELS, ...A4_MODELS, ...A5_MODELS, ...A6_MODELS, ...A7_MODELS, ...A8A_MODELS, ...A8B_MODELS, ...A9_MODELS, ...A10_MODELS, ...A11_MODELS, ...A12_MODELS, ...A13_MODELS, ...B2_MODELS, ...B3_MODELS, ...B4_MODELS, ...B5_MODELS, ...B6_MODELS, ...B7_MODELS, ...B8_MODELS];
 
 export const LAB_MODELS: Record<string, LabModel> = Object.fromEntries(ALL_MODELS.map((m) => [m.id, m]));
