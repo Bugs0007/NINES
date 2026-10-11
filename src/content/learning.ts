@@ -1171,6 +1171,16 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Document pipelines fail by surge, by poison documents and by quiet inaccuracy. Each has its own control.",
     keyIdea: "Give every failure somewhere to go.",
   },
+  "prod-state-fanout": {
+    canDo: "Keep a fan-out to many services alive when a few are slow, with bulkheads, short timeouts, capped retries, load shedding and partial answers.",
+    why: "Fan-outs fail together through the one thing they share. Spotting the shared pool and the multiplying retries is the core of resilience design.",
+    keyIdea: "A shared pool turns a slow few into a dead many.",
+  },
+  "prod-pg-job-queue": {
+    canDo: "Make a Postgres job queue safe in production with leases, idempotent handlers, attempt limits, dead letters and a table that stays small.",
+    why: "A queue that claims correctly can still lose jobs, loop on bad ones and bloat. These are the failures that page you in the second month.",
+    keyIdea: "Every claim needs an expiry, and every retry a limit.",
+  },
 };
 
 export interface ChapterLearning {

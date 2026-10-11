@@ -627,6 +627,8 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "case-llm-gateway": "built",
   "case-support-agent": "built",
   "case-doc-pipeline": "built",
+  "prod-state-fanout": "built",
+  "prod-pg-job-queue": "built",
 };
 
 function chapterTrack(chapterId: string): Track {
