@@ -301,7 +301,7 @@ const chapterRows: Record<string, Row[]> = {
     ["directing-coding-agents", "Directing Coding Agents", ["claude-code-anatomy"], "Brief the Bot"],
   ],
   b9: [
-    ["llm-gateway", "LLM Gateways", ["reverse-proxy", "rate-limiting"], "Gateway Guard"],
+    ["llm-gateway", "Model Gateways", ["reverse-proxy", "rate-limiting"], "Gateway Guard"],
     ["model-routing", "Routing by Cost, Quality & Latency", ["llm-gateway", "llm-cost-math"], "Model Router"],
     ["semantic-caching", "Semantic Caching", ["cache-aside", "cosine-similarity"], "Near Miss"],
     ["llm-rate-limits-retries", "LLM Rate Limits & Retries", ["retries-backoff-jitter", "llm-gateway"], "429 Storm"],
@@ -547,6 +547,15 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "mcp-build-server": "built",
   "claude-code-anatomy": "built",
   "directing-coding-agents": "built",
+  "llm-gateway": "built",
+  "model-routing": "built",
+  "semantic-caching": "built",
+  "llm-rate-limits-retries": "built",
+  "streaming": "built",
+  "llm-tracing": "built",
+  "guardrails": "built",
+  "pii-handling": "built",
+  "llm-cost-controls": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

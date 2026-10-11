@@ -771,6 +771,51 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Directing an agent is delegation. Reviewers who brief well get better changes in less time.",
     keyIdea: "Give it a way to know it is wrong.",
   },
+  "llm-gateway": {
+    canDo: "Set up a gateway with one key, per-team limits, failover and cheap logging, and say what it costs.",
+    why: "Gateways are how companies run models at scale. Naming the single point of failure shows judgement.",
+    keyIdea: "One door for every call.",
+  },
+  "model-routing": {
+    canDo: "Route requests between model tiers by difficulty, and compare classifier and cascade routing on cost, quality and latency.",
+    why: "Routing is the main lever on inference cost. Interviewers ask how you would cut the bill without losing quality.",
+    keyIdea: "Spend follows difficulty.",
+  },
+  "semantic-caching": {
+    canDo: "Choose a similarity threshold, add verification, and scope the cache key so hits are right and private.",
+    why: "Semantic caches save money and cause subtle wrong answers. Knowing the threshold trade-off is the skill.",
+    keyIdea: "Safe and useful need a second check.",
+  },
+  "llm-rate-limits-retries": {
+    canDo: "Retry rate-limited calls with jitter and bounded attempts, honour retry-after, and avoid a retry storm.",
+    why: "Retry storms turn a blip into an outage. This is a classic production question.",
+    keyIdea: "A 429 is capacity, not a glitch.",
+  },
+  "streaming": {
+    canDo: "Stream tokens so the first text appears in under a second, find what buffers it, and cancel when users leave.",
+    why: "Time to first token is what users feel. Streaming through real infrastructure is where it breaks.",
+    keyIdea: "Total time is the same, waiting is not.",
+  },
+  "llm-tracing": {
+    canDo: "Capture prompts, context and tool data in traces, tail-sample failures, and redact before storing.",
+    why: "You cannot fix what you cannot see. Tracing that omits content cannot explain a wrong answer.",
+    keyIdea: "Capture content, sample failures, redact.",
+  },
+  "guardrails": {
+    canDo: "Layer rules, classifiers and schema checks around a model and tune them for leaks and false blocks.",
+    why: "Prompts are requests, not walls. Guardrails are judged on both errors.",
+    keyIdea: "Checks that do not depend on the model agreeing.",
+  },
+  "pii-handling": {
+    canDo: "Redact personal data before it leaves your system, restore placeholders, choose a detector and limit retention.",
+    why: "Personal data in prompts and logs is a standing liability. The cheapest control is to remove it early.",
+    keyIdea: "Data you never send cannot leak.",
+  },
+  "llm-cost-controls": {
+    canDo: "Measure the cost distribution, cap output and context, set quotas above ordinary use, then route, cache and batch.",
+    why: "Bills are set by the tail. Controls go where the tail is.",
+    keyIdea: "Bills are paid on the mean, not the median.",
+  },
 };
 
 export interface ChapterLearning {
@@ -921,6 +966,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Explain how a coding agent uses its context", "Keep long sessions lean with subagents", "Brief an agent so changes are small and verifiable"],
     why: "A coding agent is the agent loop with a code editor. Its limits are the context window and the quality of the brief.",
     payoff: "In an interview you can describe how you work with coding agents. At work you will get better changes in fewer rounds.",
+  },
+  b9: {
+    story: "Pigeon's assistant becomes a product with a bill, an uptime target and a security review.",
+    outcomes: ["Put a gateway between teams and providers", "Route, cache and cap to control cost", "Retry, stream and trace without making incidents", "Keep bad inputs, bad outputs and personal data in check"],
+    why: "A prototype calls a model. A product runs it for thousands of users, which makes cost, limits, speed, visibility and safety all engineering problems.",
+    payoff: "In an interview you can design the infrastructure around a model. At work you will find where the money, the 429s and the unseen failures are.",
   },
 };
 
