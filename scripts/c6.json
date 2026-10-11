@@ -1,0 +1,79 @@
+{
+ "packs": [
+  {
+   "id": "oop-solid",
+   "import": "oopSolid",
+   "learn": {
+    "canDo": "Apply the SOLID principles to a tangled class and say what each one buys and costs.",
+    "why": "Interviewers want to see structure that makes change cheap, and judgement about when not to add it.",
+    "keyIdea": "Abstract where the change is."
+   }
+  },
+  {
+   "id": "design-patterns",
+   "import": "designPatterns",
+   "learn": {
+    "canDo": "Match strategy, observer, factory and decorator to the problems they solve, and avoid patterns that do not fit.",
+    "why": "A pattern is a name for a problem. Using the right name is half of a design discussion.",
+    "keyIdea": "Use a pattern when you have the problem."
+   }
+  },
+  {
+   "id": "lld-lru-cache",
+   "import": "lldLruCache",
+   "learn": {
+    "canDo": "Build an LRU cache with constant-time operations from a hash map and a linked list, and make it safe for threads.",
+    "why": "The LRU cache is the most common machine-coding question. The follow-up is always concurrency.",
+    "keyIdea": "A read that updates recency is a write."
+   }
+  },
+  {
+   "id": "lld-parking-lot",
+   "import": "lldParkingLot",
+   "learn": {
+    "canDo": "Design a parking lot with efficient allocation, extensible vehicle and pricing models, and atomic claims.",
+    "why": "A classic design round. The signal is allocation structure and concurrency, not the class list.",
+    "keyIdea": "Don't search for free spots. Keep a list of them."
+   }
+  },
+  {
+   "id": "lld-splitwise",
+   "import": "lldSplitwise",
+   "learn": {
+    "canDo": "Model shared expenses with split strategies and integer cents, and settle a group in at most N\u22121 payments.",
+    "why": "Splitwise tests money handling and a graph reduction in one problem.",
+    "keyIdea": "Settle balances, not bills."
+   }
+  },
+  {
+   "id": "lld-elevator",
+   "import": "lldElevator",
+   "learn": {
+    "canDo": "Design an elevator with a state machine and a scheduler, and compare FCFS, nearest-first and LOOK on mean and worst-case wait.",
+    "why": "Scheduling trade-offs are the heart of this question. The tail matters more than the mean.",
+    "keyIdea": "People remember the worst wait."
+   }
+  },
+  {
+   "id": "lld-rate-limiter-class",
+   "import": "lldRateLimiterClass",
+   "learn": {
+    "canDo": "Write a rate limiter class with a small interface, an injected clock, atomic updates and bounded memory.",
+    "why": "Rate limiting is asked as both a system and a class design. This is the class version.",
+    "keyIdea": "Time is a dependency."
+   }
+  }
+ ],
+ "chapter": {
+  "id": "c6",
+  "story": "The team's code works and every change is slow and risky. They practise designing classes that change cheaply.",
+  "outcomes": [
+   "Apply SOLID with judgement",
+   "Match patterns to problems",
+   "Design the classic machine-coding problems",
+   "Reason about complexity, concurrency and memory in a class"
+  ],
+  "why": "Low-level design is about confining change. Every classic problem teaches a data structure choice, a concurrency question and an extension point.",
+  "payoff": "In an interview you can design the usual machine-coding problems and defend the trade-offs. At work your classes will be easier to change and to test."
+ }
+}

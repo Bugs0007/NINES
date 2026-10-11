@@ -6,6 +6,7 @@
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 import type { WidgetProps } from "./types";
+import { ALL_MODELS } from "./model-lab/models";
 
 function Loading() {
   return <div className="grid h-full min-h-[300px] place-items-center text-xs text-ink-3">Booting…</div>;
@@ -25,6 +26,8 @@ export const WIDGETS: Record<string, AnyWidget> = {
   "token-diet": dynamic(() => import("./tokens/TokenDiet"), { ssr: false, loading: Loading }),
   "context-tetris": dynamic(() => import("./context/ContextTetris"), { ssr: false, loading: Loading }),
   "launch-builder": dynamic(() => import("./launch/LaunchBuilder"), { ssr: false, loading: Loading }),
+  // Model Lab models share one component factory; the widget id picks the model.
+  ...Object.fromEntries(ALL_MODELS.map((m) => [m.id, dynamic(() => import("./model-lab/ModelLab").then((mod) => ({ default: mod.makeLab(m.id) })), { ssr: false, loading: Loading })])),
 };
 
 export function Widget({ id, ...props }: WidgetProps & { id: string }) {

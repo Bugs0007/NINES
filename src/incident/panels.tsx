@@ -10,7 +10,7 @@ import { Chip, cx, fmtLatency, fmtNum, fmtPct, Led, Panel, Sparkline } from "@/u
 import { useReducedMotion } from "@/ui/motion";
 import { MetricStrip } from "@/widgets/sim/SimStage";
 import { fleetLayout, serversFor } from "@/widgets/fleet/spec";
-import { clockAt } from "./inc-fourth-box";
+import { clockAt } from "./clock";
 import type { Incident, IncidentState, LogLine, Trace } from "./types";
 
 export interface Pin {
@@ -44,12 +44,15 @@ export function Dashboards({ inc, sim, pins, pin }: { inc: Incident; sim: SimHan
   const ws = sim.windows;
   const last = ws[ws.length - 1];
   const reduced = useReducedMotion();
+  const cfg = inc.dashboard;
+  const pickIds = (all: string[]) => (cfg?.ids ? cfg.ids(all) : all.filter((id) => /^app-\d+$/.test(id)));
   const layout = useMemo(() => {
-    const ids = Object.keys(last?.nodes ?? {}).filter((id) => /^app-\d+$/.test(id));
+    if (cfg?.map) return cfg.map;
+    const ids = pickIds(Object.keys(last?.nodes ?? {}));
     const servers = (ids.length ? ids : inc.hosts).map((id) => ({ ...serversFor("m7i.large", 1)[0]!, id, label: id, workers: 16 }));
     return fleetLayout({ servers, session: "none" });
   }, [last, inc.hosts]);
-  const targets = Object.keys(last?.nodes ?? {}).filter((id) => /^app-\d+$/.test(id)).sort();
+  const targets = pickIds(Object.keys(last?.nodes ?? {})).sort();
   const healthy = new Set(last?.nodes["lb"]?.healthy ?? []);
   const series = (id: string, f: (w: WindowMetrics) => number) => ws.slice(-60).map(f);
   return (
@@ -58,7 +61,7 @@ export function Dashboards({ inc, sim, pins, pin }: { inc: Incident; sim: SimHan
       <Panel
         label={
           <>
-            Targets <span className="font-mono font-normal text-ink-3">· pigeon-app-tg</span>
+            Targets <span className="font-mono font-normal text-ink-3">· {cfg?.label ?? "pigeon-app-tg"}</span>
           </>
         }
         bodyClassName="px-0 pb-2"
@@ -86,7 +89,7 @@ export function Dashboards({ inc, sim, pins, pin }: { inc: Incident; sim: SimHan
                 const p99s = series(id, (w) => w.nodes[id]?.p99 ?? 0);
                 const bad = nw.p99 > 2 || nw.queue > 20;
                 const key = `dash:${id}`;
-                const evidence = id === "app-4" && bad ? "target-latency" : undefined;
+                const evidence = cfg?.evidence ? cfg.evidence(id, nw) : id === "app-4" && bad ? "target-latency" : undefined;
                 return (
                   <tr key={id} className={cx("whitespace-nowrap border-t border-line/60 transition-colors duration-500", bad && "bg-alert-dim/35")}>
                     <td className={cx("py-1.5 pl-4 pr-2 font-mono", bad ? "text-alert" : "text-ink-0")}>{id}</td>
@@ -107,7 +110,7 @@ export function Dashboards({ inc, sim, pins, pin }: { inc: Incident; sim: SimHan
                     <td className="py-1 pl-2 pr-3 text-right">
                       <PinButton
                         pinned={pins.some((p) => p.key === key)}
-                        onPin={() => pin({ key, evidence: evidence ?? (id === "app-4" && nw.util < 0.15 ? "cpu-low" : undefined), text: `${id}: p99 ${fmtLatency(nw.p99)}, CPU ${fmtPct(nw.util, 0)}, workers ${fmtPct(nw.workerUtil, 0)}, ${fmtNum(nw.queue)} queued`, where: `dashboard @ ${clockAt(last!.t)}` })}
+                        onPin={() => pin({ key, evidence: evidence ?? (!cfg?.evidence && id === "app-4" && nw.util < 0.15 ? "cpu-low" : undefined), text: `${id}: p99 ${fmtLatency(nw.p99)}, CPU ${fmtPct(nw.util, 0)}, workers ${fmtPct(nw.workerUtil, 0)}, ${fmtNum(nw.queue)} queued`, where: `dashboard @ ${clockAt(last!.t, inc.clock0)}` })}
                       />
                     </td>
                   </tr>

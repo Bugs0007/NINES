@@ -1,0 +1,33 @@
+{
+ "packs": [
+  {
+   "id": "ci-pipelines",
+   "import": "ciPipelines",
+   "learn": {
+    "canDo": "Design a pipeline for fast, trustworthy feedback: cheap checks first, parallel and cached, flaky tests quarantined.",
+    "why": "A slow or noisy pipeline changes how a team behaves. Interviewers ask how you would speed one up.",
+    "keyIdea": "Fast feedback, and red that means something."
+   }
+  },
+  {
+   "id": "iac-basics",
+   "import": "iacBasics",
+   "learn": {
+    "canDo": "Run a plan, review, apply workflow with remote locked state, and detect and reconcile drift.",
+    "why": "'It works in staging' often means the environments differ. Code as the only path to change fixes that.",
+    "keyIdea": "The code is true only if it is the only way things change."
+   }
+  }
+ ],
+ "chapter": {
+  "id": "c4",
+  "story": "Deploys are slow, environments differ, and nobody trusts the pipeline.",
+  "outcomes": [
+   "Design a fast, trusted CI pipeline",
+   "Describe infrastructure in reviewed code",
+   "Detect and fix drift"
+  ],
+  "why": "Shipping is a loop of change, check and release. Making the loop fast and repeatable is most of what DevOps means.",
+  "payoff": "In an interview you can design a pipeline and an infrastructure workflow. At work you will make both faster and safer."
+ }
+}

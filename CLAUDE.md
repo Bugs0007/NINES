@@ -9,6 +9,9 @@ A game that teaches system design, AI engineering, and dev fundamentals. Read `R
 | Dev server | `npx next dev -p 3100` (or the `nines-dev` entry in `.claude/launch.json`) |
 | Unit + engine + content tests | `npm test` |
 | Content lint only | `npm run content:lint` |
+| Pack lint issues, readable | `npx tsx scripts/lint-packs.mts` |
+| Incident calibration (error rate at the page, per mitigation) | `npx tsx scripts/inc-cal.mts <incidentId>` |
+| Enumerate a Model Lab model against conditions | `npx tsx scripts/enum.mts <modelId> '<json conditions>'` |
 | Type-check | `npx tsc --noEmit` |
 | E2E + screenshots | `npx playwright test` (shots land in `e2e/__shots__/`, gitignored) |
 | Regenerate CONTENT_PLAN tables | `npm run content:plan` |
@@ -36,7 +39,8 @@ src/
   shift/          Daily Shift (reviews, micro-challenge, Estimathon)
   review/         Review card formats and diagrams
   codex/          Codex cards, search, calibration profile
-  incident/       Incident Room scenarios and war-room panels
+  incident/       Incident Room scenarios and war-room panels (kit.ts: shared helpers; inc-*.ts, prod-*.ts: scenarios)
+  field/          Field missions (data in missions/*.ts, FieldRunner.tsx, check.ts pattern checks)
   settings/       Settings page
   intro/          Section intros: SectionIntro (frame), scenes.tsx (animated SVG scenes), specs.ts, useIntro
   learn/          The "How NINES teaches" page (/learn)

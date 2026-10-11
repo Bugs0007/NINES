@@ -16,6 +16,7 @@ import { encode as encodeCl100k } from "gpt-tokenizer/encoding/cl100k_base";
 import { SAMPLES } from "@/widgets/tokens/spec";
 import { buildDietPrompt } from "@/widgets/tokens/diet";
 import { ContextConfig, evaluate, type Policy } from "@/widgets/context/model";
+import { LAB_MODELS } from "@/widgets/model-lab/models";
 
 function runAgg(spec: SimSpec, seed: string, until: number, from: number): Aggregate {
   const sim = new Simulation(spec, seed);
@@ -31,6 +32,13 @@ function pick(a: Aggregate, metric: string): number {
 type Params = Record<string, unknown>;
 
 export const VERIFIERS: Record<string, (p: Params) => number> = {
+  /** Model Lab: evaluate a model with some control values (over the model's defaults) and read one metric. */
+  lab: (p) => {
+    const m = LAB_MODELS[String(p.model)];
+    if (!m) throw new Error(`unknown lab model ${String(p.model)}`);
+    const cfg = (p.config ?? {}) as Record<string, unknown>;
+    return m.evaluate({ ...m.init(cfg), ...((cfg.start ?? {}) as Record<string, number | string | boolean>), ...((p.values ?? {}) as Record<string, number | string | boolean>) }, cfg).metrics[String(p.metric)] ?? NaN;
+  },
   /** Token count of a Tokenizer Slicer sample: o200k by default, or cl100k (GPT-4's older vocabulary). */
   "token-count": (p) => (p.encoding === "cl100k" ? encodeCl100k : encode)(SAMPLES.find((s) => s.id === p.sample)!.text).length,
   /** Rank (1 = densest) of a sample by tokens per character among prose, code, and JSON. */

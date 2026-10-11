@@ -1,0 +1,52 @@
+{
+ "packs": [
+  {
+   "id": "mcp-architecture",
+   "import": "mcpArchitecture",
+   "learn": {
+    "canDo": "Explain hosts, clients and servers, and compute why a shared protocol turns M times N integrations into M plus N.",
+    "why": "MCP is how tools reach models. Knowing what it standardises, and what it costs in context, is a current interview topic.",
+    "keyIdea": "Write the integration once, use it everywhere."
+   }
+  },
+  {
+   "id": "mcp-transports",
+   "import": "mcpTransports",
+   "learn": {
+    "canDo": "Choose between stdio and streamable HTTP, and add authentication to a remote server.",
+    "why": "Where a server runs decides who can reach it and what it costs. Remote servers without auth are a common mistake.",
+    "keyIdea": "Local is one process per user; remote is shared and must be authenticated."
+   }
+  },
+  {
+   "id": "mcp-primitives",
+   "import": "mcpPrimitives",
+   "learn": {
+    "canDo": "Decide whether a capability should be a tool, a resource or a prompt, and say who controls each.",
+    "why": "Mapping capabilities to the right primitive is the core design decision when writing a server.",
+    "keyIdea": "Tools act, resources inform, prompts guide."
+   }
+  },
+  {
+   "id": "mcp-build-server",
+   "import": "mcpBuildServer",
+   "learn": {
+    "canDo": "Design an MCP server whose tools are task-shaped, trimmed, well-described, scoped per user and protocol-clean.",
+    "why": "Most servers fail from too many tools and noisy output. Design for the model, not for the API.",
+    "keyIdea": "Design tools for the model that reads them."
+   }
+  }
+ ],
+ "chapter": {
+  "id": "b7",
+  "story": "The assistant needs to reach the company's systems without a custom connector for each one.",
+  "outcomes": [
+   "Explain what MCP standardises",
+   "Pick a transport and secure it",
+   "Map capabilities to tools, resources and prompts",
+   "Build a server a model can use well"
+  ],
+  "why": "A model is only as useful as what it can reach. A shared protocol makes that reach cheap to build, and context cost is the price.",
+  "payoff": "In an interview you can explain MCP and design a server. At work you will decide which servers to connect and which to write."
+ }
+}

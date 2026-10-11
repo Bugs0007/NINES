@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GRAPH } from "@/content/graph";
+import { GRAPH, NODE_BY_ID } from "@/content/graph";
 import { lockReason, nextStep } from "@/content/progression";
 
 describe("nextStep", () => {
@@ -43,6 +43,7 @@ describe("lockReason", () => {
     expect(lockReason("latency-numbers", new Set(["latency-numbers"]))).toBeNull();
   });
   it("explains unbuilt content", () => {
-    expect(lockReason("tail-latency", new Set(["latency-numbers", "littles-law", "queueing-utilization"]))).toMatch(/later release/);
+    const planned = GRAPH.find((n) => n.status === "planned" && n.prereqs.every((p) => NODE_BY_ID.get(p)?.status !== "planned"));
+    if (planned) expect(lockReason(planned.id, new Set(planned.prereqs))).toMatch(/later release/);
   });
 });

@@ -1,0 +1,52 @@
+{
+ "packs": [
+  {
+   "id": "threads-processes-async",
+   "import": "threadsProcessesAsync",
+   "learn": {
+    "canDo": "Compare threads, processes and async by memory per connection and CPU use, and keep CPU work off the event loop.",
+    "why": "Concurrency model is the first design decision of a server. Interviewers ask what you would pick for 20,000 connections.",
+    "keyIdea": "Waiting is free for a CPU and expensive for a stack."
+   }
+  },
+  {
+   "id": "python-gil",
+   "import": "pythonGil",
+   "learn": {
+    "canDo": "Explain the GIL, predict when threads help, and choose processes for CPU-bound Python.",
+    "why": "The GIL question separates people who have profiled from people who have read about threads.",
+    "keyIdea": "Threads parallelise waiting; processes parallelise computing."
+   }
+  },
+  {
+   "id": "race-conditions",
+   "import": "raceConditions",
+   "learn": {
+    "canDo": "Spot a read-modify-write race, and fix it with an atomic operation, a lock or by not sharing state.",
+    "why": "Races are the bugs that appear only under load. Naming the interleaving is the skill.",
+    "keyIdea": "A read that updates is a write."
+   }
+  },
+  {
+   "id": "locks-deadlocks",
+   "import": "locksDeadlocks",
+   "learn": {
+    "canDo": "Explain deadlock as a cycle of waiting, and break it with lock ordering, admission limits or timeouts.",
+    "why": "Deadlocks stall a service at zero CPU. Knowing the four conditions gives you the fix.",
+    "keyIdea": "Break one link of the cycle."
+   }
+  }
+ ],
+ "chapter": {
+  "id": "c5",
+  "story": "The service handles load well in testing and then stalls, miscounts or deadlocks in production.",
+  "outcomes": [
+   "Choose a concurrency model for a workload",
+   "Know what the GIL does and does not limit",
+   "Find and fix a race",
+   "Prevent a deadlock"
+  ],
+  "why": "Concurrency bugs depend on timing, so they hide until load finds them. A few rules turn them into design decisions.",
+  "payoff": "In an interview you can reason about threads, locks and event loops. At work you will recognise a race or a deadlock from the symptoms."
+ }
+}

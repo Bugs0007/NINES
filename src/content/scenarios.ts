@@ -3,6 +3,7 @@
  */
 import { Simulation } from "@/engine/sim";
 import type { SimSpec } from "@/engine/types";
+import { LAB_TUNES } from "./tune-labs";
 
 export interface TuneScenario {
   /** Build the spec for a parameter value. */
@@ -10,9 +11,12 @@ export interface TuneScenario {
   durationS: number;
   fromS: number;
   seed: string;
+  /** Closed-form scenarios (Model Lab models) evaluate directly instead of running the simulator. */
+  evaluate?: (v: number) => Record<string, number>;
 }
 
 export const TUNE: Record<string, TuneScenario> = {
+  ...LAB_TUNES,
   "ll-workers": {
     build: (workers) => ({
       nodes: [
@@ -40,6 +44,7 @@ export const TUNE: Record<string, TuneScenario> = {
 export function runTune(id: string, v: number): Record<string, number> {
   const s = TUNE[id];
   if (!s) throw new Error(`unknown tune scenario ${id}`);
+  if (s.evaluate) return s.evaluate(v);
   const sim = new Simulation(s.build(v), s.seed);
   sim.runUntil(s.durationS);
   const a = sim.aggregate(s.fromS, s.durationS);

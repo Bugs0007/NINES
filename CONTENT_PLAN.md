@@ -19,7 +19,7 @@ The full curriculum as a **prerequisite graph**. The campaign map unlocks by pre
 
 <!-- GENERATED:START -->
 
-**240 nodes** · 0 verified · 11 built · 0 drafted · 229 planned
+**240 nodes** · 0 verified · 240 built · 0 drafted · 0 planned
 
 Legend: `·` planned, `✎` drafted (pack exists), `■` built (playable, lint green), `✔` verified (fact-checked + playtested). Kinds: concept, **boss**, *case* (interview case study boss), `incident`, `field`.
 
@@ -75,15 +75,15 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Tail Latency & Fan-out** `tail-latency` | concept | `queueing-utilization` | Fan-out Dice |
-| · | **Estimation: QPS from Users** `estimation-qps` | concept | `latency-numbers` | Estimathon (worked → faded → solo) |
-| · | **Estimation: Storage & Bandwidth** `estimation-storage` | concept | `estimation-qps` | Estimathon |
-| · | **Estimation: Memory & Cache Sizing** `estimation-memory` | concept | `estimation-storage` | Estimathon |
-| · | **Connection Pooling** `connection-pooling` | concept | `littles-law`, `scale-up-vs-out` | Pool Party |
-| · | **Autoscaling & Its Lag** `autoscaling` | concept | `load-balancing`, `queueing-utilization` | Scaling Lag |
-| · | **Boss: Viral Tuesday** `boss-viral-tuesday` | **boss** | `tail-latency`, `connection-pooling`, `autoscaling`, `estimation-memory` | Spike survival |
-| · | **INC: The Pool Ran Dry** `inc-pool-exhaustion` | `incident` | `connection-pooling` | Incident Room |
-| · | **Field: Load-test Your Own API** `field-load-test` | `field` | `queueing-utilization`, `tail-latency` | Field Mission |
+| ■ built | **Tail Latency & Fan-out** `tail-latency` | concept | `queueing-utilization` | Fan-out Dice |
+| ■ built | **Estimation: QPS from Users** `estimation-qps` | concept | `latency-numbers` | Estimathon (worked → faded → solo) |
+| ■ built | **Estimation: Storage & Bandwidth** `estimation-storage` | concept | `estimation-qps` | Estimathon |
+| ■ built | **Estimation: Memory & Cache Sizing** `estimation-memory` | concept | `estimation-storage` | Estimathon |
+| ■ built | **Connection Pooling** `connection-pooling` | concept | `littles-law`, `scale-up-vs-out` | Pool Party |
+| ■ built | **Autoscaling & Its Lag** `autoscaling` | concept | `load-balancing`, `queueing-utilization` | Scaling Lag |
+| ■ built | **Boss: Viral Tuesday** `boss-viral-tuesday` | **boss** | `tail-latency`, `connection-pooling`, `autoscaling`, `estimation-memory` | Spike survival |
+| ■ built | **INC: The Pool Ran Dry** `inc-pool-exhaustion` | `incident` | `connection-pooling` | Incident Room |
+| ■ built | **Field: Load-test Your Own API** `field-load-test` | `field` | `queueing-utilization`, `tail-latency` | Field Mission |
 
 <details><summary>Graph</summary>
 
@@ -112,21 +112,21 @@ flowchart LR
 
 ### A3 · The Request Journey
 
-*Users outside Hyderabad.* Everything between a thumb and your code.
+*Users far from home.* Everything between a thumb and your code.
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **DNS** `dns` | concept | `latency-numbers` | Resolver Relay |
-| · | **TCP vs UDP** `tcp-udp` | concept | `latency-numbers` | Handshake Hopscotch |
-| · | **TLS Handshake** `tls-handshake` | concept | `tcp-udp` | Key Exchange |
-| · | **HTTP/1.1 vs 2 vs 3** `http-versions` | concept | `tls-handshake` | Lane Race |
-| · | **Keep-alive & Connection Reuse** `keep-alive` | concept | `http-versions`, `connection-pooling` | Handshake Tax |
-| · | **Reverse Proxies (Nginx)** `reverse-proxy` | concept | `load-balancing`, `http-versions` | Server Block Sorter |
-| · | **CDNs** `cdn` | concept | `dns`, `http-versions` | Edge Map |
-| · | **Anycast** `anycast` | concept | `cdn` | Nearest Door |
-| · | **Follow One Request** `request-journey` | concept | `dns`, `tls-handshake`, `http-versions`, `cdn`, `reverse-proxy` | End-to-end Journey |
-| · | **Boss: Users in Jakarta** `boss-far-away-users` | **boss** | `request-journey`, `anycast`, `keep-alive` | Latency map |
-| · | **INC: The Migration That Wouldn't Propagate** `inc-dns-ttl` | `incident` | `dns` | Incident Room |
+| ■ built | **DNS** `dns` | concept | `latency-numbers` | Resolver Relay |
+| ■ built | **TCP vs UDP** `tcp-udp` | concept | `latency-numbers` | Handshake Hopscotch |
+| ■ built | **TLS Handshake** `tls-handshake` | concept | `tcp-udp` | Key Exchange |
+| ■ built | **HTTP/1.1 vs 2 vs 3** `http-versions` | concept | `tls-handshake` | Lane Race |
+| ■ built | **Keep-alive & Connection Reuse** `keep-alive` | concept | `http-versions`, `connection-pooling` | Handshake Tax |
+| ■ built | **Reverse Proxies (Nginx)** `reverse-proxy` | concept | `load-balancing`, `http-versions` | Server Block Sorter |
+| ■ built | **CDNs** `cdn` | concept | `dns`, `http-versions` | Edge Map |
+| ■ built | **Anycast** `anycast` | concept | `cdn` | Nearest Door |
+| ■ built | **Follow One Request** `request-journey` | concept | `dns`, `tls-handshake`, `http-versions`, `cdn`, `reverse-proxy` | End-to-end Journey |
+| ■ built | **Boss: Users in Jakarta** `boss-far-away-users` | **boss** | `request-journey`, `anycast`, `keep-alive` | Latency map |
+| ■ built | **INC: The Migration That Wouldn't Propagate** `inc-dns-ttl` | `incident` | `dns` | Incident Room |
 
 <details><summary>Graph</summary>
 
@@ -169,16 +169,16 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Cache-Aside & Hit Ratio** `cache-aside` | concept | `scale-up-vs-out`, `latency-numbers` | Cache Rush |
-| · | **Zipf Traffic & Cache Sizing** `zipf-and-sizing` | concept | `cache-aside`, `estimation-memory` | Cache Rush: sizing |
-| · | **Eviction: LRU vs LFU** `eviction-policies` | concept | `zipf-and-sizing` | Eviction Arena |
-| · | **Write-through, Write-back, Write-around** `write-policies` | concept | `cache-aside` | Write Paths |
-| · | **TTLs & Invalidation** `ttl-invalidation` | concept | `cache-aside` | Stale Hunter |
-| · | **Cache Stampedes** `cache-stampede` | concept | `ttl-invalidation`, `queueing-utilization` | Stampede |
-| · | **Hot Keys** `hot-keys` | concept | `zipf-and-sizing` | Hot Key Heatmap |
-| · | **CDN Caching** `cdn-caching` | concept | `cdn`, `ttl-invalidation` | Edge Cache |
-| · | **Boss: The Celebrity Post** `boss-celebrity-post` | **boss** | `cache-stampede`, `hot-keys`, `eviction-policies`, `cdn-caching`, `write-policies` | Viral read storm |
-| · | **INC: Midnight Expiry** `inc-stampede` | `incident` | `cache-stampede` | Incident Room |
+| ■ built | **Cache-Aside & Hit Ratio** `cache-aside` | concept | `scale-up-vs-out`, `latency-numbers` | Cache Rush |
+| ■ built | **Zipf Traffic & Cache Sizing** `zipf-and-sizing` | concept | `cache-aside`, `estimation-memory` | Cache Rush: sizing |
+| ■ built | **Eviction: LRU vs LFU** `eviction-policies` | concept | `zipf-and-sizing` | Eviction Arena |
+| ■ built | **Write-through, Write-back, Write-around** `write-policies` | concept | `cache-aside` | Write Paths |
+| ■ built | **TTLs & Invalidation** `ttl-invalidation` | concept | `cache-aside` | Stale Hunter |
+| ■ built | **Cache Stampedes** `cache-stampede` | concept | `ttl-invalidation`, `queueing-utilization` | Stampede |
+| ■ built | **Hot Keys** `hot-keys` | concept | `zipf-and-sizing` | Hot Key Heatmap |
+| ■ built | **CDN Caching** `cdn-caching` | concept | `cdn`, `ttl-invalidation` | Edge Cache |
+| ■ built | **Boss: The Celebrity Post** `boss-celebrity-post` | **boss** | `cache-stampede`, `hot-keys`, `eviction-policies`, `cdn-caching`, `write-policies` | Viral read storm |
+| ■ built | **INC: Midnight Expiry** `inc-stampede` | `incident` | `cache-stampede` | Incident Room |
 
 <details><summary>Graph</summary>
 
@@ -217,17 +217,17 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Indexes & B-trees** `indexes-btree` | concept | `latency-numbers` | B-tree Builder |
-| · | **Query Plans (EXPLAIN)** `query-plans` | concept | `indexes-btree` | EXPLAIN Detective |
-| · | **Normalization vs Denormalization** `normalization` | concept | `indexes-btree` | Join or Copy |
-| · | **Transactions & ACID** `transactions-acid` | concept | `normalization` | Crash Mid-Transfer |
-| · | **Isolation Levels & Anomalies** `isolation-levels` | concept | `transactions-acid` | Isolation Race |
-| · | **MVCC** `mvcc` | concept | `isolation-levels` | Version Chains |
-| · | **SQL vs NoSQL Families** `sql-vs-nosql` | concept | `normalization` | Data Model Match |
-| · | **LSM Trees vs B-trees** `lsm-vs-btree` | concept | `indexes-btree`, `sql-vs-nosql` | Compaction Clock |
-| · | **When Postgres Is Enough** `postgres-is-enough` | concept | `mvcc`, `sql-vs-nosql`, `query-plans` | Stack Diet |
-| · | **Boss: The Seat Rush** `boss-seat-rush` | **boss** | `isolation-levels`, `mvcc`, `query-plans` | Contention on one row |
-| · | **Case: URL Shortener** `case-url-shortener` | *case* | `cache-aside`, `indexes-btree`, `estimation-storage` | Interview case |
+| ■ built | **Indexes & B-trees** `indexes-btree` | concept | `latency-numbers` | B-tree Builder |
+| ■ built | **Query Plans (EXPLAIN)** `query-plans` | concept | `indexes-btree` | EXPLAIN Detective |
+| ■ built | **Normalization vs Denormalization** `normalization` | concept | `indexes-btree` | Join or Copy |
+| ■ built | **Transactions & ACID** `transactions-acid` | concept | `normalization` | Crash Mid-Transfer |
+| ■ built | **Isolation Levels & Anomalies** `isolation-levels` | concept | `transactions-acid` | Isolation Race |
+| ■ built | **MVCC** `mvcc` | concept | `isolation-levels` | Version Chains |
+| ■ built | **SQL vs NoSQL Families** `sql-vs-nosql` | concept | `normalization` | Data Model Match |
+| ■ built | **LSM Trees vs B-trees** `lsm-vs-btree` | concept | `indexes-btree`, `sql-vs-nosql` | Compaction Clock |
+| ■ built | **When Postgres Is Enough** `postgres-is-enough` | concept | `mvcc`, `sql-vs-nosql`, `query-plans` | Stack Diet |
+| ■ built | **Boss: The Seat Rush** `boss-seat-rush` | **boss** | `isolation-levels`, `mvcc`, `query-plans` | Contention on one row |
+| ■ built | **Case: URL Shortener** `case-url-shortener` | *case* | `cache-aside`, `indexes-btree`, `estimation-storage` | Interview case |
 
 <details><summary>Graph</summary>
 
@@ -269,14 +269,14 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Leader-Follower Replication** `leader-follower` | concept | `transactions-acid`, `scale-up-vs-out` | Follow the Leader |
-| · | **Sync vs Async Replication** `sync-async-replication` | concept | `leader-follower` | Ack Race |
-| · | **Replication Lag Anomalies** `replication-lag` | concept | `sync-async-replication` | Lag Lens |
-| · | **Failover & Split Brain** `failover` | concept | `leader-follower` | Promote! |
-| · | **Multi-leader Replication** `multi-leader` | concept | `replication-lag` | Conflict Court |
-| · | **Leaderless Replication & Quorums** `leaderless-quorums` | concept | `replication-lag` | Quorum Dial |
-| · | **Boss: The Primary Is Gone** `boss-primary-down` | **boss** | `failover`, `replication-lag`, `leaderless-quorums` | Failover under fire |
-| · | **INC: My Post Disappeared** `inc-replica-lag` | `incident` | `replication-lag` | Incident Room |
+| ■ built | **Leader-Follower Replication** `leader-follower` | concept | `transactions-acid`, `scale-up-vs-out` | Follow the Leader |
+| ■ built | **Sync vs Async Replication** `sync-async-replication` | concept | `leader-follower` | Ack Race |
+| ■ built | **Replication Lag Anomalies** `replication-lag` | concept | `sync-async-replication` | Lag Lens |
+| ■ built | **Failover & Split Brain** `failover` | concept | `leader-follower` | Promote! |
+| ■ built | **Multi-leader Replication** `multi-leader` | concept | `replication-lag` | Conflict Court |
+| ■ built | **Leaderless Replication & Quorums** `leaderless-quorums` | concept | `replication-lag` | Quorum Dial |
+| ■ built | **Boss: The Primary Is Gone** `boss-primary-down` | **boss** | `failover`, `replication-lag`, `leaderless-quorums` | Failover under fire |
+| ■ built | **INC: My Post Disappeared** `inc-replica-lag` | `incident` | `replication-lag` | Incident Room |
 
 <details><summary>Graph</summary>
 
@@ -309,13 +309,13 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Sharding Strategies** `sharding-strategies` | concept | `leader-follower`, `estimation-storage` | Range or Hash |
-| · | **Choosing a Shard Key** `shard-keys` | concept | `sharding-strategies` | Key Picker |
-| · | **Hot Partitions & the Celebrity Problem** `hot-partitions` | concept | `shard-keys`, `hot-keys` | Celebrity Problem |
-| · | **Consistent Hashing & Virtual Nodes** `consistent-hashing` | concept | `sharding-strategies` | Hash Ring |
-| · | **Rebalancing** `rebalancing` | concept | `consistent-hashing` | Move Fewer Keys |
-| · | **Case: Distributed KV Store** `case-kv-store` | *case* | `consistent-hashing`, `leaderless-quorums`, `rebalancing`, `lsm-vs-btree` | Interview case |
-| · | **INC: Shard 7 Is on Fire** `inc-hot-shard` | `incident` | `hot-partitions` | Incident Room |
+| ■ built | **Sharding Strategies** `sharding-strategies` | concept | `leader-follower`, `estimation-storage` | Range or Hash |
+| ■ built | **Choosing a Shard Key** `shard-keys` | concept | `sharding-strategies` | Key Picker |
+| ■ built | **Hot Partitions & the Celebrity Problem** `hot-partitions` | concept | `shard-keys`, `hot-keys` | Celebrity Problem |
+| ■ built | **Consistent Hashing & Virtual Nodes** `consistent-hashing` | concept | `sharding-strategies` | Hash Ring |
+| ■ built | **Rebalancing** `rebalancing` | concept | `consistent-hashing` | Move Fewer Keys |
+| ■ built | **Case: Distributed KV Store** `case-kv-store` | *case* | `consistent-hashing`, `leaderless-quorums`, `rebalancing`, `lsm-vs-btree` | Interview case |
+| ■ built | **INC: Shard 7 Is on Fire** `inc-hot-shard` | `incident` | `hot-partitions` | Incident Room |
 
 <details><summary>Graph</summary>
 
@@ -345,21 +345,21 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Timeouts** `timeouts` | concept | `tail-latency` | Deadline Budget |
-| · | **Retries, Backoff & Jitter** `retries-backoff-jitter` | concept | `timeouts` | Retry Storm |
-| · | **Idempotency** `idempotency` | concept | `retries-backoff-jitter`, `transactions-acid` | Double Charge |
-| · | **Circuit Breakers** `circuit-breakers` | concept | `retries-backoff-jitter` | Breaker Box |
-| · | **Bulkheads** `bulkheads` | concept | `circuit-breakers`, `connection-pooling` | Watertight |
-| · | **CAP & PACELC** `cap-pacelc` | concept | `replication-lag` | Partition Split |
-| · | **Consistency Models** `consistency-models` | concept | `cap-pacelc` | Linearizable or Not |
-| · | **Clocks & Ordering** `clocks-ordering` | concept | `consistency-models` | Clock Drift |
-| · | **Consensus (Raft)** `consensus-raft` | concept | `failover`, `clocks-ordering` | Raft Arena |
-| · | **Distributed Locks & Fencing Tokens** `distributed-locks` | concept | `consensus-raft`, `timeouts` | Lock Heist |
-| · | **2PC vs Sagas** `two-pc-vs-sagas` | concept | `transactions-acid`, `idempotency` | Saga Steps |
-| · | **The Outbox Pattern** `outbox-pattern` | concept | `two-pc-vs-sagas` | Dual Write Trap |
-| · | **Case: Payment System** `case-payment-system` | *case* | `idempotency`, `two-pc-vs-sagas`, `outbox-pattern`, `isolation-levels` | Interview case |
-| · | **Case: Ticket Booking (Seat Contention)** `case-ticket-booking` | *case* | `distributed-locks`, `isolation-levels`, `cache-aside` | Interview case |
-| · | **INC: The Retry Storm** `inc-retry-storm` | `incident` | `retries-backoff-jitter` | Incident Room |
+| ■ built | **Timeouts** `timeouts` | concept | `tail-latency` | Deadline Budget |
+| ■ built | **Retries, Backoff & Jitter** `retries-backoff-jitter` | concept | `timeouts` | Retry Storm |
+| ■ built | **Idempotency** `idempotency` | concept | `retries-backoff-jitter`, `transactions-acid` | Double Charge |
+| ■ built | **Circuit Breakers** `circuit-breakers` | concept | `retries-backoff-jitter` | Breaker Box |
+| ■ built | **Bulkheads** `bulkheads` | concept | `circuit-breakers`, `connection-pooling` | Watertight |
+| ■ built | **CAP & PACELC** `cap-pacelc` | concept | `replication-lag` | Partition Split |
+| ■ built | **Consistency Models** `consistency-models` | concept | `cap-pacelc` | Linearizable or Not |
+| ■ built | **Clocks & Ordering** `clocks-ordering` | concept | `consistency-models` | Clock Drift |
+| ■ built | **Consensus (Raft)** `consensus-raft` | concept | `failover`, `clocks-ordering` | Raft Arena |
+| ■ built | **Distributed Locks & Fencing Tokens** `distributed-locks` | concept | `consensus-raft`, `timeouts` | Lock Heist |
+| ■ built | **2PC vs Sagas** `two-pc-vs-sagas` | concept | `transactions-acid`, `idempotency` | Saga Steps |
+| ■ built | **The Outbox Pattern** `outbox-pattern` | concept | `two-pc-vs-sagas` | Dual Write Trap |
+| ■ built | **Case: Payment System** `case-payment-system` | *case* | `idempotency`, `two-pc-vs-sagas`, `outbox-pattern`, `isolation-levels` | Interview case |
+| ■ built | **Case: Ticket Booking (Seat Contention)** `case-ticket-booking` | *case* | `distributed-locks`, `isolation-levels`, `cache-aside` | Interview case |
+| ■ built | **INC: The Retry Storm** `inc-retry-storm` | `incident` | `retries-backoff-jitter` | Incident Room |
 
 <details><summary>Graph</summary>
 
@@ -406,19 +406,19 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Queues vs Logs (SQS vs Kafka)** `queues-vs-logs` | concept | `littles-law` | Queue Plumber |
-| · | **Delivery Semantics & Dedup** `delivery-semantics` | concept | `queues-vs-logs`, `idempotency` | At-least-once |
-| · | **Poison Messages & DLQs** `dlq-poison` | concept | `delivery-semantics` | Poison Pill |
-| · | **Backpressure** `backpressure` | concept | `queues-vs-logs`, `queueing-utilization` | Pressure Valve |
-| · | **Fan-out & Pub/Sub** `fan-out-pubsub` | concept | `queues-vs-logs` | Broadcast |
-| · | **Event-driven Architecture** `event-driven` | concept | `fan-out-pubsub` | Event Web |
-| · | **CQRS** `cqrs` | concept | `event-driven`, `replication-lag` | Two Models |
-| · | **Event Sourcing** `event-sourcing` | concept | `cqrs` | Replay the Ledger |
-| · | **Postgres as a Queue (SKIP LOCKED)** `postgres-queue` | concept | `queues-vs-logs`, `mvcc` | Lock Skipper |
-| · | **Case: Notification System** `case-notification-system` | *case* | `fan-out-pubsub`, `dlq-poison`, `backpressure`, `idempotency` | Interview case |
-| · | **Case: News Feed** `case-news-feed` | *case* | `fan-out-pubsub`, `cache-aside`, `hot-partitions` | Interview case |
-| · | **Case: Web Crawler** `case-web-crawler` | *case* | `queues-vs-logs`, `backpressure`, `dns`, `rate-limiting` | Interview case |
-| · | **INC: The Message That Kills Workers** `inc-poison-message` | `incident` | `dlq-poison` | Incident Room |
+| ■ built | **Queues vs Logs (SQS vs Kafka)** `queues-vs-logs` | concept | `littles-law` | Queue Plumber |
+| ■ built | **Delivery Semantics & Dedup** `delivery-semantics` | concept | `queues-vs-logs`, `idempotency` | At-least-once |
+| ■ built | **Poison Messages & DLQs** `dlq-poison` | concept | `delivery-semantics` | Poison Pill |
+| ■ built | **Backpressure** `backpressure` | concept | `queues-vs-logs`, `queueing-utilization` | Pressure Valve |
+| ■ built | **Fan-out & Pub/Sub** `fan-out-pubsub` | concept | `queues-vs-logs` | Broadcast |
+| ■ built | **Event-driven Architecture** `event-driven` | concept | `fan-out-pubsub` | Event Web |
+| ■ built | **CQRS** `cqrs` | concept | `event-driven`, `replication-lag` | Two Models |
+| ■ built | **Event Sourcing** `event-sourcing` | concept | `cqrs` | Replay the Ledger |
+| ■ built | **Postgres as a Queue (SKIP LOCKED)** `postgres-queue` | concept | `queues-vs-logs`, `mvcc` | Lock Skipper |
+| ■ built | **Case: Notification System** `case-notification-system` | *case* | `fan-out-pubsub`, `dlq-poison`, `backpressure`, `idempotency` | Interview case |
+| ■ built | **Case: News Feed** `case-news-feed` | *case* | `fan-out-pubsub`, `cache-aside`, `hot-partitions` | Interview case |
+| ■ built | **Case: Web Crawler** `case-web-crawler` | *case* | `queues-vs-logs`, `backpressure`, `dns`, `rate-limiting` | Interview case |
+| ■ built | **INC: The Message That Kills Workers** `inc-poison-message` | `incident` | `dlq-poison` | Incident Room |
 
 <details><summary>Graph</summary>
 
@@ -462,15 +462,15 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **REST vs gRPC vs GraphQL** `api-styles` | concept | `http-versions` | Contract Clash |
-| · | **Offset vs Cursor Pagination** `pagination` | concept | `indexes-btree` | Page Drift |
-| · | **Idempotency Keys** `idempotency-keys` | concept | `idempotency`, `api-styles` | Retry-safe POST |
-| · | **API Versioning** `api-versioning` | concept | `api-styles` | Breaking Change |
-| · | **Rate Limiting Algorithms** `rate-limiting` | concept | `queueing-utilization` | Token Bucket |
-| · | **Polling, Long-polling, SSE, WebSockets** `realtime-transport` | concept | `http-versions`, `keep-alive` | Push or Pull |
-| · | **Webhooks** `webhooks` | concept | `retries-backoff-jitter`, `idempotency-keys` | Callback Chaos |
-| · | **Case: Distributed Rate Limiter** `case-rate-limiter` | *case* | `rate-limiting`, `cache-aside`, `consistent-hashing` | Interview case |
-| · | **Case: Chat (WhatsApp)** `case-chat` | *case* | `realtime-transport`, `fan-out-pubsub`, `sharding-strategies`, `delivery-semantics` | Interview case |
+| ■ built | **REST vs gRPC vs GraphQL** `api-styles` | concept | `http-versions` | Contract Clash |
+| ■ built | **Offset vs Cursor Pagination** `pagination` | concept | `indexes-btree` | Page Drift |
+| ■ built | **Idempotency Keys** `idempotency-keys` | concept | `idempotency`, `api-styles` | Retry-safe POST |
+| ■ built | **API Versioning** `api-versioning` | concept | `api-styles` | Breaking Change |
+| ■ built | **Rate Limiting Algorithms** `rate-limiting` | concept | `queueing-utilization` | Token Bucket |
+| ■ built | **Polling, Long-polling, SSE, WebSockets** `realtime-transport` | concept | `http-versions`, `keep-alive` | Push or Pull |
+| ■ built | **Webhooks** `webhooks` | concept | `retries-backoff-jitter`, `idempotency-keys` | Callback Chaos |
+| ■ built | **Case: Distributed Rate Limiter** `case-rate-limiter` | *case* | `rate-limiting`, `cache-aside`, `consistent-hashing` | Interview case |
+| ■ built | **Case: Chat (WhatsApp)** `case-chat` | *case* | `realtime-transport`, `fan-out-pubsub`, `sharding-strategies`, `delivery-semantics` | Interview case |
 
 <details><summary>Graph</summary>
 
@@ -500,14 +500,14 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **SLIs, SLOs & Error Budgets** `sli-slo-error-budgets` | concept | `tail-latency` | Budget Burn |
-| · | **Logs, Metrics & Traces** `observability` | concept | `sli-slo-error-budgets` | Signal Hunt |
-| · | **Blue-green & Canary Deploys** `deploy-strategies` | concept | `load-balancing`, `sli-slo-error-budgets` | Canary Cage |
-| · | **Feature Flags** `feature-flags` | concept | `deploy-strategies` | Kill Switch |
-| · | **Graceful Degradation** `graceful-degradation` | concept | `circuit-breakers`, `feature-flags` | Brownout |
-| · | **RPO & RTO** `rpo-rto` | concept | `sync-async-replication` | Backup Clock |
-| · | **Multi-region** `multi-region` | concept | `rpo-rto`, `cap-pacelc`, `anycast` | Two Continents |
-| · | **Boss: Region Down (Game Day)** `boss-region-outage` | **boss** | `multi-region`, `graceful-degradation`, `observability` | Game day |
+| ■ built | **SLIs, SLOs & Error Budgets** `sli-slo-error-budgets` | concept | `tail-latency` | Budget Burn |
+| ■ built | **Logs, Metrics & Traces** `observability` | concept | `sli-slo-error-budgets` | Signal Hunt |
+| ■ built | **Blue-green & Canary Deploys** `deploy-strategies` | concept | `load-balancing`, `sli-slo-error-budgets` | Canary Cage |
+| ■ built | **Feature Flags** `feature-flags` | concept | `deploy-strategies` | Kill Switch |
+| ■ built | **Graceful Degradation** `graceful-degradation` | concept | `circuit-breakers`, `feature-flags` | Brownout |
+| ■ built | **RPO & RTO** `rpo-rto` | concept | `sync-async-replication` | Backup Clock |
+| ■ built | **Multi-region** `multi-region` | concept | `rpo-rto`, `cap-pacelc`, `anycast` | Two Continents |
+| ■ built | **Boss: Region Down (Game Day)** `boss-region-outage` | **boss** | `multi-region`, `graceful-degradation`, `observability` | Game day |
 
 <details><summary>Graph</summary>
 
@@ -539,13 +539,13 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **AuthN vs AuthZ** `authn-authz` | concept | `stateless-services` | Who vs What |
-| · | **Sessions vs JWT** `sessions-vs-jwt` | concept | `authn-authz` | Token Trouble |
-| · | **OAuth2 & OIDC Flows** `oauth-oidc` | concept | `sessions-vs-jwt` | Redirect Dance |
-| · | **OWASP Top Risks** `owasp-top-risks` | concept | `authn-authz` | Break This App |
-| · | **Secrets Management** `secrets-management` | concept | `owasp-top-risks` | Leaked Key |
-| · | **Multi-tenant Isolation** `multi-tenant-isolation` | concept | `authn-authz`, `sharding-strategies` | Tenant Wall |
-| · | **Boss: The Breach** `boss-breach` | **boss** | `oauth-oidc`, `owasp-top-risks`, `secrets-management`, `multi-tenant-isolation` | Breach response |
+| ■ built | **AuthN vs AuthZ** `authn-authz` | concept | `stateless-services` | Who vs What |
+| ■ built | **Sessions vs JWT** `sessions-vs-jwt` | concept | `authn-authz` | Token Trouble |
+| ■ built | **OAuth2 & OIDC Flows** `oauth-oidc` | concept | `sessions-vs-jwt` | Redirect Dance |
+| ■ built | **OWASP Top Risks** `owasp-top-risks` | concept | `authn-authz` | Break This App |
+| ■ built | **Secrets Management** `secrets-management` | concept | `owasp-top-risks` | Leaked Key |
+| ■ built | **Multi-tenant Isolation** `multi-tenant-isolation` | concept | `authn-authz`, `sharding-strategies` | Tenant Wall |
+| ■ built | **Boss: The Breach** `boss-breach` | **boss** | `oauth-oidc`, `owasp-top-risks`, `secrets-management`, `multi-tenant-isolation` | Breach response |
 
 <details><summary>Graph</summary>
 
@@ -577,13 +577,13 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Blob Storage** `blob-storage` | concept | `cdn` | Bucket Brigade |
-| · | **Inverted Indexes** `inverted-index` | concept | `indexes-btree` | Posting Lists |
-| · | **Geospatial Indexes** `geospatial-index` | concept | `indexes-btree` | Geohash Grid |
-| · | **Time-series Data** `time-series` | concept | `lsm-vs-btree` | Downsample |
-| · | **Case: Search Autocomplete** `case-autocomplete` | *case* | `inverted-index`, `cache-aside`, `estimation-memory` | Interview case |
-| · | **Case: Ride Hailing (Uber)** `case-ride-hailing` | *case* | `geospatial-index`, `realtime-transport`, `sharding-strategies` | Interview case |
-| · | **Case: Video Pipeline (YouTube)** `case-video-pipeline` | *case* | `blob-storage`, `queues-vs-logs`, `cdn-caching` | Interview case |
+| ■ built | **Blob Storage** `blob-storage` | concept | `cdn` | Bucket Brigade |
+| ■ built | **Inverted Indexes** `inverted-index` | concept | `indexes-btree` | Posting Lists |
+| ■ built | **Geospatial Indexes** `geospatial-index` | concept | `indexes-btree` | Geohash Grid |
+| ■ built | **Time-series Data** `time-series` | concept | `lsm-vs-btree` | Downsample |
+| ■ built | **Case: Search Autocomplete** `case-autocomplete` | *case* | `inverted-index`, `cache-aside`, `estimation-memory` | Interview case |
+| ■ built | **Case: Ride Hailing (Uber)** `case-ride-hailing` | *case* | `geospatial-index`, `realtime-transport`, `sharding-strategies` | Interview case |
+| ■ built | **Case: Video Pipeline (YouTube)** `case-video-pipeline` | *case* | `blob-storage`, `queues-vs-logs`, `cdn-caching` | Interview case |
 
 <details><summary>Graph</summary>
 
@@ -635,10 +635,10 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Sampling: Temperature & Top-p** `sampling` | concept | `tokens` | Distribution Dial |
-| · | **Why Models Hallucinate** `hallucination` | concept | `sampling` | Confident Nonsense |
-| · | **Time-to-first-token vs Throughput** `ttft-throughput` | concept | `tokens`, `littles-law` | Stream Race |
-| · | **LLM Cost Math** `llm-cost-math` | concept | `tokens`, `estimation-qps` | Token Meter |
+| ■ built | **Sampling: Temperature & Top-p** `sampling` | concept | `tokens` | Distribution Dial |
+| ■ built | **Why Models Hallucinate** `hallucination` | concept | `sampling` | Confident Nonsense |
+| ■ built | **Time-to-first-token vs Throughput** `ttft-throughput` | concept | `tokens`, `littles-law` | Stream Race |
+| ■ built | **LLM Cost Math** `llm-cost-math` | concept | `tokens`, `estimation-qps` | Token Meter |
 
 <details><summary>Graph</summary>
 
@@ -659,13 +659,13 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **System Prompts** `system-prompts` | concept | `context-windows` | Role Call |
-| · | **Structure & Examples** `prompt-structure` | concept | `system-prompts` | Prompt Surgery |
-| · | **Extended Thinking** `extended-thinking` | concept | `prompt-structure`, `llm-cost-math` | Think Budget |
-| · | **Structured Outputs** `structured-outputs` | concept | `prompt-structure` | Schema Lock |
-| · | **Prompt Caching** `prompt-caching` | concept | `context-windows`, `llm-cost-math` | Cache the Prefix |
-| · | **Prompt Versioning** `prompt-versioning` | concept | `prompt-structure` | Prompt Diff |
-| · | **Field: Telegram Link Summarizer** `field-telegram-summarizer` | `field` | `structured-outputs`, `context-windows` | Field Mission |
+| ■ built | **System Prompts** `system-prompts` | concept | `context-windows` | Role Call |
+| ■ built | **Structure & Examples** `prompt-structure` | concept | `system-prompts` | Prompt Surgery |
+| ■ built | **Extended Thinking** `extended-thinking` | concept | `prompt-structure`, `llm-cost-math` | Think Budget |
+| ■ built | **Structured Outputs** `structured-outputs` | concept | `prompt-structure` | Schema Lock |
+| ■ built | **Prompt Caching** `prompt-caching` | concept | `context-windows`, `llm-cost-math` | Cache the Prefix |
+| ■ built | **Prompt Versioning** `prompt-versioning` | concept | `prompt-structure` | Prompt Diff |
+| ■ built | **Field: Telegram Link Summarizer** `field-telegram-summarizer` | `field` | `structured-outputs`, `context-windows` | Field Mission |
 
 <details><summary>Graph</summary>
 
@@ -693,17 +693,17 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Embeddings** `embeddings` | concept | `tokens` | Embedding Space Explorer |
-| · | **Cosine Similarity** `cosine-similarity` | concept | `embeddings` | Angle Finder |
-| · | **Bi-encoders vs Cross-encoders** `bi-vs-cross-encoder` | concept | `cosine-similarity` | Two Towers |
-| · | **Chunking Strategies** `chunking` | concept | `embeddings`, `context-windows` | Chunk Chef |
-| · | **BM25** `bm25` | concept | `inverted-index` | Term Weights |
-| · | **Hybrid Search & RRF** `hybrid-search-rrf` | concept | `bm25`, `cosine-similarity` | RRF Mixer |
-| · | **HyDE** `hyde` | concept | `hybrid-search-rrf` | Hypothetical Answer |
-| · | **Reranking** `reranking` | concept | `bi-vs-cross-encoder`, `hybrid-search-rrf` | Rerank Relay |
-| · | **Metadata Filtering** `metadata-filtering` | concept | `hybrid-search-rrf` | Filter First? |
-| · | **HNSW vs IVF** `ann-indexes` | concept | `cosine-similarity` | Graph Hop |
-| · | **Retrieval Evals (recall@k, MRR, nDCG)** `retrieval-eval` | concept | `reranking` | Rank Judge |
+| ■ built | **Embeddings** `embeddings` | concept | `tokens` | Embedding Space Explorer |
+| ■ built | **Cosine Similarity** `cosine-similarity` | concept | `embeddings` | Angle Finder |
+| ■ built | **Bi-encoders vs Cross-encoders** `bi-vs-cross-encoder` | concept | `cosine-similarity` | Two Towers |
+| ■ built | **Chunking Strategies** `chunking` | concept | `embeddings`, `context-windows` | Chunk Chef |
+| ■ built | **BM25** `bm25` | concept | `inverted-index` | Term Weights |
+| ■ built | **Hybrid Search & RRF** `hybrid-search-rrf` | concept | `bm25`, `cosine-similarity` | RRF Mixer |
+| ■ built | **HyDE** `hyde` | concept | `hybrid-search-rrf` | Hypothetical Answer |
+| ■ built | **Reranking** `reranking` | concept | `bi-vs-cross-encoder`, `hybrid-search-rrf` | Rerank Relay |
+| ■ built | **Metadata Filtering** `metadata-filtering` | concept | `hybrid-search-rrf` | Filter First? |
+| ■ built | **HNSW vs IVF** `ann-indexes` | concept | `cosine-similarity` | Graph Hop |
+| ■ built | **Retrieval Evals (recall@k, MRR, nDCG)** `retrieval-eval` | concept | `reranking` | Rank Judge |
 
 <details><summary>Graph</summary>
 
@@ -741,13 +741,13 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Building Eval Sets** `eval-test-sets` | concept | `structured-outputs` | Golden Set |
-| · | **Code-based Graders** `code-graders` | concept | `eval-test-sets` | Assert It |
-| · | **LLM-as-Judge** `llm-as-judge` | concept | `code-graders` | Judge the Judge |
-| · | **Prompt Regression Testing** `prompt-regression` | concept | `llm-as-judge`, `prompt-versioning` | Eval Lab |
-| · | **Offline vs Online Evals** `offline-online-evals` | concept | `prompt-regression`, `sli-slo-error-budgets` | Shadow Traffic |
-| · | **Boss: Ship the Prompt** `boss-ship-the-prompt` | **boss** | `prompt-regression`, `offline-online-evals`, `retrieval-eval` | Eval gauntlet |
-| · | **Field: An Eval Suite for Case Intel Search** `field-search-evals` | `field` | `retrieval-eval`, `prompt-regression` | Field Mission |
+| ■ built | **Building Eval Sets** `eval-test-sets` | concept | `structured-outputs` | Golden Set |
+| ■ built | **Code-based Graders** `code-graders` | concept | `eval-test-sets` | Assert It |
+| ■ built | **LLM-as-Judge** `llm-as-judge` | concept | `code-graders` | Judge the Judge |
+| ■ built | **Prompt Regression Testing** `prompt-regression` | concept | `llm-as-judge`, `prompt-versioning` | Eval Lab |
+| ■ built | **Offline vs Online Evals** `offline-online-evals` | concept | `prompt-regression`, `sli-slo-error-budgets` | Shadow Traffic |
+| ■ built | **Boss: Ship the Prompt** `boss-ship-the-prompt` | **boss** | `prompt-regression`, `offline-online-evals`, `retrieval-eval` | Eval gauntlet |
+| ■ built | **Field: An Eval Suite for Your Own Search** `field-search-evals` | `field` | `retrieval-eval`, `prompt-regression` | Field Mission |
 
 <details><summary>Graph</summary>
 
@@ -759,14 +759,14 @@ flowchart LR
   prompt_regression["Prompt Regression Testing"]
   offline_online_evals["Offline vs Online Evals"]
   boss_ship_the_prompt{{"Boss: Ship the Prompt"}}
-  field_case_intel_evals["Field: An Eval Suite for Case Intel Search"]
+  field_search_evals["Field: An Eval Suite for Your Own Search"]
   eval_test_sets --> code_graders
   code_graders --> llm_as_judge
   llm_as_judge --> prompt_regression
   prompt_regression --> offline_online_evals
   prompt_regression --> boss_ship_the_prompt
   offline_online_evals --> boss_ship_the_prompt
-  prompt_regression --> field_case_intel_evals
+  prompt_regression --> field_search_evals
 ```
 
 </details>
@@ -777,19 +777,19 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Tool Calling & JSON Schemas** `tool-calling` | concept | `structured-outputs` | Schema Smith |
-| · | **The Agent Loop** `agent-loop` | concept | `tool-calling` | Loop Stepper |
-| · | **ReAct** `react-pattern` | concept | `agent-loop` | Think-Act-Observe |
-| · | **Planning** `planning` | concept | `react-pattern` | Plan Board |
-| · | **Short- vs Long-term Memory** `agent-memory` | concept | `agent-loop`, `embeddings` | Memory Palace |
-| · | **Agent Failure Modes** `agent-failure-modes` | concept | `agent-loop` | Agent Debugger |
-| · | **Human-in-the-loop** `human-in-the-loop` | concept | `agent-failure-modes` | Approval Gate |
-| · | **Workflows vs Agents** `workflows-vs-agents` | concept | `agent-loop` | Do You Need an Agent? |
-| · | **Orchestrator-Worker** `orchestrator-worker` | concept | `workflows-vs-agents` | Dispatch |
-| · | **Parallelization** `parallelization` | concept | `orchestrator-worker`, `tail-latency` | Fan-out Agents |
-| · | **Multi-agent Patterns** `multi-agent` | concept | `orchestrator-worker` | Agent Org Chart |
-| · | **Boss: The Agent That Wouldn't Stop** `boss-agent-meltdown` | **boss** | `agent-failure-modes`, `human-in-the-loop`, `planning` | Live agent triage |
-| · | **INC: $400 of Tool Calls** `inc-agent-loop` | `incident` | `agent-failure-modes` | Incident Room |
+| ■ built | **Tool Calling & JSON Schemas** `tool-calling` | concept | `structured-outputs` | Schema Smith |
+| ■ built | **The Agent Loop** `agent-loop` | concept | `tool-calling` | Loop Stepper |
+| ■ built | **ReAct** `react-pattern` | concept | `agent-loop` | Think-Act-Observe |
+| ■ built | **Planning** `planning` | concept | `react-pattern` | Plan Board |
+| ■ built | **Short- vs Long-term Memory** `agent-memory` | concept | `agent-loop`, `embeddings` | Memory Palace |
+| ■ built | **Agent Failure Modes** `agent-failure-modes` | concept | `agent-loop` | Agent Debugger |
+| ■ built | **Human-in-the-loop** `human-in-the-loop` | concept | `agent-failure-modes` | Approval Gate |
+| ■ built | **Workflows vs Agents** `workflows-vs-agents` | concept | `agent-loop` | Do You Need an Agent? |
+| ■ built | **Orchestrator-Worker** `orchestrator-worker` | concept | `workflows-vs-agents` | Dispatch |
+| ■ built | **Parallelization** `parallelization` | concept | `orchestrator-worker`, `tail-latency` | Fan-out Agents |
+| ■ built | **Multi-agent Patterns** `multi-agent` | concept | `orchestrator-worker` | Agent Org Chart |
+| ■ built | **Boss: The Agent That Wouldn't Stop** `boss-agent-meltdown` | **boss** | `agent-failure-modes`, `human-in-the-loop`, `planning` | Live agent triage |
+| ■ built | **INC: $400 of Tool Calls** `inc-agent-loop` | `incident` | `agent-failure-modes` | Incident Room |
 
 <details><summary>Graph</summary>
 
@@ -832,11 +832,11 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **MCP: Host, Client, Server** `mcp-architecture` | concept | `tool-calling` | Wire It Up |
-| · | **MCP Transports** `mcp-transports` | concept | `mcp-architecture`, `realtime-transport` | stdio or HTTP |
-| · | **Tools, Resources & Prompts** `mcp-primitives` | concept | `mcp-architecture` | Primitive Sort |
-| · | **Build an MCP Server** `mcp-build-server` | concept | `mcp-primitives`, `mcp-transports` | Server Forge |
-| · | **Field: Write an MCP Server** `field-mcp-server` | `field` | `mcp-build-server` | Field Mission |
+| ■ built | **MCP: Host, Client, Server** `mcp-architecture` | concept | `tool-calling` | Wire It Up |
+| ■ built | **MCP Transports** `mcp-transports` | concept | `mcp-architecture`, `realtime-transport` | stdio or HTTP |
+| ■ built | **Tools, Resources & Prompts** `mcp-primitives` | concept | `mcp-architecture` | Primitive Sort |
+| ■ built | **Build an MCP Server** `mcp-build-server` | concept | `mcp-primitives`, `mcp-transports` | Server Forge |
+| ■ built | **Field: Write an MCP Server** `field-mcp-server` | `field` | `mcp-build-server` | Field Mission |
 
 <details><summary>Graph</summary>
 
@@ -862,8 +862,8 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **How Claude Code Works** `claude-code-anatomy` | concept | `agent-loop`, `context-windows` | Context Inspector |
-| · | **Directing Coding Agents** `directing-coding-agents` | concept | `claude-code-anatomy` | Brief the Bot |
+| ■ built | **How Claude Code Works** `claude-code-anatomy` | concept | `agent-loop`, `context-windows` | Context Inspector |
+| ■ built | **Directing Coding Agents** `directing-coding-agents` | concept | `claude-code-anatomy` | Brief the Bot |
 
 <details><summary>Graph</summary>
 
@@ -882,22 +882,22 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **LLM Gateways** `llm-gateway` | concept | `reverse-proxy`, `rate-limiting` | Gateway Guard |
-| · | **Routing by Cost, Quality & Latency** `model-routing` | concept | `llm-gateway`, `llm-cost-math` | Model Router |
-| · | **Semantic Caching** `semantic-caching` | concept | `cache-aside`, `cosine-similarity` | Near Miss |
-| · | **LLM Rate Limits & Retries** `llm-rate-limits-retries` | concept | `retries-backoff-jitter`, `llm-gateway` | 429 Storm |
-| · | **Streaming Responses** `streaming` | concept | `realtime-transport`, `ttft-throughput` | Token Stream |
-| · | **Tracing Prompts & Tool Calls** `llm-tracing` | concept | `observability`, `agent-loop` | Trace Viewer |
-| · | **Guardrails** `guardrails` | concept | `structured-outputs` | Guard Post |
-| · | **PII Handling** `pii-handling` | concept | `guardrails` | Redact |
-| · | **LLM Cost Controls** `llm-cost-controls` | concept | `model-routing`, `prompt-caching` | Budget Cap |
-| · | **INC: The 429 Storm** `inc-429-storm` | `incident` | `llm-rate-limits-retries` | Incident Room |
+| ■ built | **Model Gateways** `llm-gateway` | concept | `reverse-proxy`, `rate-limiting` | Gateway Guard |
+| ■ built | **Routing by Cost, Quality & Latency** `model-routing` | concept | `llm-gateway`, `llm-cost-math` | Model Router |
+| ■ built | **Semantic Caching** `semantic-caching` | concept | `cache-aside`, `cosine-similarity` | Near Miss |
+| ■ built | **LLM Rate Limits & Retries** `llm-rate-limits-retries` | concept | `retries-backoff-jitter`, `llm-gateway` | 429 Storm |
+| ■ built | **Streaming Responses** `streaming` | concept | `realtime-transport`, `ttft-throughput` | Token Stream |
+| ■ built | **Tracing Prompts & Tool Calls** `llm-tracing` | concept | `observability`, `agent-loop` | Trace Viewer |
+| ■ built | **Guardrails** `guardrails` | concept | `structured-outputs` | Guard Post |
+| ■ built | **PII Handling** `pii-handling` | concept | `guardrails` | Redact |
+| ■ built | **LLM Cost Controls** `llm-cost-controls` | concept | `model-routing`, `prompt-caching` | Budget Cap |
+| ■ built | **INC: The 429 Storm** `inc-429-storm` | `incident` | `llm-rate-limits-retries` | Incident Room |
 
 <details><summary>Graph</summary>
 
 ```mermaid
 flowchart LR
-  llm_gateway["LLM Gateways"]
+  llm_gateway["Model Gateways"]
   model_routing["Routing by Cost, Quality & Latency"]
   semantic_caching["Semantic Caching"]
   llm_rate_limits_retries["LLM Rate Limits & Retries"]
@@ -922,11 +922,11 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Direct Prompt Injection** `prompt-injection-direct` | concept | `system-prompts` | Prompt Injection Heist |
-| · | **Indirect Prompt Injection** `prompt-injection-indirect` | concept | `prompt-injection-direct`, `tool-calling` | Poisoned Document |
-| · | **Exfiltration Through Tools** `tool-exfiltration` | concept | `prompt-injection-indirect` | Leaky Tool |
-| · | **Least-privilege Tool Design** `least-privilege-tools` | concept | `tool-exfiltration` | Scope It Down |
-| · | **INC: The Support Bot Said What?** `inc-injected-support-bot` | `incident` | `prompt-injection-indirect` | Incident Room |
+| ■ built | **Direct Prompt Injection** `prompt-injection-direct` | concept | `system-prompts` | Prompt Injection Heist |
+| ■ built | **Indirect Prompt Injection** `prompt-injection-indirect` | concept | `prompt-injection-direct`, `tool-calling` | Poisoned Document |
+| ■ built | **Exfiltration Through Tools** `tool-exfiltration` | concept | `prompt-injection-indirect` | Leaky Tool |
+| ■ built | **Least-privilege Tool Design** `least-privilege-tools` | concept | `tool-exfiltration` | Scope It Down |
+| ■ built | **INC: The Support Bot Said What?** `inc-injected-support-bot` | `incident` | `prompt-injection-indirect` | Incident Room |
 
 <details><summary>Graph</summary>
 
@@ -951,10 +951,10 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Prompting vs RAG vs Fine-tuning** `rag-vs-finetune` | concept | `chunking`, `prompt-structure` | Decision Tree |
-| · | **LoRA Intuition** `lora` | concept | `rag-vs-finetune` | Low-rank Dial |
-| · | **Quantization** `quantization` | concept | `rag-vs-finetune` | Bit Squeeze |
-| · | **Running Local Models** `local-models` | concept | `quantization` | Fit in 6GB |
+| ■ built | **Prompting vs RAG vs Fine-tuning** `rag-vs-finetune` | concept | `chunking`, `prompt-structure` | Decision Tree |
+| ■ built | **LoRA Intuition** `lora` | concept | `rag-vs-finetune` | Low-rank Dial |
+| ■ built | **Quantization** `quantization` | concept | `rag-vs-finetune` | Bit Squeeze |
+| ■ built | **Running Local Models** `local-models` | concept | `quantization` | Fit in 6GB |
 
 <details><summary>Graph</summary>
 
@@ -977,12 +977,12 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Case: ChatGPT-style Chat Service** `case-chat-service` | *case* | `streaming`, `context-windows`, `llm-rate-limits-retries`, `case-chat` | Interview case |
-| · | **Case: Legal-document RAG at Scale** `case-legal-rag` | *case* | `retrieval-eval`, `hybrid-search-rrf`, `multi-tenant-isolation`, `chunking` | Interview case |
-| · | **Case: AI Coding Agent** `case-coding-agent` | *case* | `claude-code-anatomy`, `agent-failure-modes`, `least-privilege-tools` | Interview case |
-| · | **Case: LLM Gateway** `case-llm-gateway` | *case* | `llm-gateway`, `model-routing`, `llm-cost-controls`, `semantic-caching` | Interview case |
-| · | **Case: Support Agent with Human Escalation** `case-support-agent` | *case* | `human-in-the-loop`, `guardrails`, `retrieval-eval` | Interview case |
-| · | **Case: Document-processing Pipeline** `case-doc-pipeline` | *case* | `queues-vs-logs`, `structured-outputs`, `dlq-poison` | Interview case |
+| ■ built | **Case: ChatGPT-style Chat Service** `case-chat-service` | *case* | `streaming`, `context-windows`, `llm-rate-limits-retries`, `case-chat` | Interview case |
+| ■ built | **Case: Legal-document RAG at Scale** `case-legal-rag` | *case* | `retrieval-eval`, `hybrid-search-rrf`, `multi-tenant-isolation`, `chunking` | Interview case |
+| ■ built | **Case: AI Coding Agent** `case-coding-agent` | *case* | `claude-code-anatomy`, `agent-failure-modes`, `least-privilege-tools` | Interview case |
+| ■ built | **Case: LLM Gateway** `case-llm-gateway` | *case* | `llm-gateway`, `model-routing`, `llm-cost-controls`, `semantic-caching` | Interview case |
+| ■ built | **Case: Support Agent with Human Escalation** `case-support-agent` | *case* | `human-in-the-loop`, `guardrails`, `retrieval-eval` | Interview case |
+| ■ built | **Case: Document-processing Pipeline** `case-doc-pipeline` | *case* | `queues-vs-logs`, `structured-outputs`, `dlq-poison` | Interview case |
 
 <details><summary>Graph</summary>
 
@@ -1006,16 +1006,16 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **What a Container Actually Is** `container-basics` | concept | `processes-signals` | Namespace Nesting |
-| · | **Images & Layers** `docker-images-layers` | concept | `container-basics` | Docker Layers |
-| · | **Dockerfile Build Cache** `dockerfile-cache` | concept | `docker-images-layers` | Cache Busting |
-| · | **Volumes & Persistence** `docker-volumes` | concept | `docker-images-layers` | Where Did My Data Go |
-| · | **Container Networking** `docker-networking` | concept | `container-basics`, `dns` | Port Maze |
-| · | **Docker Compose** `docker-compose` | concept | `docker-volumes`, `docker-networking` | Compose Up |
-| · | **Kubernetes Core** `kubernetes-core` | concept | `docker-compose`, `load-balancing` | Cluster Keeper |
-| · | **Probes, Limits & HPA** `kubernetes-probes-scaling` | concept | `kubernetes-core`, `autoscaling`, `memory-oom` | Pod Doctor |
-| · | **Field: Containerize Case Intel** `field-containerize-app` | `field` | `docker-compose` | Field Mission |
-| · | **INC: CrashLoopBackOff** `inc-oom-container` | `incident` | `kubernetes-probes-scaling` | Incident Room |
+| ■ built | **What a Container Actually Is** `container-basics` | concept | `processes-signals` | Namespace Nesting |
+| ■ built | **Images & Layers** `docker-images-layers` | concept | `container-basics` | Docker Layers |
+| ■ built | **Dockerfile Build Cache** `dockerfile-cache` | concept | `docker-images-layers` | Cache Busting |
+| ■ built | **Volumes & Persistence** `docker-volumes` | concept | `docker-images-layers` | Where Did My Data Go |
+| ■ built | **Container Networking** `docker-networking` | concept | `container-basics`, `dns` | Port Maze |
+| ■ built | **Docker Compose** `docker-compose` | concept | `docker-volumes`, `docker-networking` | Compose Up |
+| ■ built | **Kubernetes Core** `kubernetes-core` | concept | `docker-compose`, `load-balancing` | Cluster Keeper |
+| ■ built | **Probes, Limits & HPA** `kubernetes-probes-scaling` | concept | `kubernetes-core`, `autoscaling`, `memory-oom` | Pod Doctor |
+| ■ built | **Field: Containerize Your Own App** `field-containerize-app` | `field` | `docker-compose` | Field Mission |
+| ■ built | **INC: CrashLoopBackOff** `inc-oom-container` | `incident` | `kubernetes-probes-scaling` | Incident Room |
 
 <details><summary>Graph</summary>
 
@@ -1029,7 +1029,7 @@ flowchart LR
   docker_compose["Docker Compose"]
   kubernetes_core["Kubernetes Core"]
   kubernetes_probes_scaling["Probes, Limits & HPA"]
-  field_containerize_case_intel["Field: Containerize Case Intel"]
+  field_containerize_app["Field: Containerize Your Own App"]
   inc_oom_container>"INC: CrashLoopBackOff"]
   container_basics --> docker_images_layers
   docker_images_layers --> dockerfile_cache
@@ -1039,7 +1039,7 @@ flowchart LR
   docker_networking --> docker_compose
   docker_compose --> kubernetes_core
   kubernetes_core --> kubernetes_probes_scaling
-  docker_compose --> field_containerize_case_intel
+  docker_compose --> field_containerize_app
   kubernetes_probes_scaling --> inc_oom_container
 ```
 
@@ -1051,12 +1051,12 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Processes & Signals** `processes-signals` | concept | none | Process Tree |
-| · | **Memory & the OOM Killer** `memory-oom` | concept | `processes-signals` | OOM Roulette |
-| · | **File Descriptors** `file-descriptors` | concept | `processes-signals` | Too Many Open Files |
-| · | **systemd Units** `systemd` | concept | `processes-signals` | Unit Doctor |
-| · | **Reading Logs (journalctl, dmesg)** `reading-logs` | concept | `systemd`, `memory-oom` | Log Diver |
-| · | **Burstable CPU & Credits** `cpu-credits` | concept | `queueing-utilization` | Credit Drain |
+| ■ built | **Processes & Signals** `processes-signals` | concept | none | Process Tree |
+| ■ built | **Memory & the OOM Killer** `memory-oom` | concept | `processes-signals` | OOM Roulette |
+| ■ built | **File Descriptors** `file-descriptors` | concept | `processes-signals` | Too Many Open Files |
+| ■ built | **systemd Units** `systemd` | concept | `processes-signals` | Unit Doctor |
+| ■ built | **Reading Logs (journalctl, dmesg)** `reading-logs` | concept | `systemd`, `memory-oom` | Log Diver |
+| ■ built | **Burstable CPU & Credits** `cpu-credits` | concept | `queueing-utilization` | Credit Drain |
 
 <details><summary>Graph</summary>
 
@@ -1083,10 +1083,10 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **The Commit DAG** `git-dag` | concept | none | Git DAG |
-| · | **Merge vs Rebase** `merge-vs-rebase` | concept | `git-dag` | Rewrite History |
-| · | **Cherry-pick & Reset** `cherry-pick-reset` | concept | `merge-vs-rebase` | Surgeon |
-| · | **Reflog Rescues** `reflog-rescue` | concept | `cherry-pick-reset` | Undo the Undo |
+| ■ built | **The Commit DAG** `git-dag` | concept | none | Git DAG |
+| ■ built | **Merge vs Rebase** `merge-vs-rebase` | concept | `git-dag` | Rewrite History |
+| ■ built | **Cherry-pick & Reset** `cherry-pick-reset` | concept | `merge-vs-rebase` | Surgeon |
+| ■ built | **Reflog Rescues** `reflog-rescue` | concept | `cherry-pick-reset` | Undo the Undo |
 
 <details><summary>Graph</summary>
 
@@ -1109,9 +1109,9 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **CI/CD Pipelines** `ci-pipelines` | concept | `git-dag`, `docker-images-layers` | Pipeline Builder |
-| · | **Infrastructure as Code** `iac-basics` | concept | `ci-pipelines` | Plan & Apply |
-| · | **Field: CI for Case Intel** `field-gh-actions` | `field` | `ci-pipelines` | Field Mission |
+| ■ built | **CI/CD Pipelines** `ci-pipelines` | concept | `git-dag`, `docker-images-layers` | Pipeline Builder |
+| ■ built | **Infrastructure as Code** `iac-basics` | concept | `ci-pipelines` | Plan & Apply |
+| ■ built | **Field: CI for Your Own App** `field-gh-actions` | `field` | `ci-pipelines` | Field Mission |
 
 <details><summary>Graph</summary>
 
@@ -1119,7 +1119,7 @@ flowchart LR
 flowchart LR
   ci_pipelines["CI/CD Pipelines"]
   iac_basics["Infrastructure as Code"]
-  field_gh_actions["Field: CI for Case Intel"]
+  field_gh_actions["Field: CI for Your Own App"]
   ci_pipelines --> iac_basics
   ci_pipelines --> field_gh_actions
 ```
@@ -1132,10 +1132,10 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Threads vs Processes vs Async** `threads-processes-async` | concept | `processes-signals`, `littles-law` | Worker Models |
-| · | **Python's GIL** `python-gil` | concept | `threads-processes-async` | The Big Lock |
-| · | **Race Conditions** `race-conditions` | concept | `threads-processes-async` | Race Replay |
-| · | **Locks & Deadlocks** `locks-deadlocks` | concept | `race-conditions` | Dining Deadlock |
+| ■ built | **Threads vs Processes vs Async** `threads-processes-async` | concept | `processes-signals`, `littles-law` | Worker Models |
+| ■ built | **Python's GIL** `python-gil` | concept | `threads-processes-async` | The Big Lock |
+| ■ built | **Race Conditions** `race-conditions` | concept | `threads-processes-async` | Race Replay |
+| ■ built | **Locks & Deadlocks** `locks-deadlocks` | concept | `race-conditions` | Dining Deadlock |
 
 <details><summary>Graph</summary>
 
@@ -1158,13 +1158,13 @@ flowchart LR
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **OOP & SOLID** `oop-solid` | concept | none | Refactor Arena |
-| · | **Design Patterns in Action** `design-patterns` | concept | `oop-solid` | Pattern Match |
-| · | **LLD: LRU Cache** `lld-lru-cache` | concept | `design-patterns`, `eviction-policies` | Machine Coding |
-| · | **LLD: Parking Lot** `lld-parking-lot` | concept | `design-patterns` | Machine Coding |
-| · | **LLD: Splitwise** `lld-splitwise` | concept | `design-patterns` | Machine Coding |
-| · | **LLD: Elevator** `lld-elevator` | concept | `design-patterns` | Machine Coding |
-| · | **LLD: Rate Limiter Class** `lld-rate-limiter-class` | concept | `design-patterns`, `rate-limiting` | Machine Coding |
+| ■ built | **OOP & SOLID** `oop-solid` | concept | none | Refactor Arena |
+| ■ built | **Design Patterns in Action** `design-patterns` | concept | `oop-solid` | Pattern Match |
+| ■ built | **LLD: LRU Cache** `lld-lru-cache` | concept | `design-patterns`, `eviction-policies` | Machine Coding |
+| ■ built | **LLD: Parking Lot** `lld-parking-lot` | concept | `design-patterns` | Machine Coding |
+| ■ built | **LLD: Splitwise** `lld-splitwise` | concept | `design-patterns` | Machine Coding |
+| ■ built | **LLD: Elevator** `lld-elevator` | concept | `design-patterns` | Machine Coding |
+| ■ built | **LLD: Rate Limiter Class** `lld-rate-limiter-class` | concept | `design-patterns`, `rate-limiting` | Machine Coding |
 
 <details><summary>Graph</summary>
 
@@ -1187,33 +1187,33 @@ flowchart LR
 
 </details>
 
-## Track D: The Case Intel Files (Annex)
+## Track D: The Production Files (Annex)
 
-### D1 · The Case Intel Files
+### D1 · The Production Files
 
-*Your own production.* Real incidents from caseintel.in, and the capstone.
+*A real production app.* Real incidents from a small production app, and the capstone.
 
 | Status | Node | Kind | Prerequisites | Signature interaction |
 |---|---|---|---|---|
-| · | **Case Intel: The Polling Storm** `prod-polling-storm` | `incident` | `littles-law`, `pagination`, `realtime-transport`, `memory-oom` | Incident Room |
-| · | **Case Intel: The Unreachable t3.micro** `prod-t3-unreachable` | `incident` | `memory-oom`, `cpu-credits`, `reading-logs` | Incident Room |
-| · | **Case Intel: State-wide Fan-out** `prod-state-fanout` | concept | `retries-backoff-jitter`, `bulkheads`, `tail-latency`, `backpressure` | Fan-out Designer |
-| · | **Case Intel: The Postgres Job Queue** `prod-pg-job-queue` | concept | `postgres-queue`, `dlq-poison` | Lock Skipper: production |
-| · | **Case Intel: Certbot's 404** `prod-certbot-404` | `incident` | `reverse-proxy`, `tls-handshake` | Incident Room |
-| · | **Capstone: Case Intel for Every Advocate in India** `capstone-legal-search` | **boss** | `case-legal-rag`, `case-web-crawler`, `case-notification-system`, `multi-tenant-isolation`, `llm-cost-controls`, `prod-state-fanout`, `prod-pg-job-queue` | Interview Arena capstone |
+| ■ built | **Production: The Polling Storm** `prod-polling-storm` | `incident` | `littles-law`, `pagination`, `realtime-transport`, `memory-oom` | Incident Room |
+| ■ built | **Production: The Unreachable t3.micro** `prod-t3-unreachable` | `incident` | `memory-oom`, `cpu-credits`, `reading-logs` | Incident Room |
+| ■ built | **Production: State-wide Fan-out** `prod-state-fanout` | concept | `retries-backoff-jitter`, `bulkheads`, `tail-latency`, `backpressure` | Fan-out Designer |
+| ■ built | **Production: The Postgres Job Queue** `prod-pg-job-queue` | concept | `postgres-queue`, `dlq-poison` | Lock Skipper: production |
+| ■ built | **Production: Certbot's 404** `prod-certbot-404` | `incident` | `reverse-proxy`, `tls-handshake` | Incident Room |
+| ■ built | **Capstone: Legal Search at National Scale** `capstone-legal-search` | **boss** | `case-legal-rag`, `case-web-crawler`, `case-notification-system`, `multi-tenant-isolation`, `llm-cost-controls`, `prod-state-fanout`, `prod-pg-job-queue` | Interview Arena capstone |
 
 <details><summary>Graph</summary>
 
 ```mermaid
 flowchart LR
-  ci_polling_storm>"Case Intel: The Polling Storm"]
-  ci_t3_unreachable>"Case Intel: The Unreachable t3.micro"]
-  ci_district_fanout["Case Intel: State-wide Fan-out"]
-  ci_pg_job_queue["Case Intel: The Postgres Job Queue"]
-  ci_certbot_404>"Case Intel: Certbot's 404"]
-  capstone_case_intel_india{{"Capstone: Case Intel for Every Advocate in India"}}
-  ci_district_fanout --> capstone_case_intel_india
-  ci_pg_job_queue --> capstone_case_intel_india
+  prod_polling_storm>"Production: The Polling Storm"]
+  prod_t3_unreachable>"Production: The Unreachable t3.micro"]
+  prod_state_fanout["Production: State-wide Fan-out"]
+  prod_pg_job_queue["Production: The Postgres Job Queue"]
+  prod_certbot_404>"Production: Certbot's 404"]
+  capstone_legal_search{{"Capstone: Legal Search at National Scale"}}
+  prod_state_fanout --> capstone_legal_search
+  prod_pg_job_queue --> capstone_legal_search
 ```
 
 </details>
