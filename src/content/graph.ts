@@ -519,6 +519,10 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "secrets-management": "built",
   "multi-tenant-isolation": "built",
   "boss-breach": "built",
+  "blob-storage": "built",
+  "inverted-index": "built",
+  "geospatial-index": "built",
+  "time-series": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

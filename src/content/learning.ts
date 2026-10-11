@@ -631,6 +631,26 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "A breach tests every earlier security choice at once. The skill is knowing which choice limited the damage.",
     keyIdea: "What you set up before decides what you can do now.",
   },
+  "blob-storage": {
+    canDo: "Design uploads with presigned multipart URLs and cut storage cost with lifecycle tiers, stating what each tier gives up.",
+    why: "Almost every product stores files. Knowing direct upload and tiering separates working designs from ones that melt app servers and budgets.",
+    keyIdea: "Keep bytes off your servers; let old data sink.",
+  },
+  "inverted-index": {
+    canDo: "Explain term-to-document posting lists, intersect them from the shortest, and weigh positions against index size.",
+    why: "Search is behind every product with a search box. The inverted index is the one idea to know.",
+    keyIdea: "Do the reading once, at index time.",
+  },
+  "geospatial-index": {
+    canDo: "Index points by geohash or similar cells, size cells to the search radius, and search neighbouring cells to avoid edge misses.",
+    why: "Nearby search is the heart of ride-hailing and delivery designs. Cell size and edges are the follow-up questions.",
+    keyIdea: "Cells about the size of the radius, plus their neighbours.",
+  },
+  "time-series": {
+    canDo: "Plan compression, downsampling tiers and retention for a metrics store, and keep label cardinality bounded.",
+    why: "Metrics and IoT data overwhelm general databases. Tiering and cardinality are the levers that matter.",
+    keyIdea: "Keep the recent past sharp and the distant past blurred.",
+  },
 };
 
 export interface ChapterLearning {
@@ -751,6 +771,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Separate who you are from what you may do", "Choose session and OAuth designs that can be revoked and cannot be intercepted", "Spend security effort where the risk is", "Limit the damage when something leaks"],
     why: "Security failures are rarely clever. They are a forgotten check, a long-lived key or a rule that depended on everyone being careful. Each tool here removes one such dependency.",
     payoff: "In an interview you can design sign-in, access control and secrets handling and say how each fails. At work you will review a change and know which check it skipped.",
+  },
+  a13: {
+    story: "Pigeon's data stops looking like rows, and the team meets stores built for files, words, places and time.",
+    outcomes: ["Store and serve files cheaply with object storage", "Search text with inverted indexes", "Find nearby things with cell indexes", "Keep metrics affordable with compression and rollups"],
+    why: "A general database can hold anything and does nothing well at scale. Each store here exploits the shape of one kind of data.",
+    payoff: "In an interview you can match a data shape to its store and give the numbers. At work you will know when Postgres has stopped being the right answer.",
   },
 };
 
