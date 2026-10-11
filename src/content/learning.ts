@@ -856,6 +856,46 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Context length costs memory, not only tokens. This is the question behind every local setup.",
     keyIdea: "Weights are only part of what you hold.",
   },
+  "container-basics": {
+    canDo: "Explain a container as a restricted process, and choose the namespace, cgroup and hardening switches that contain it.",
+    why: "'Is a container a VM?' is a standard question. Knowing which switch controls which risk is the better answer.",
+    keyIdea: "Seeing and using are different switches.",
+  },
+  "docker-images-layers": {
+    canDo: "Explain why layers only add, and cut an image's size and attack surface with multi-stage builds, same-layer cleanup and a small base.",
+    why: "Image size is scale-up latency and attack surface. Reviewers look at Dockerfiles for exactly these habits.",
+    keyIdea: "Layers add. They never subtract.",
+  },
+  "dockerfile-cache": {
+    canDo: "Order a Dockerfile for the build cache, keep the cache on CI, and use cache mounts for packages.",
+    why: "Slow builds cost a team hours a day. Knowing why the cache breaks is a quick, visible win.",
+    keyIdea: "Stable steps first.",
+  },
+  "docker-volumes": {
+    canDo: "Explain what survives a restart, a recreation and a host loss, and place data accordingly with backups.",
+    why: "Losing data on a redeploy is the classic container mistake. Choosing storage by lifetime is the fix.",
+    keyIdea: "Replaceable compute, durable data.",
+  },
+  "docker-networking": {
+    canDo: "Explain per-container localhost, connect services by name on a user-defined network, and publish only what outsiders need.",
+    why: "'Why can't my container connect to the database?' is the most common Docker question.",
+    keyIdea: "Localhost is a namespace, not the machine.",
+  },
+  "docker-compose": {
+    canDo: "Explain why start order is not readiness, and make a Compose stack start reliably with healthchecks and resilient clients.",
+    why: "Compose is the first orchestration tool most developers use. The readiness trap is its most common bug.",
+    keyIdea: "Started is not ready.",
+  },
+  "kubernetes-core": {
+    canDo: "Describe declared state and reconciliation, tune rolling updates, and spread replicas across failure domains.",
+    why: "Kubernetes questions test whether you understand what the system guarantees and what it does not.",
+    keyIdea: "Redundancy needs independence.",
+  },
+  "kubernetes-probes-scaling": {
+    canDo: "Set memory limits from measured peaks, delay liveness past boot time, gate traffic with readiness, and size autoscaling for the spike.",
+    why: "CrashLoopBackOff and slow scaling are the two production Kubernetes problems everyone meets.",
+    keyIdea: "A limit is a kill switch with a number on it.",
+  },
 };
 
 export interface ChapterLearning {
@@ -1024,6 +1064,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Pick between prompting, retrieval and fine-tuning", "Tune a model cheaply with adapters", "Shrink a model with quantization", "Fit a model and its context on a small GPU"],
     why: "Prompting is not the only way to change what a model does. Each alternative has a price in effort, memory and quality.",
     payoff: "In an interview you can say when you would fine-tune and how you would serve it. At work you will size a model for the hardware you have.",
+  },
+  c1: {
+    story: "The team moves its services into containers and meets everything containers do not do for them.",
+    outcomes: ["Explain what a container is and is not", "Build small images and fast builds", "Keep data and networks right", "Run on Kubernetes with probes, limits and autoscaling"],
+    why: "Containers and Kubernetes are the default way to ship software. Most of their problems come from assuming they do more than they do.",
+    payoff: "In an interview you can explain containers and an orchestrator from first principles. At work you will review a Dockerfile and a manifest for the mistakes that cause outages.",
   },
 };
 

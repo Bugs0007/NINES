@@ -564,6 +564,14 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "lora": "built",
   "quantization": "built",
   "local-models": "built",
+  "container-basics": "built",
+  "docker-images-layers": "built",
+  "dockerfile-cache": "built",
+  "docker-volumes": "built",
+  "docker-networking": "built",
+  "docker-compose": "built",
+  "kubernetes-core": "built",
+  "kubernetes-probes-scaling": "built",
 };
 
 function chapterTrack(chapterId: string): Track {
