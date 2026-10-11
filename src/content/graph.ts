@@ -529,6 +529,18 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "prompt-regression": "built",
   "offline-online-evals": "built",
   "boss-ship-the-prompt": "built",
+  "tool-calling": "built",
+  "agent-loop": "built",
+  "react-pattern": "built",
+  "planning": "built",
+  "agent-memory": "built",
+  "agent-failure-modes": "built",
+  "human-in-the-loop": "built",
+  "workflows-vs-agents": "built",
+  "orchestrator-worker": "built",
+  "parallelization": "built",
+  "multi-agent": "built",
+  "boss-agent-meltdown": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

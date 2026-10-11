@@ -681,6 +681,66 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Shipping a prompt safely uses every eval skill at once. The skill is finding the weakest link in the gate.",
     keyIdea: "Find the weakest link in the gate.",
   },
+  "tool-calling": {
+    canDo: "Design tool schemas and sets a model uses reliably, and keep the number of tools in view small with retrieval.",
+    why: "Tool design decides whether an agent works. Interviewers ask how you would prevent wrong-tool and bad-argument failures.",
+    keyIdea: "The model requests; your code validates and executes.",
+  },
+  "agent-loop": {
+    canDo: "Explain the loop, compute why cost grows with the square of the steps, and cap steps and cost sensibly.",
+    why: "Runaway agent bills are the classic production story. Knowing why they grow quadratically shows real understanding.",
+    keyIdea: "Every turn re-reads everything before it.",
+  },
+  "react-pattern": {
+    canDo: "Describe ReAct's thought-action-observation cycle and why it beats answering from memory or acting blindly.",
+    why: "ReAct is the root of most agent designs. Naming what each alternative lacks is a standard question.",
+    keyIdea: "Thinking needs something to think about.",
+  },
+  "planning": {
+    canDo: "Compute the success of a fixed plan as a product of steps, and add bounded replanning to make long tasks reliable.",
+    why: "Long agent tasks fail by compounding. Bounded replanning is the standard remedy.",
+    keyIdea: "Reliability multiplies down a chain.",
+  },
+  "agent-memory": {
+    canDo: "Layer a recent window, a summary, pinned facts and retrieval to remember a long conversation within a token budget.",
+    why: "Memory is a selection problem, and the layered answer is what separates a demo from a product.",
+    keyIdea: "Memory is a selection problem.",
+  },
+  "agent-failure-modes": {
+    canDo: "Name the main agent failure modes and defend against loops, bad tool calls and silent wrong answers.",
+    why: "Agents fail in ways ordinary software does not. Layered limits and tracing are the practical answer.",
+    keyIdea: "The loop will never decide to stop on its own.",
+  },
+  "human-in-the-loop": {
+    canDo: "Gate agent actions by consequence, make low-risk mistakes reversible, and avoid approval fatigue.",
+    why: "Putting a human in the loop is easy; putting them where they help is the skill.",
+    keyIdea: "Approve what cannot be undone.",
+  },
+  "workflows-vs-agents": {
+    canDo: "Choose a workflow, an agent, or a router between them based on how predictable the task is.",
+    why: "Not every task needs an agent. Starting simple and routing by need is the advice teams most often wish they had taken.",
+    keyIdea: "Add autonomy where it pays.",
+  },
+  "orchestrator-worker": {
+    canDo: "Split a task across parallel workers with clean contexts, and weigh the quality gain against coordination cost.",
+    why: "Research agents use this pattern. The knee in the quality curve is the detail interviewers look for.",
+    keyIdea: "Small clean contexts, and a cost to combine them.",
+  },
+  "parallelization": {
+    canDo: "Choose sectioning or voting, size a vote, and use a quorum to avoid the tail latency of the slowest call.",
+    why: "Parallel calls help accuracy and speed and hurt cost and tail latency. Quorums are the standard fix.",
+    keyIdea: "Divide for speed, repeat for certainty.",
+  },
+  "multi-agent": {
+    canDo: "Compare supervisor, debate and swarm organisations on quality, tokens and failures.",
+    why: "Multi-agent designs are fashionable and costly. Reasoning about their communication cost shows judgement.",
+    keyIdea: "Earn the complexity.",
+  },
+  "boss-agent-meltdown": {
+    canDo: "Contain a runaway agent with layered limits, a consequence-based gate, idempotent tools and an independent alert.",
+    why: "A runaway agent tests every agent safeguard at once. The skill is knowing which control stops what.",
+    keyIdea: "Bound the loop, gate the damage, alert independently.",
+  },
 };
 
 export interface ChapterLearning {
@@ -813,6 +873,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Build eval sets that can be trusted", "Choose graders and judges and measure their errors", "Gate prompt changes without crying wolf", "Test on real traffic without hurting real users"],
     why: "Without evals, prompt work is opinion. Each tool here removes a way to fool yourself.",
     payoff: "In an interview you can describe how you would know a prompt change is safe to ship. At work you will argue from a measured gate instead of three examples.",
+  },
+  b6: {
+    story: "Pigeon's assistant starts taking actions, not just writing answers, and the team learns what that costs.",
+    outcomes: ["Design tools and loops that work and stay bounded", "Plan, remember and verify across long tasks", "Put people where mistakes cannot be undone", "Choose between workflows, agents and teams of agents"],
+    why: "An agent is a model with permission to act. Every capability here comes with a way to fail, and each safeguard removes one.",
+    payoff: "In an interview you can design an agent and say how it fails and what bounds it. At work you will review an agent design for loops, scope and cost.",
   },
 };
 
