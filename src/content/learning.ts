@@ -1071,6 +1071,36 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Video shows how each stage of a pipeline has its own bottleneck and its own bill.",
     keyIdea: "Delivery is the bill; parallelism is the speed.",
   },
+  "case-chat-service": {
+    canDo: "Control chat cost: full history with prompt caching, streaming, token budgets and routing for chatty turns.",
+    why: "Chat is where per-turn input growth bites. Interviewers want caching, history policy and abuse control.",
+    keyIdea: "Every turn resends the conversation.",
+  },
+  "case-legal-rag": {
+    canDo: "Design retrieval for confidential multi-tenant documents: hybrid search, reranking, isolation in the index and quantized vectors.",
+    why: "Legal RAG makes tenant isolation as important as recall. Isolation belongs in the structure, not a filter.",
+    keyIdea: "Put the boundary in the index.",
+  },
+  "case-coding-agent": {
+    canDo: "Design a coding agent that finishes tasks, costs little and cannot do much damage: a test loop, a microVM and an allowlist.",
+    why: "Capability and safety are one design. The environment, not the prompt, bounds the damage.",
+    keyIdea: "The environment holds the line.",
+  },
+  "case-llm-gateway": {
+    canDo: "Design the gateway every AI feature uses: cascade routing, a verified cache, failover, safe retries, budgets and async logs.",
+    why: "A gateway has to be cheaper than what it saves and must not become the next outage.",
+    keyIdea: "The door must not become the outage.",
+  },
+  "case-support-agent": {
+    canDo: "Choose an escalation threshold with retrieval, a policy check and sampled review, trading wrong answers against human hours.",
+    why: "Human escalation is a threshold, and every point moves work between customers and people.",
+    keyIdea: "The threshold trades customers against queues.",
+  },
+  "case-doc-pipeline": {
+    canDo: "Design an extraction pipeline with a queue, schema-constrained output, validation and a dead-letter queue.",
+    why: "Document pipelines fail by surge, by poison documents and by quiet inaccuracy. Each has its own control.",
+    keyIdea: "Give every failure somewhere to go.",
+  },
 };
 
 export interface ChapterLearning {
@@ -1275,6 +1305,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Apply SOLID with judgement", "Match patterns to problems", "Design the classic machine-coding problems", "Reason about complexity, concurrency and memory in a class"],
     why: "Low-level design is about confining change. Every classic problem teaches a data structure choice, a concurrency question and an extension point.",
     payoff: "In an interview you can design the usual machine-coding problems and defend the trade-offs. At work your classes will be easier to change and to test.",
+  },
+  b12: {
+    story: "Pigeon's AI features are in production, and the team rehearses the design questions an interviewer would ask about them.",
+    outcomes: ["Design a chat service, a gateway and a coding agent with their costs", "Keep confidential documents apart in a shared search", "Choose an escalation threshold with data", "Build a document pipeline that survives a surge"],
+    why: "The AI interview cases combine every earlier chapter into a design with a bill, an error rate and a risk. Each lab shows the trade-off with numbers.",
+    payoff: "In an interview you can design an AI system and defend its cost and failure modes. At work you will review one with the same questions.",
   },
 };
 

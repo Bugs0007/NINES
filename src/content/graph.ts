@@ -607,6 +607,12 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "case-autocomplete": "built",
   "case-ride-hailing": "built",
   "case-video-pipeline": "built",
+  "case-chat-service": "built",
+  "case-legal-rag": "built",
+  "case-coding-agent": "built",
+  "case-llm-gateway": "built",
+  "case-support-agent": "built",
+  "case-doc-pipeline": "built",
 };
 
 function chapterTrack(chapterId: string): Track {
