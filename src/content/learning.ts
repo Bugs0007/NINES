@@ -651,6 +651,36 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Metrics and IoT data overwhelm general databases. Tiering and cardinality are the levers that matter.",
     keyIdea: "Keep the recent past sharp and the distant past blurred.",
   },
+  "eval-test-sets": {
+    canDo: "Size an eval set for the smallest change that matters, cover rare input kinds on purpose, and keep it out of the prompt.",
+    why: "Every AI team is asked how it knows a change helped. A trustworthy eval set is the answer.",
+    keyIdea: "Enough examples, the right ones, kept apart.",
+  },
+  "code-graders": {
+    canDo: "Choose and validate code-based graders, weighing false fails against false passes.",
+    why: "Code graders are fast and repeatable, but a bad one quietly lies. Measuring its errors is the expert move.",
+    keyIdea: "Grade the meaning, not the typography.",
+  },
+  "llm-as-judge": {
+    canDo: "Set up an LLM judge with a rubric, counter its biases, and calibrate it against human labels.",
+    why: "Judges scale evaluation and mislead when unchecked. Knowing the biases and how to measure agreement is the core skill.",
+    keyIdea: "Measure the thing that measures.",
+  },
+  "prompt-regression": {
+    canDo: "Build a regression gate whose noise is below the effect, using paired comparisons and a threshold between effect and noise.",
+    why: "Flaky prompt tests teach teams to ignore them. Understanding the statistics keeps the gate honest.",
+    keyIdea: "A gate sees only changes bigger than its noise.",
+  },
+  "offline-online-evals": {
+    canDo: "Layer offline suites, shadow traffic and guarded live tests, and compute the users exposed at each stage.",
+    why: "Offline passes can hide regressions in slices the suite lacks. Layered testing is how production teams ship safely.",
+    keyIdea: "Shadow tests what you say; live tests what users do.",
+  },
+  "boss-ship-the-prompt": {
+    canDo: "Design a complete release gate: suite, graders, calibrated judge, pairing, threshold and guarded canary, within a budget.",
+    why: "Shipping a prompt safely uses every eval skill at once. The skill is finding the weakest link in the gate.",
+    keyIdea: "Find the weakest link in the gate.",
+  },
 };
 
 export interface ChapterLearning {
@@ -777,6 +807,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Store and serve files cheaply with object storage", "Search text with inverted indexes", "Find nearby things with cell indexes", "Keep metrics affordable with compression and rollups"],
     why: "A general database can hold anything and does nothing well at scale. Each store here exploits the shape of one kind of data.",
     payoff: "In an interview you can match a data shape to its store and give the numbers. At work you will know when Postgres has stopped being the right answer.",
+  },
+  b5: {
+    story: "Pigeon's prompts start changing weekly, and the team needs to know whether each change helped.",
+    outcomes: ["Build eval sets that can be trusted", "Choose graders and judges and measure their errors", "Gate prompt changes without crying wolf", "Test on real traffic without hurting real users"],
+    why: "Without evals, prompt work is opinion. Each tool here removes a way to fool yourself.",
+    payoff: "In an interview you can describe how you would know a prompt change is safe to ship. At work you will argue from a measured gate instead of three examples.",
   },
 };
 

@@ -523,6 +523,12 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "inverted-index": "built",
   "geospatial-index": "built",
   "time-series": "built",
+  "eval-test-sets": "built",
+  "code-graders": "built",
+  "llm-as-judge": "built",
+  "prompt-regression": "built",
+  "offline-online-evals": "built",
+  "boss-ship-the-prompt": "built",
 };
 
 function chapterTrack(chapterId: string): Track {
