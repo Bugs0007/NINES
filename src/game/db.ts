@@ -95,6 +95,7 @@ export type GameEventType =
   | "estimate"
   | "boss"
   | "incident"
+  | "field"
   | "shift"
   | "hint"
   | "micro";

@@ -38,7 +38,7 @@ export function deriveRows(concepts: readonly ConceptProgress[], profile: Pick<P
   for (const id of profile.incidentsResolved) {
     const node = LEVEL_BY_ID.get(id);
     if (!node) continue;
-    const runs = events.filter((e) => e.type === "incident" && e.conceptId === id).length;
+    const runs = events.filter((e) => (e.type === "incident" || e.type === "field") && e.conceptId === id).length;
     put({ section: node.chapter, level: id, status: "completed", score: null, attempts: Math.min(Math.max(1, runs), 1000) });
   }
 

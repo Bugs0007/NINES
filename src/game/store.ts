@@ -57,6 +57,8 @@ export interface GameState {
   recordTransfer: (conceptIds: string[]) => Promise<void>;
   beatBoss: (bossId: string, xp: number, data?: Record<string, unknown>) => Promise<void>;
   resolveIncident: (incidentId: string, xp: number, data?: Record<string, unknown>) => Promise<void>;
+  /** Complete a field mission. Stored with the resolved incidents: both are optional, side-of-chapter work. */
+  completeField: (fieldId: string, xp: number, data?: Record<string, unknown>) => Promise<void>;
   completeShift: (xp: number, data?: Record<string, unknown>) => Promise<{ streak: number; froze: number; tokenEarned: boolean }>;
   updateSettings: (patch: Partial<Settings>) => Promise<void>;
   markSeen: (key: string) => Promise<void>;
@@ -221,6 +223,17 @@ export const useGame = create<GameState>()((set, get) => ({
     };
     set({ profile });
     await Promise.all([saveProfile(profile), saveEvent({ t: Date.now(), type: "incident", xp, conceptId: incidentId, data })]);
+  },
+
+  completeField: async (fieldId, xp, data = {}) => {
+    const prev = get().profile;
+    const profile: Profile = {
+      ...prev,
+      xp: prev.xp + xp,
+      incidentsResolved: prev.incidentsResolved.includes(fieldId) ? prev.incidentsResolved : [...prev.incidentsResolved, fieldId],
+    };
+    set({ profile });
+    await Promise.all([saveProfile(profile), saveEvent({ t: Date.now(), type: "field", xp, conceptId: fieldId, data })]);
   },
 
   completeShift: async (xp, data = {}) => {

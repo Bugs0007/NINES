@@ -126,6 +126,36 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Certificates expire on a date no one watches. Renewal depends on a proxy path that unrelated config changes can quietly break.",
     keyIdea: "Alert on days to expiry, not on the outage.",
   },
+  "field-load-test": {
+    canDo: "Load-test an API you wrote, find the knee where latency climbs, and check it against a Little's Law prediction.",
+    why: "Simulations teach the shape; your own service teaches the numbers. A measured knee and a prediction beside it is how capacity is argued.",
+    keyIdea: "Predict first, then measure.",
+  },
+  "field-telegram-summarizer": {
+    canDo: "Build a bot that fetches a page and returns a schema-checked summary within a token budget, with the cost of each run.",
+    why: "A structured, budgeted model call is the unit of most LLM features. Building one end to end shows where tokens, schemas and failures bite.",
+    keyIdea: "A schema makes a model a function.",
+  },
+  "field-search-evals": {
+    canDo: "Write a small evaluation set for a search, measure recall and reciprocal rank, and show one change moved the numbers.",
+    why: "Search changes feel better or worse without a number. Twenty hand-written queries turn opinions into a test you can rerun.",
+    keyIdea: "No eval, no improvement.",
+  },
+  "field-mcp-server": {
+    canDo: "Write an MCP server with one well-described tool, and show a client discovering it and calling it.",
+    why: "A tool is an interface whose reader is a model. Building one shows how much depends on its description, schema and errors.",
+    keyIdea: "The description is the interface.",
+  },
+  "field-containerize-app": {
+    canDo: "Package an app in a small non-root image with a health check, and start it with its database through Compose.",
+    why: "Containers are how code moves between machines. A slim image, a non-root user and a health check are the parts that matter in production.",
+    keyIdea: "Ship the runtime, not the toolchain.",
+  },
+  "field-gh-actions": {
+    canDo: "Add a CI workflow that lints, tests and builds on every push, with caching, and show it going red and green.",
+    why: "CI is a promise that the main branch works on a clean machine. A fast, trusted check is what keeps that promise cheap.",
+    keyIdea: "A slow check is a skipped check.",
+  },
   tokens: {
     canDo: "Explain what a token is, why counts differ by language and format, and what a prompt costs per month.",
     why: "Tokens are the unit of cost, speed, and context limits for every LLM feature you'll build.",

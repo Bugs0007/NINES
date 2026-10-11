@@ -1,6 +1,7 @@
 # NINES Roadmap
 
 ## Next session starts here
+0. Every node in `src/content/graph.ts` is now built (2026-10-11): all concept chapters through D1, 18 cases, 15 incident scenarios (`src/incident/`), 6 field missions (`src/field/`, D-023), and the legal-search capstone. What remains is review, not building: run the accuracy pass (fact-check subagent) over the chapters added since A1/B1 (B7 to D1, the cases, the incidents), play each new flow end to end in the browser, extend `e2e/` for `/field/[id]`, and read `CONTENT_PLAN.md` for any table drift.
 1. Launch polish is built (D-022): neutral public copy, generated section labels, a skippable briefing and HQ tour, a "next step" card, locked-state reasons, Supabase accounts with validated progress, an admin funnel, anonymous analytics, and bring-your-own AI keys. Next: set up Supabase, Google sign-in and PostHog per `SUPABASE_SETUP.md`, deploy per `DEPLOY.md`, then post.
 2. After launch: read `/admin` (funnel and feedback) weekly; promote the slice nodes to "verified" once playtest round 2 is in.
 3. Then Phase 3: Sandbox/Architect, Interview Arena, chapters A2, A4, B2, B4.
