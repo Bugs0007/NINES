@@ -596,6 +596,41 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "A region failure tests every operations choice at once. The skill is finding the slowest link.",
     keyIdea: "Add up the minutes, then attack the longest.",
   },
+  "authn-authz": {
+    canDo: "Separate login from permission, and place role and ownership checks where an attacker cannot skip them.",
+    why: "Broken access control is the top web risk. Naming object-level authorization is what interviewers listen for.",
+    keyIdea: "Role says what you may do; ownership says to which things.",
+  },
+  "sessions-vs-jwt": {
+    canDo: "Compare sessions and tokens on revocation, lookups and size, and design cut-off with short lifetimes or a deny-list.",
+    why: "The sessions versus JWT debate hides one question: how fast can you revoke. Answer that and the design follows.",
+    keyIdea: "Stateless means nobody remembers to say no.",
+  },
+  "oauth-oidc": {
+    canDo: "Choose the right OAuth flow for a client, explain why PKCE exists, and request only the scopes needed.",
+    why: "OAuth flows are asked in nearly every security interview, and implicit and password flows are the common traps.",
+    keyIdea: "Redirects are public; put only a one-time code in them.",
+  },
+  "owasp-top-risks": {
+    canDo: "Rank web weaknesses by harm and fix cost, and prevent injection, scripting, guessing and outdated dependencies.",
+    why: "Security time is scarce. Spending it on the big, cheap holes first is the practical skill.",
+    keyIdea: "Fix the biggest, cheapest risk first.",
+  },
+  "secrets-management": {
+    canDo: "Reduce leak damage by scanning commits, issuing short-lived credentials and scoping keys to least privilege.",
+    why: "Leaked keys cause many real breaches. Treating leak as certain and designing for speed and reach is the senior answer.",
+    keyIdea: "Shrink hours, rate and reach.",
+  },
+  "multi-tenant-isolation": {
+    canDo: "Pick pooled, schema or database isolation for a tenant count, and enforce the wall below the application.",
+    why: "SaaS leaks come from one forgotten filter. Enforcing isolation in the database is the standard answer.",
+    keyIdea: "A rule everyone must remember will be forgotten.",
+  },
+  "boss-breach": {
+    canDo: "Run a breach response: detect, contain, limit blast radius, prove scope with logs, and close every other door.",
+    why: "A breach tests every earlier security choice at once. The skill is knowing which choice limited the damage.",
+    keyIdea: "What you set up before decides what you can do now.",
+  },
 };
 
 export interface ChapterLearning {
@@ -710,6 +745,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Set SLOs and alerts that mean something", "Release changes with a small blast radius", "Degrade gracefully instead of failing", "Plan recovery and multi-region with numbers"],
     why: "Running a system is a different skill from building it. Each practice here converts a vague worry into a number you can act on.",
     payoff: "In an interview you can describe how you would measure, release and recover a service. At work you will recognise which of these your team is missing.",
+  },
+  a12: {
+    story: "Pigeon holds other people's data, and the team learns what it takes to deserve that.",
+    outcomes: ["Separate who you are from what you may do", "Choose session and OAuth designs that can be revoked and cannot be intercepted", "Spend security effort where the risk is", "Limit the damage when something leaks"],
+    why: "Security failures are rarely clever. They are a forgotten check, a long-lived key or a rule that depended on everyone being careful. Each tool here removes one such dependency.",
+    payoff: "In an interview you can design sign-in, access control and secrets handling and say how each fails. At work you will review a change and know which check it skipped.",
   },
 };
 

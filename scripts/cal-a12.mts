@@ -1,0 +1,15 @@
+import { LAB_MODELS } from "../src/widgets/model-lab/models";
+const run = (id: string, v: Record<string, number | string | boolean>, keys: string[], cfg: Record<string, unknown> = {}) => { const m = LAB_MODELS[id]!; const o = m.evaluate({ ...m.init(cfg), ...((cfg.start ?? {}) as object), ...v }, cfg); console.log(id, JSON.stringify(v), keys.map((k) => `${k}=${typeof o.metrics[k] === "number" ? o.metrics[k]!.toPrecision(4) : o.metrics[k]}`).join(" ")); };
+for (const v of [{}, { where: "gateway", authn: true, roles: true }, { where: "service", authn: true, roles: true, owner: true }, { where: "client", authn: true, roles: true, owner: true }]) run("authz-lab", v, ["openToAnyone", "privilegeEscalation", "otherUsersData"]);
+for (const [m, t] of [["session", 60], ["jwt", 1440], ["refresh", 1], ["refresh", 5], ["refresh", 60], ["deny", 15]] as const) run("sessiontoken-lab", { mech: m, ttlMin: t }, ["revokeS", "lookupsPerSec", "bytesPerRequest"]);
+const oc = { lockClient: true, client: "spa" };
+for (const [f, s] of [["implicit", 12], ["code", 3], ["pkce", 3], ["pkce", 12], ["pkce", 2], ["password", 3], ["creds", 3]] as const) run("oauth-lab", { flow: f, scopes: s }, ["interceptable", "secretOnClient", "passwordShared", "fits", "excessScopes"], oc);
+run("owasp-lab", {}, ["breachesPerYear", "engineerDays", "open"]);
+run("owasp-lab", { inject: true, xss: true, auth: true, deps: true, csrf: true }, ["breachesPerYear", "engineerDays", "open"]);
+run("owasp-lab", { inject: true, xss: true, auth: true, deps: true, csrf: true, headers: true, logs: true }, ["breachesPerYear", "engineerDays", "open"]);
+run("owasp-lab", { inject: true, xss: true, auth: true, deps: true, csrf: true, headers: true }, ["breachesPerYear", "engineerDays", "open"]);
+for (const v of [{}, { scan: true }, { scope: "least" }, { scan: true, scope: "service" }, { rotation: "hourly", store: "vault" }, { rotation: "hourly", store: "vault", scope: "admin" }, { scan: true, scope: "admin" }, { rotation: "monthly", scope: "service" }]) run("secrets-lab", v as Record<string, string | boolean>, ["exposureHours", "damageUsd"]);
+const tc = { lockTenants: true, tenants: 20000 };
+for (const [m, q] of [["column", false], ["rls", false], ["rls", true], ["schema", true], ["database", true]] as const) run("tenant-lab", { model: m, quota: q }, ["leaksPerYear", "noisyImpactPct", "costPerTenant", "supported"], tc);
+const bk = ["exposureH", "recordsExposed", "usersNotified", "lockedOut", "persists"];
+for (const v of [{}, { monitor: true, contain: "now", rotate: "all", sessions: "kill", logs: "90", iso: "rls" }, { monitor: true, contain: "now", rotate: "all", sessions: "kill", logs: "90", iso: "column" }, { monitor: true, contain: "now", rotate: "all", sessions: "kill", logs: "7", iso: "rls" }, { monitor: true, contain: "watch", rotate: "all", sessions: "kill", logs: "90", iso: "rls" }]) run("breach-lab", v as Record<string, string | boolean>, bk);

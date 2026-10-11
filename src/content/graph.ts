@@ -512,6 +512,13 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "rpo-rto": "built",
   "multi-region": "built",
   "boss-region-outage": "built",
+  "authn-authz": "built",
+  "sessions-vs-jwt": "built",
+  "oauth-oidc": "built",
+  "owasp-top-risks": "built",
+  "secrets-management": "built",
+  "multi-tenant-isolation": "built",
+  "boss-breach": "built",
 };
 
 function chapterTrack(chapterId: string): Track {
