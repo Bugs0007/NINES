@@ -896,6 +896,36 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "CrashLoopBackOff and slow scaling are the two production Kubernetes problems everyone meets.",
     keyIdea: "A limit is a kill switch with a number on it.",
   },
+  "processes-signals": {
+    canDo: "Explain how a container is told to stop, and set up exec form, a SIGTERM handler, an init and a grace period so shutdown is clean.",
+    why: "Dropped requests on every deploy usually come from a signal that never arrives. It is a quick, concrete win.",
+    keyIdea: "A handler only runs in the process that gets the signal.",
+  },
+  "memory-oom": {
+    canDo: "Explain how the OOM killer chooses, contain a leak with limits, and protect the database.",
+    why: "Exit code 137 is among the most common production mysteries. Knowing who the kernel kills and why is the answer.",
+    keyIdea: "The kernel knows who is big, not who is at fault.",
+  },
+  "file-descriptors": {
+    canDo: "Work out descriptors per connection, size the limit where the process is launched, and close what you open.",
+    why: "'Too many open files' is a classic limit that looks like a capacity problem. The fix is arithmetic and discipline.",
+    keyIdea: "A bigger limit buys time. Only closing the file stops the leak.",
+  },
+  "systemd": {
+    canDo: "Write a unit that restarts transient failures quickly, stops retrying hopeless ones, and fails visibly.",
+    why: "Every host runs a supervisor. Restart policy is part of the availability number.",
+    keyIdea: "Heal what can heal. Give up loudly on what can't.",
+  },
+  "reading-logs": {
+    canDo: "Find the cause of a vanished service with journalctl and the kernel log, and keep evidence that survives a reboot.",
+    why: "The first minutes of an incident decide how well you can investigate it. Logs that survive are what make that possible.",
+    keyIdea: "Logs outlive the machine that wrote them.",
+  },
+  "cpu-credits": {
+    canDo: "Compare average CPU use with a baseline, predict a throttle, and decide between standard, unlimited and fixed-performance instances.",
+    why: "Burstable instances are everywhere, and their throttle looks like an idle machine. Knowing the cliff saves a long debugging session.",
+    keyIdea: "A pinned low number is a throttle, not a rest.",
+  },
 };
 
 export interface ChapterLearning {
@@ -1070,6 +1100,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Explain what a container is and is not", "Build small images and fast builds", "Keep data and networks right", "Run on Kubernetes with probes, limits and autoscaling"],
     why: "Containers and Kubernetes are the default way to ship software. Most of their problems come from assuming they do more than they do.",
     payoff: "In an interview you can explain containers and an orchestrator from first principles. At work you will review a Dockerfile and a manifest for the mistakes that cause outages.",
+  },
+  c2: {
+    story: "A server that worked in testing starts dying at night, and the team has to learn what the operating system is doing.",
+    outcomes: ["Explain signals, memory limits and descriptor limits", "Write a restart policy that heals without looping", "Keep evidence that survives a reboot", "Recognise a CPU throttle on a burstable instance"],
+    why: "Production problems are usually the operating system doing what it was designed to do. Knowing the defaults is half of every diagnosis.",
+    payoff: "In an interview you can walk through why a process died. At work you will read a kernel log and know what you are looking at.",
   },
 };
 

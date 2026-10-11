@@ -572,6 +572,12 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "docker-compose": "built",
   "kubernetes-core": "built",
   "kubernetes-probes-scaling": "built",
+  "processes-signals": "built",
+  "memory-oom": "built",
+  "file-descriptors": "built",
+  "systemd": "built",
+  "reading-logs": "built",
+  "cpu-credits": "built",
 };
 
 function chapterTrack(chapterId: string): Track {
