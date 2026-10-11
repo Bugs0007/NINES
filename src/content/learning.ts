@@ -836,6 +836,26 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Least privilege holds even when the model fails. It is the control interviewers want to hear.",
     keyIdea: "The permissions list is the blast radius.",
   },
+  "rag-vs-finetune": {
+    canDo: "Choose between prompting, retrieval and fine-tuning from the failure you measure, and combine retrieval for facts with tuning for format.",
+    why: "'Should we fine-tune?' is the most common wrong question. Knowing what each tool is for saves months.",
+    keyIdea: "Retrieval changes what it answers from; tuning changes how.",
+  },
+  "lora": {
+    canDo: "Explain low-rank adapters, choose rank and target layers, and use QLoRA to fit a job on a small GPU.",
+    why: "Parameter-efficient tuning is how most teams fine-tune. Knowing the dials shows you have done it.",
+    keyIdea: "A habit is a small change to a big skill.",
+  },
+  "quantization": {
+    canDo: "Compute model size from bits, explain why smaller is faster, and pick a bit width and method by measuring quality.",
+    why: "Quantization decides what you can serve and at what cost. Knowing the knee in the curve is practical judgement.",
+    keyIdea: "Size is arithmetic; quality is what you buy with it.",
+  },
+  "local-models": {
+    canDo: "Work out whether a model fits a GPU from weights, key-value cache and overhead, and choose bits, context and offload to make it fit.",
+    why: "Context length costs memory, not only tokens. This is the question behind every local setup.",
+    keyIdea: "Weights are only part of what you hold.",
+  },
 };
 
 export interface ChapterLearning {
@@ -998,6 +1018,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Explain direct and indirect prompt injection", "Estimate exposure from retrieval", "Close the channels data can leave through", "Scope tools and credentials to cap the worst case"],
     why: "A model follows text, and text comes from strangers. Security here means limiting what a fooled model can reach, not trusting it to resist.",
     payoff: "In an interview you can threat-model an agent. At work you will review an agent's tools and credentials for blast radius.",
+  },
+  b11: {
+    story: "The team asks whether to fine-tune a model, and whether it could run on their own hardware.",
+    outcomes: ["Pick between prompting, retrieval and fine-tuning", "Tune a model cheaply with adapters", "Shrink a model with quantization", "Fit a model and its context on a small GPU"],
+    why: "Prompting is not the only way to change what a model does. Each alternative has a price in effort, memory and quality.",
+    payoff: "In an interview you can say when you would fine-tune and how you would serve it. At work you will size a model for the hardware you have.",
   },
 };
 

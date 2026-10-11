@@ -560,6 +560,10 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "prompt-injection-indirect": "built",
   "tool-exfiltration": "built",
   "least-privilege-tools": "built",
+  "rag-vs-finetune": "built",
+  "lora": "built",
+  "quantization": "built",
+  "local-models": "built",
 };
 
 function chapterTrack(chapterId: string): Track {
