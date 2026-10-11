@@ -584,6 +584,17 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "reflog-rescue": "built",
   "ci-pipelines": "built",
   "iac-basics": "built",
+  "threads-processes-async": "built",
+  "python-gil": "built",
+  "race-conditions": "built",
+  "locks-deadlocks": "built",
+  "oop-solid": "built",
+  "design-patterns": "built",
+  "lld-lru-cache": "built",
+  "lld-parking-lot": "built",
+  "lld-splitwise": "built",
+  "lld-elevator": "built",
+  "lld-rate-limiter-class": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

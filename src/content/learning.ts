@@ -956,6 +956,61 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "'It works in staging' often means the environments differ. Code as the only path to change fixes that.",
     keyIdea: "The code is true only if it is the only way things change.",
   },
+  "threads-processes-async": {
+    canDo: "Compare threads, processes and async by memory per connection and CPU use, and keep CPU work off the event loop.",
+    why: "Concurrency model is the first design decision of a server. Interviewers ask what you would pick for 20,000 connections.",
+    keyIdea: "Waiting is free for a CPU and expensive for a stack.",
+  },
+  "python-gil": {
+    canDo: "Explain the GIL, predict when threads help, and choose processes for CPU-bound Python.",
+    why: "The GIL question separates people who have profiled from people who have read about threads.",
+    keyIdea: "Threads parallelise waiting; processes parallelise computing.",
+  },
+  "race-conditions": {
+    canDo: "Spot a read-modify-write race, and fix it with an atomic operation, a lock or by not sharing state.",
+    why: "Races are the bugs that appear only under load. Naming the interleaving is the skill.",
+    keyIdea: "A read that updates is a write.",
+  },
+  "locks-deadlocks": {
+    canDo: "Explain deadlock as a cycle of waiting, and break it with lock ordering, admission limits or timeouts.",
+    why: "Deadlocks stall a service at zero CPU. Knowing the four conditions gives you the fix.",
+    keyIdea: "Break one link of the cycle.",
+  },
+  "oop-solid": {
+    canDo: "Apply the SOLID principles to a tangled class and say what each one buys and costs.",
+    why: "Interviewers want to see structure that makes change cheap, and judgement about when not to add it.",
+    keyIdea: "Abstract where the change is.",
+  },
+  "design-patterns": {
+    canDo: "Match strategy, observer, factory and decorator to the problems they solve, and avoid patterns that do not fit.",
+    why: "A pattern is a name for a problem. Using the right name is half of a design discussion.",
+    keyIdea: "Use a pattern when you have the problem.",
+  },
+  "lld-lru-cache": {
+    canDo: "Build an LRU cache with constant-time operations from a hash map and a linked list, and make it safe for threads.",
+    why: "The LRU cache is the most common machine-coding question. The follow-up is always concurrency.",
+    keyIdea: "A read that updates recency is a write.",
+  },
+  "lld-parking-lot": {
+    canDo: "Design a parking lot with efficient allocation, extensible vehicle and pricing models, and atomic claims.",
+    why: "A classic design round. The signal is allocation structure and concurrency, not the class list.",
+    keyIdea: "Don't search for free spots. Keep a list of them.",
+  },
+  "lld-splitwise": {
+    canDo: "Model shared expenses with split strategies and integer cents, and settle a group in at most N−1 payments.",
+    why: "Splitwise tests money handling and a graph reduction in one problem.",
+    keyIdea: "Settle balances, not bills.",
+  },
+  "lld-elevator": {
+    canDo: "Design an elevator with a state machine and a scheduler, and compare FCFS, nearest-first and LOOK on mean and worst-case wait.",
+    why: "Scheduling trade-offs are the heart of this question. The tail matters more than the mean.",
+    keyIdea: "People remember the worst wait.",
+  },
+  "lld-rate-limiter-class": {
+    canDo: "Write a rate limiter class with a small interface, an injected clock, atomic updates and bounded memory.",
+    why: "Rate limiting is asked as both a system and a class design. This is the class version.",
+    keyIdea: "Time is a dependency.",
+  },
 };
 
 export interface ChapterLearning {
@@ -1148,6 +1203,18 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Design a fast, trusted CI pipeline", "Describe infrastructure in reviewed code", "Detect and fix drift"],
     why: "Shipping is a loop of change, check and release. Making the loop fast and repeatable is most of what DevOps means.",
     payoff: "In an interview you can design a pipeline and an infrastructure workflow. At work you will make both faster and safer.",
+  },
+  c5: {
+    story: "The service handles load well in testing and then stalls, miscounts or deadlocks in production.",
+    outcomes: ["Choose a concurrency model for a workload", "Know what the GIL does and does not limit", "Find and fix a race", "Prevent a deadlock"],
+    why: "Concurrency bugs depend on timing, so they hide until load finds them. A few rules turn them into design decisions.",
+    payoff: "In an interview you can reason about threads, locks and event loops. At work you will recognise a race or a deadlock from the symptoms.",
+  },
+  c6: {
+    story: "The team's code works and every change is slow and risky. They practise designing classes that change cheaply.",
+    outcomes: ["Apply SOLID with judgement", "Match patterns to problems", "Design the classic machine-coding problems", "Reason about complexity, concurrency and memory in a class"],
+    why: "Low-level design is about confining change. Every classic problem teaches a data structure choice, a concurrency question and an extension point.",
+    payoff: "In an interview you can design the usual machine-coding problems and defend the trade-offs. At work your classes will be easier to change and to test.",
   },
 };
 
