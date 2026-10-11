@@ -255,7 +255,7 @@ export const ringLab: LabModel = {
         { label: "Keys moved when one node is added", value: moved, fmt: "pct", sub: `ideal ${(100 / (n + 1)).toFixed(0)}%`, tone: moved < 1.5 / (n + 1) ? "ok" : moved < 0.3 ? "warn" : "alert" },
         { label: "Busiest node vs the average", value: imb, fmt: "x", tone: imb < 1.15 ? "ok" : imb < 1.5 ? "warn" : "alert" },
         { label: "Spread of load (std dev)", value: ring ? r.stdev : 0.02, fmt: "pct" },
-        { label: "Ring entries to keep sorted", value: ring ? n * vn : n, fmt: "int", sub: ring ? "nodes × virtual nodes" : "just the node list" },
+        { label: "Ring entries to keep sorted", value: ring ? n * vn : n, fmt: "int", sub: ring ? "nodes Ã— virtual nodes" : "just the node list" },
       ],
       view: { kind: "bars", fmt: "x", max: Math.max(1.5, ring ? r.imbalance * 1.05 : 1.1), bars: (ring ? r.loads : Array.from({ length: n }, () => 1.0)).map((l, i) => ({ label: `node ${i + 1}`, value: l, tone: l > 1.3 ? ("alert" as Tone) : l > 1.15 ? ("warn" as Tone) : ("ok" as Tone) })), lines: [{ value: 1, label: "fair share", tone: "ok" }] },
       notes: [ring ? (vn < 20 ? "With few virtual nodes per server, random positions make some nodes own much more of the ring than others." : "Many virtual nodes smooth the ring: each server owns many small slices, so the shares even out.") : `Changing N from ${n} to ${n + 1} moves ${(moved * 100).toFixed(0)}% of keys, almost all of them.`],
