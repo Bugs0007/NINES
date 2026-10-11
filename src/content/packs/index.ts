@@ -200,9 +200,21 @@ import lldParkingLot from "./lld-parking-lot";
 import lldSplitwise from "./lld-splitwise";
 import lldElevator from "./lld-elevator";
 import lldRateLimiterClass from "./lld-rate-limiter-class";
+import caseUrlShortener from "./case-url-shortener";
+import caseKvStore from "./case-kv-store";
+import casePaymentSystem from "./case-payment-system";
+import caseTicketBooking from "./case-ticket-booking";
+import caseNotificationSystem from "./case-notification-system";
+import caseNewsFeed from "./case-news-feed";
+import caseWebCrawler from "./case-web-crawler";
+import caseRateLimiter from "./case-rate-limiter";
+import caseChat from "./case-chat";
+import caseAutocomplete from "./case-autocomplete";
+import caseRideHailing from "./case-ride-hailing";
+import caseVideoPipeline from "./case-video-pipeline";
 
 export const PACKS: ConceptPack[] = [latencyNumbers, littlesLaw, queueingUtilization, scaleUpVsOut, loadBalancing, statelessServices, tokens, contextWindows, tailLatency, estimationQps, estimationStorage, estimationMemory, connectionPooling, autoscaling, dns, tcpUdp, tlsHandshake, httpVersions, keepAlive, reverseProxy, cdn, anycast, requestJourney, cacheAside, zipfAndSizing, evictionPolicies, writePolicies, ttlInvalidation, cacheStampede, hotKeys, cdnCaching, indexesBtree, queryPlans, normalization, transactionsAcid, isolationLevels, mvcc, sqlVsNosql, lsmVsBtree, postgresIsEnough, sampling, hallucination, ttftThroughput, llmCostMath, systemPrompts, promptStructure, extendedThinking, structuredOutputs, promptCaching, promptVersioning, embeddings, cosineSimilarity, biVsCrossEncoder, chunking, bm25, hybridSearchRrf, hyde, reranking, metadataFiltering, annIndexes, retrievalEval, leaderFollower, syncAsyncReplication, replicationLag, failover, multiLeader, leaderlessQuorums, shardingStrategies, shardKeys, hotPartitions, consistentHashing, rebalancing, timeouts, retriesBackoffJitter, idempotency, circuitBreakers, bulkheads, capPacelc, consistencyModels, clocksOrdering, consensusRaft, distributedLocks, twoPcVsSagas, outboxPattern, queuesVsLogs, deliverySemantics, dlqPoison, backpressure, fanOutPubsub, eventDriven, cqrs, eventSourcing, postgresQueue, apiStyles, pagination, idempotencyKeys, apiVersioning, rateLimiting, realtimeTransport, webhooks, sliSloErrorBudgets, observability, deployStrategies, featureFlags, gracefulDegradation, rpoRto, multiRegion, authnAuthz, sessionsVsJwt, oauthOidc, owaspTopRisks, secretsManagement, multiTenantIsolation, blobStorage, invertedIndex, geospatialIndex, timeSeries, evalTestSets, codeGraders, llmAsJudge, promptRegression, offlineOnlineEvals, toolCalling, agentLoop, reactPattern, planning, agentMemory, agentFailureModes, humanInTheLoop, workflowsVsAgents, orchestratorWorker, parallelization, multiAgent, mcpArchitecture, mcpTransports, mcpPrimitives, mcpBuildServer, claudeCodeAnatomy, directingCodingAgents, llmGateway, modelRouting, semanticCaching, llmRateLimitsRetries, streaming, llmTracing, guardrails, piiHandling, llmCostControls, promptInjectionDirect, promptInjectionIndirect, toolExfiltration, leastPrivilegeTools, ragVsFinetune, lora, quantization, localModels, containerBasics, dockerImagesLayers, dockerfileCache, dockerVolumes, dockerNetworking, dockerCompose, kubernetesCore, kubernetesProbesScaling, processesSignals, memoryOom, fileDescriptors, systemd, readingLogs, cpuCredits, gitDag, mergeVsRebase, cherryPickReset, reflogRescue, ciPipelines, iacBasics, threadsProcessesAsync, pythonGil, raceConditions, locksDeadlocks, oopSolid, designPatterns, lldLruCache, lldParkingLot, lldSplitwise, lldElevator, lldRateLimiterClass];
-export const BOSSES: BossPack[] = [bossLaunchDay, bossTheBill, bossViralTuesday, bossFarAwayUsers, bossCelebrityPost, bossSeatRush, bossPrimaryDown, bossRegionOutage, bossBreach, bossShipThePrompt, bossAgentMeltdown];
+export const BOSSES: BossPack[] = [bossLaunchDay, bossTheBill, bossViralTuesday, bossFarAwayUsers, bossCelebrityPost, bossSeatRush, bossPrimaryDown, bossRegionOutage, bossBreach, bossShipThePrompt, bossAgentMeltdown, caseUrlShortener, caseKvStore, casePaymentSystem, caseTicketBooking, caseNotificationSystem, caseNewsFeed, caseWebCrawler, caseRateLimiter, caseChat, caseAutocomplete, caseRideHailing, caseVideoPipeline];
 
 export const PACK_BY_ID: ReadonlyMap<string, ConceptPack> = new Map(PACKS.map((p) => [p.id, p]));
 export const BOSS_BY_ID: ReadonlyMap<string, BossPack> = new Map(BOSSES.map((b) => [b.id, b]));

@@ -1011,6 +1011,66 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Rate limiting is asked as both a system and a class design. This is the class version.",
     keyIdea: "Time is a dependency.",
   },
+  "case-url-shortener": {
+    canDo: "Size a read-heavy service from its numbers, choose the store, cache and ID scheme, and defend 301 versus 302.",
+    why: "The URL shortener is the interview warm-up. The signal is estimating first and designing the read path second.",
+    keyIdea: "Estimate first; the read path decides the design.",
+  },
+  "case-kv-store": {
+    canDo: "Design a distributed key-value store: consistent hashing, replication with quorums, and an LSM engine, with the cost of each.",
+    why: "KV stores are the textbook for placement, replication and consistency. Each choice has a number behind it.",
+    keyIdea: "Placement, replication and engine each answer a different question.",
+  },
+  "case-payment-system": {
+    canDo: "Design payments that charge once, lose nothing and stay auditable: idempotency keys, an outbox, isolation and a ledger.",
+    why: "Payments test whether you know what 'exactly once' costs. Each guarantee has its own mechanism.",
+    keyIdea: "Money moves once and leaves a trail.",
+  },
+  "case-ticket-booking": {
+    canDo: "Prevent double booking under a rush with atomic claims, short holds and a waiting room.",
+    why: "Seat contention is hot-row contention in disguise. The answer is atomic claims and metered demand.",
+    keyIdea: "Make the claim atomic and meter the crowd.",
+  },
+  "case-notification-system": {
+    canDo: "Absorb a blast above the provider's rate with a queue, keyed retries, a dead-letter queue and per-user limits.",
+    why: "Notifications combine queues, retries and idempotency. The trade-off is loss, duplicates, delay and spam.",
+    keyIdea: "Turn the provider's rate limit into delay, not loss.",
+  },
+  "case-news-feed": {
+    canDo: "Choose fan-out on write, read or a hybrid from the follower distribution, and cache feeds.",
+    why: "The feed is the classic skew problem: a few accounts carry most of the work.",
+    keyIdea: "Push for the many, pull for the few.",
+  },
+  "case-web-crawler": {
+    canDo: "Design a polite, fast crawler: a per-host frontier, politeness as a throughput cap, a Bloom filter and a DNS cache.",
+    why: "A crawler is politeness plus scale. The memory for ten billion URLs is its own question.",
+    keyIdea: "Politeness is a throughput cap.",
+  },
+  "case-rate-limiter": {
+    canDo: "Design a limiter shared by many instances: central counts with periodic sync, and a defined failure mode.",
+    why: "Rate limiters are asked as systems and as classes. The failure mode is the part people forget.",
+    keyIdea: "Decide what happens when the shared state is gone.",
+  },
+  "case-chat": {
+    canDo: "Design chat with persistent connections, acknowledged delivery with dedup, presence on demand and sharded history.",
+    why: "Chat packs connections, delivery guarantees, storage and presence into one question.",
+    keyIdea: "The green dot is the expensive part.",
+  },
+  "case-autocomplete": {
+    canDo: "Serve prefix lookups in milliseconds by precomputing top completions in a trie, with a refresh policy.",
+    why: "Autocomplete is a latency budget. Moving ranking from query time to build time is the idea.",
+    keyIdea: "Compute the answer before anyone asks.",
+  },
+  "case-ride-hailing": {
+    canDo: "Design dispatch: an adaptive spatial index, an update interval chosen by position error, and batch matching.",
+    why: "Ride hailing blends geospatial indexing, a write firehose and an assignment decision.",
+    keyIdea: "Batch the decision; adapt the index.",
+  },
+  "case-video-pipeline": {
+    canDo: "Design a video pipeline: resumable uploads, parallel segment encodes, a right-sized ladder, a CDN and storage tiers.",
+    why: "Video shows how each stage of a pipeline has its own bottleneck and its own bill.",
+    keyIdea: "Delivery is the bill; parallelism is the speed.",
+  },
 };
 
 export interface ChapterLearning {

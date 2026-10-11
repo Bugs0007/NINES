@@ -595,6 +595,18 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "lld-splitwise": "built",
   "lld-elevator": "built",
   "lld-rate-limiter-class": "built",
+  "case-url-shortener": "built",
+  "case-kv-store": "built",
+  "case-payment-system": "built",
+  "case-ticket-booking": "built",
+  "case-notification-system": "built",
+  "case-news-feed": "built",
+  "case-web-crawler": "built",
+  "case-rate-limiter": "built",
+  "case-chat": "built",
+  "case-autocomplete": "built",
+  "case-ride-hailing": "built",
+  "case-video-pipeline": "built",
 };
 
 function chapterTrack(chapterId: string): Track {
