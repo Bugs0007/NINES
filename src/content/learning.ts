@@ -66,6 +66,66 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "DNS changes are the one deploy you cannot roll back for clients that already cached the answer. Planning the TTL before the move is the whole job.",
     keyIdea: "Lower the TTL before the move; keep the old address answering.",
   },
+  "inc-stampede": {
+    canDo: "Find why a healthy cache stopped caching, read the hit ratio and TTL, and protect the database behind it.",
+    why: "A cache hides database load until it stops. When the hit ratio collapses, the database sees the real traffic, usually at the worst moment.",
+    keyIdea: "A cache that is up is not necessarily caching.",
+  },
+  "inc-replica-lag": {
+    canDo: "Trace missing or stale reads to a lagging replica, and stop sending traffic to it without waiting for it to catch up.",
+    why: "Replication lag looks like a bug in the app: rows that exist are not found. The only signal is how far behind each replica is.",
+    keyIdea: "Reads from a replica can be older than the write you just made.",
+  },
+  "inc-hot-shard": {
+    canDo: "Tell a hot key from a bad hash, and relieve one overloaded shard when adding more shards cannot help.",
+    why: "Sharding spreads keys evenly only if the keys are used evenly. A single popular key lands on one machine no matter how many there are.",
+    keyIdea: "Add shards for more keys, not for one hot key.",
+  },
+  "inc-retry-storm": {
+    canDo: "Recognise a retry storm that outlives its trigger, and end it by cutting retries or adding capacity rather than by shedding or waiting.",
+    why: "Retries turn a small slowdown into a self-sustaining overload. The trigger can be long gone while the queues stay full of abandoned work.",
+    keyIdea: "Retries multiply load exactly when you can least afford it.",
+  },
+  "inc-poison-message": {
+    canDo: "Find the message that keeps killing queue workers, and stop it with a dead-letter policy and a shorter processing timeout.",
+    why: "A queue redelivers failures forever unless told otherwise. One bad message can occupy every worker while good messages wait.",
+    keyIdea: "Every queue needs a redrive limit and a dead-letter queue.",
+  },
+  "inc-agent-loop": {
+    canDo: "Diagnose an agent stuck in a tool loop from calls per task and cost, and stop it with step caps, loop guards, or a kill switch.",
+    why: "An agent with no stopping rule turns a failed tool call into dozens of model calls. The bill and the error rate rise together.",
+    keyIdea: "Cap steps and spend per task, not just per month.",
+  },
+  "inc-429-storm": {
+    canDo: "Work out who is using a shared rate limit, and restore interactive traffic by throttling batch work and honouring Retry-After.",
+    why: "A 429 is your own limit, not the provider failing. Batch jobs that retry hard on a shared key starve the users that matter.",
+    keyIdea: "Separate batch from interactive traffic, and obey Retry-After.",
+  },
+  "inc-injected-support-bot": {
+    canDo: "Trace bad bot behaviour to untrusted text in its context, and contain it with source control, approvals, and tool limits.",
+    why: "Retrieved documents are data, but a model reads them as instructions. When the bot can act, one poisoned page becomes real damage.",
+    keyIdea: "Treat retrieved text as untrusted, and keep tools on a short leash.",
+  },
+  "inc-oom-container": {
+    canDo: "Read a crash loop to its cause (OOMKilled, exit 137), tell it from probe and node problems, and fix the memory growth.",
+    why: "Restarting pods on a schedule is the kernel enforcing a memory limit. Scaling out or loosening probes only multiplies the crashes.",
+    keyIdea: "A pod that dies on a schedule has a limit it keeps hitting.",
+  },
+  "prod-polling-storm": {
+    canDo: "Find the endpoint behind a traffic jump, size it with Little's Law, and cut polling load with push, backoff, or caching.",
+    why: "A client release can multiply request rate by 30 without any new users. Rate times cost per request, compared with cores, tells you the answer.",
+    keyIdea: "Polling cost = clients x frequency x response size.",
+  },
+  "prod-t3-unreachable": {
+    canDo: "Recognise a burstable instance out of CPU credits from the credit balance and steal time, and restore it with unlimited mode or a larger type.",
+    why: "A machine can be running and healthy by every status check while the hypervisor withholds its CPU. Logs on the box will not tell you.",
+    keyIdea: "Burstable CPU is a budget: watch the credit balance.",
+  },
+  "prod-certbot-404": {
+    canDo: "Fix an expired certificate, then find why automatic renewal failed, and make sure it can never fail silently again.",
+    why: "Certificates expire on a date no one watches. Renewal depends on a proxy path that unrelated config changes can quietly break.",
+    keyIdea: "Alert on days to expiry, not on the outage.",
+  },
   tokens: {
     canDo: "Explain what a token is, why counts differ by language and format, and what a prompt costs per month.",
     why: "Tokens are the unit of cost, speed, and context limits for every LLM feature you'll build.",
@@ -1315,6 +1375,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Apply SOLID with judgement", "Match patterns to problems", "Design the classic machine-coding problems", "Reason about complexity, concurrency and memory in a class"],
     why: "Low-level design is about confining change. Every classic problem teaches a data structure choice, a concurrency question and an extension point.",
     payoff: "In an interview you can design the usual machine-coding problems and defend the trade-offs. At work your classes will be easier to change and to test.",
+  },
+  d1: {
+    story: "The team has run the drills and now meets real outages, the kind that arrive with a vague page and three plausible causes.",
+    outcomes: ["Find the endpoint behind a traffic jump and size it", "Recognise a burstable instance out of CPU credits", "Trace an expired certificate to a broken renewal", "Design and run the production versions of fan-out and job queues"],
+    why: "The last mile is judgement under noise: logs that mislead, fixes that feel productive and are not, and causes that sit several steps back from the symptom.",
+    payoff: "In an interview you can walk through a production incident from page to postmortem. At work you will know what to check first and what not to touch.",
   },
   b12: {
     story: "Pigeon's AI features are in production, and the team rehearses the design questions an interviewer would ask about them.",
