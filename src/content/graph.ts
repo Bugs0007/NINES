@@ -578,6 +578,12 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "systemd": "built",
   "reading-logs": "built",
   "cpu-credits": "built",
+  "git-dag": "built",
+  "merge-vs-rebase": "built",
+  "cherry-pick-reset": "built",
+  "reflog-rescue": "built",
+  "ci-pipelines": "built",
+  "iac-basics": "built",
 };
 
 function chapterTrack(chapterId: string): Track {

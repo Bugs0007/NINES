@@ -926,6 +926,36 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Burstable instances are everywhere, and their throttle looks like an idle machine. Knowing the cliff saves a long debugging session.",
     keyIdea: "A pinned low number is a throttle, not a rest.",
   },
+  "git-dag": {
+    canDo: "Explain a branch as a pointer into a graph of immutable commits, and keep work reachable so it survives gc.",
+    why: "'I lost my commits' is one of the most common Git panics. Knowing reachability removes most of the fear.",
+    keyIdea: "A branch is a label on a commit.",
+  },
+  "merge-vs-rebase": {
+    canDo: "Compare merge, rebase and squash by history shape, conflicts and bisect granularity, and never rewrite shared history.",
+    why: "Teams argue about this constantly. The judgement is knowing what each rewrites and who it affects.",
+    keyIdea: "Never rewrite what others are standing on.",
+  },
+  "cherry-pick-reset": {
+    canDo: "Choose between soft, mixed and hard reset by what each keeps, and cherry-pick a fix to another branch.",
+    why: "A forum command that deletes uncommitted work is a rite of passage. Knowing the three areas avoids it.",
+    keyIdea: "Move the label. Keep the work.",
+  },
+  "reflog-rescue": {
+    canDo: "Recover lost commits with the reflog, fsck and a remote copy, and know what Git never recorded.",
+    why: "The calm way to answer 'I deleted it' is knowing the windows. Pushing early beats all of them.",
+    keyIdea: "Find the hash, then give it a name.",
+  },
+  "ci-pipelines": {
+    canDo: "Design a pipeline for fast, trustworthy feedback: cheap checks first, parallel and cached, flaky tests quarantined.",
+    why: "A slow or noisy pipeline changes how a team behaves. Interviewers ask how you would speed one up.",
+    keyIdea: "Fast feedback, and red that means something.",
+  },
+  "iac-basics": {
+    canDo: "Run a plan, review, apply workflow with remote locked state, and detect and reconcile drift.",
+    why: "'It works in staging' often means the environments differ. Code as the only path to change fixes that.",
+    keyIdea: "The code is true only if it is the only way things change.",
+  },
 };
 
 export interface ChapterLearning {
@@ -1106,6 +1136,18 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Explain signals, memory limits and descriptor limits", "Write a restart policy that heals without looping", "Keep evidence that survives a reboot", "Recognise a CPU throttle on a burstable instance"],
     why: "Production problems are usually the operating system doing what it was designed to do. Knowing the defaults is half of every diagnosis.",
     payoff: "In an interview you can walk through why a process died. At work you will read a kernel log and know what you are looking at.",
+  },
+  c3: {
+    story: "A teammate deletes a branch, a rebase goes wrong, and the team learns what Git actually stores.",
+    outcomes: ["Explain commits, branches and reachability", "Choose between merge, rebase and squash", "Pick the right reset and move a single fix", "Recover work that seems lost"],
+    why: "Git is a database of snapshots with names on top. Once you see the shape, almost every mistake is recoverable and every workflow debate has a clear trade-off.",
+    payoff: "In an interview you can explain Git's model and its rules of thumb. At work you will fix a bad rebase calmly.",
+  },
+  c4: {
+    story: "Deploys are slow, environments differ, and nobody trusts the pipeline.",
+    outcomes: ["Design a fast, trusted CI pipeline", "Describe infrastructure in reviewed code", "Detect and fix drift"],
+    why: "Shipping is a loop of change, check and release. Making the loop fast and repeatable is most of what DevOps means.",
+    payoff: "In an interview you can design a pipeline and an infrastructure workflow. At work you will make both faster and safer.",
   },
 };
 

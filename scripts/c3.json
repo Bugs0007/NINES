@@ -1,0 +1,52 @@
+{
+ "packs": [
+  {
+   "id": "git-dag",
+   "import": "gitDag",
+   "learn": {
+    "canDo": "Explain a branch as a pointer into a graph of immutable commits, and keep work reachable so it survives gc.",
+    "why": "'I lost my commits' is one of the most common Git panics. Knowing reachability removes most of the fear.",
+    "keyIdea": "A branch is a label on a commit."
+   }
+  },
+  {
+   "id": "merge-vs-rebase",
+   "import": "mergeVsRebase",
+   "learn": {
+    "canDo": "Compare merge, rebase and squash by history shape, conflicts and bisect granularity, and never rewrite shared history.",
+    "why": "Teams argue about this constantly. The judgement is knowing what each rewrites and who it affects.",
+    "keyIdea": "Never rewrite what others are standing on."
+   }
+  },
+  {
+   "id": "cherry-pick-reset",
+   "import": "cherryPickReset",
+   "learn": {
+    "canDo": "Choose between soft, mixed and hard reset by what each keeps, and cherry-pick a fix to another branch.",
+    "why": "A forum command that deletes uncommitted work is a rite of passage. Knowing the three areas avoids it.",
+    "keyIdea": "Move the label. Keep the work."
+   }
+  },
+  {
+   "id": "reflog-rescue",
+   "import": "reflogRescue",
+   "learn": {
+    "canDo": "Recover lost commits with the reflog, fsck and a remote copy, and know what Git never recorded.",
+    "why": "The calm way to answer 'I deleted it' is knowing the windows. Pushing early beats all of them.",
+    "keyIdea": "Find the hash, then give it a name."
+   }
+  }
+ ],
+ "chapter": {
+  "id": "c3",
+  "story": "A teammate deletes a branch, a rebase goes wrong, and the team learns what Git actually stores.",
+  "outcomes": [
+   "Explain commits, branches and reachability",
+   "Choose between merge, rebase and squash",
+   "Pick the right reset and move a single fix",
+   "Recover work that seems lost"
+  ],
+  "why": "Git is a database of snapshots with names on top. Once you see the shape, almost every mistake is recoverable and every workflow debate has a clear trade-off.",
+  "payoff": "In an interview you can explain Git's model and its rules of thumb. At work you will fix a bad rebase calmly."
+ }
+}
