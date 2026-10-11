@@ -56,6 +56,16 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "On-call is where these ideas get used for real. Finding the cause from evidence under time pressure is a different skill from knowing the theory.",
     keyIdea: "Mitigate first, explain second, prevent third.",
   },
+  "inc-pool-exhaustion": {
+    canDo: "Trace a total outage to a connection pool that a few slow queries drained, and free it without adding servers that make it worse.",
+    why: "Pool exhaustion looks like an app problem with idle app servers. Reading the wait for a connection, not the CPU, is what points at the database.",
+    keyIdea: "Idle app servers and failing requests: look at what they wait for.",
+  },
+  "inc-dns-ttl": {
+    canDo: "Explain why a migration left a share of users on a dead address, and restore them without waiting for caches to expire.",
+    why: "DNS changes are the one deploy you cannot roll back for clients that already cached the answer. Planning the TTL before the move is the whole job.",
+    keyIdea: "Lower the TTL before the move; keep the old address answering.",
+  },
   tokens: {
     canDo: "Explain what a token is, why counts differ by language and format, and what a prompt costs per month.",
     why: "Tokens are the unit of cost, speed, and context limits for every LLM feature you'll build.",

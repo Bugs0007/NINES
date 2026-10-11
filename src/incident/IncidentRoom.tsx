@@ -18,7 +18,7 @@ import { Cinematic } from "@/ui/Cinematic";
 import { Button, Chip, cx, fmtLatency, fmtPct, Led, LinkButton } from "@/ui/kit";
 import { useTrackLevelStart } from "@/analytics/hooks";
 import { spring, Ticker } from "@/ui/motion";
-import { clockAt } from "./inc-fourth-box";
+import { clockAt } from "./clock";
 import { Dashboards, Hosts, Logs, Timeline, Traces, type Pin } from "./panels";
 import type { Incident, IncidentState, LogLine } from "./types";
 import { HonestNotes } from "@/ui/HonestNotes";
@@ -300,7 +300,7 @@ export function IncidentRoom({ inc }: { inc: Incident }) {
             ))}
           </section>
           <Button variant={recovered !== null ? "go" : "secondary"} size="lg" disabled={recovered === null || !hyp} onClick={() => setPhase("postmortem")} className="mt-auto shrink-0">
-            {recovered === null ? "Recover checkout first" : !hyp ? "Pick a hypothesis" : "Resolve and write the postmortem"}
+            {recovered === null ? `Recover ${inc.service ?? "checkout"} first` : !hyp ? "Pick a hypothesis" : "Resolve and write the postmortem"}
           </Button>
         </aside>
       </div>
@@ -522,7 +522,7 @@ function Postmortem({ inc, pins, hyp, applied, recovered, failed, onScored }: { 
       </div>
       <AnimatePresence />
       <div className="mt-8 text-xs leading-relaxed text-ink-3">
-        Failed checkouts during the incident: <span className="font-mono tabular text-ink-2">{failed.toLocaleString()}</span> · time to mitigate:{" "}
+        Failed {inc.service ?? "checkout"} requests during the incident: <span className="font-mono tabular text-ink-2">{failed.toLocaleString()}</span> · time to mitigate:{" "}
         <span className="font-mono tabular text-ink-2">{recovered === null ? "—" : `${Math.round(recovered - inc.pageAt)}s`}</span>
       </div>
     </div>

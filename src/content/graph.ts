@@ -404,6 +404,8 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "stateless-services": "built",
   "boss-launch-day": "built",
   "inc-fourth-box": "built",
+  "inc-pool-exhaustion": "built",
+  "inc-dns-ttl": "built",
   tokens: "built",
   "context-windows": "built",
   "boss-the-bill": "built",

@@ -46,6 +46,6 @@ describe.each(INCIDENTS.map((i) => [i.code, i] as const))("%s", (_code, inc) => 
     expect(inc.hypotheses.filter((h) => h.correct)).toHaveLength(1);
     expect(inc.evidence.filter((e) => e.key).length).toBeGreaterThanOrEqual(3);
     const cats = new Set([...inc.staticLogs.map((l) => l.evidence), ...inc.traces.map((t) => t.evidence)].filter(Boolean));
-    for (const e of inc.evidence) if (!["cpu-low", "env-missing", "gunicorn-1-worker", "health-nginx", "target-latency"].includes(e.id)) expect(cats.has(e.id), e.id).toBe(true);
+    for (const e of inc.evidence) if (!(inc.evidenceVia ?? []).includes(e.id)) expect(cats.has(e.id), e.id).toBe(true);
   });
 });

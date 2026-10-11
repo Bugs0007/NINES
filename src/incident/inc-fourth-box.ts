@@ -32,16 +32,8 @@ function spec(): SimSpec {
 const ip = (h: string) => `10.0.1.${10 + HOSTS.indexOf(h) * 11}`;
 const ALB_IP = "10.0.0.37"; // an ALB node's private IP
 
-/** "02:14:07" for a sim time, given clock0 = 02:12:00. */
-export function clockAt(t: number, clock0 = "02:12:00"): string {
-  const [h, m, s] = clock0.split(":").map(Number) as [number, number, number];
-  let total = h * 3600 + m * 60 + s + Math.floor(t);
-  total = ((total % 86400) + 86400) % 86400;
-  const hh = String(Math.floor(total / 3600)).padStart(2, "0");
-  const mm = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
-  const ss = String(total % 60).padStart(2, "0");
-  return `${hh}:${mm}:${ss}`;
-}
+import { clockAt } from "./clock";
+export { clockAt };
 
 const STATIC: LogLine[] = [
   { t: -1908, host: "ci", source: "deploy", level: "INFO", text: "deploy v2.14.3 started: frontend assets only (no backend changes)", evidence: "deploy-frontend" },
@@ -360,5 +352,6 @@ export const INC_FOURTH_BOX: Incident = {
     "One box is failing while barely using its CPU. What resource runs out before CPU does?",
     "Compare that box with a healthy one on the host itself: processes and configuration. And ask yourself why the load balancer still trusts it.",
   ],
+  evidenceVia: ["cpu-low", "env-missing", "gunicorn-1-worker", "health-nginx", "target-latency"],
   exercises: ["littles-law", "load-balancing", "scale-up-vs-out"],
 };

@@ -3,7 +3,7 @@
  * sim state), so they're TypeScript modules rather than Zod-validated data.
  */
 import type { CastLine } from "@/content/schema";
-import type { SimPatch, SimSpec, WindowMetrics } from "@/engine/types";
+import type { NodeWindow, SimPatch, SimSpec, WindowMetrics } from "@/engine/types";
 
 export type LogSource = "nginx" | "gunicorn" | "alb" | "asg" | "deploy" | "cron" | "postgres" | "app";
 export type LogLevel = "INFO" | "WARN" | "ERROR" | "CRIT";
@@ -69,8 +69,22 @@ export interface Trace {
   evidence?: string;
 }
 
+export interface DashboardConfig {
+  /** Heading for the targets table. */
+  label: string;
+  /** Which node ids appear in the table (default: app-N). */
+  ids?: (all: string[]) => string[];
+  /** Evidence category a row supports, by node and window (default: the first incident's rule). */
+  evidence?: (id: string, nw: NodeWindow) => string | undefined;
+  /** A custom service map; default is the fleet layout. */
+  map?: { nodes: import("@/ui/flow/FlowView").FlowNode[]; edges: import("@/ui/flow/FlowView").FlowEdge[] };
+}
+
 export interface Incident {
   id: string;
+  /** What is failing, for button text ("checkout" by default). */
+  service?: string;
+  dashboard?: DashboardConfig;
   code: string;
   title: string;
   severity: "SEV-1" | "SEV-2";
@@ -98,6 +112,8 @@ export interface Incident {
   extraSeries: { id: string; label: string; unit: "%" | "ms"; at: (t: number) => number }[];
   postmortem: { rubric: { id: string; criterion: string }[]; exemplar: string };
   hints: string[];
+  /** Evidence ids discovered through commands or dashboards instead of static logs and traces. */
+  evidenceVia?: string[];
   /** Concepts this incident exercises (transfer credit). */
   exercises: string[];
 }
