@@ -556,6 +556,46 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "Webhooks are the way most products integrate. Reliability and security are both on the checklist.",
     keyIdea: "A secret URL is obscure; a signature is the lock.",
   },
+  "sli-slo-error-budgets": {
+    canDo: "Turn incidents into error-budget minutes for a chosen SLO, and set burn-rate alerts that catch floods and leaks without paging on blips.",
+    why: "SLOs and error budgets are how reliability is traded against change. Burn-rate alerting is the usual follow-up.",
+    keyIdea: "Page on how fast the budget burns.",
+  },
+  "observability": {
+    canDo: "Choose metrics, traces and logs to detect, locate and explain an incident within a budget, using tail sampling and correlation ids.",
+    why: "Observability spend is easy to overdo or underdo. Tying each signal to a question shows judgement.",
+    keyIdea: "Metrics detect, traces locate, logs explain.",
+  },
+  "deploy-strategies": {
+    canDo: "Compare all-at-once, rolling, blue-green and canary releases by users exposed and time to roll back, and size a canary.",
+    why: "Safe deploys are a standard senior topic. The canary-sizing detail separates memorised from understood answers.",
+    keyIdea: "Limit the audience and shorten the way back.",
+  },
+  "feature-flags": {
+    canDo: "Plan a flag rollout with a small first step and a fast kill switch, and stop flag debt with owners and expiry dates.",
+    why: "Flags decouple deploy from release. Their costs, dead branches and slow switches, are the follow-up.",
+    keyIdea: "A flag is a loan; somebody must pay it back.",
+  },
+  "graceful-degradation": {
+    canDo: "Classify dependencies as critical or optional, add fallbacks, and shed optional work under overload.",
+    why: "Availability multiplies down with every required dependency. Degrading gracefully is how pages survive bad days.",
+    keyIdea: "Not everything on a page is the page.",
+  },
+  "rpo-rto": {
+    canDo: "Meet stated RPO and RTO targets with backups, replicas or cross-region copies, and prove them with restore drills.",
+    why: "Recovery targets drive disaster recovery cost. Knowing that replication is not a backup is a classic check.",
+    keyIdea: "A backup nobody has restored is a hope.",
+  },
+  "multi-region": {
+    canDo: "Compare single region, active-passive and active-active on downtime, latency, data loss and cost.",
+    why: "Going multi-region is a large commitment. Pricing it against the real failure rate is the senior answer.",
+    keyIdea: "Fix outages with a standby, distance with active-active.",
+  },
+  "boss-region-outage": {
+    canDo: "Combine detection, automatic failover, DNS, replication and degradation into a region-loss plan within a budget.",
+    why: "A region failure tests every operations choice at once. The skill is finding the slowest link.",
+    keyIdea: "Add up the minutes, then attack the longest.",
+  },
 };
 
 export interface ChapterLearning {
@@ -664,6 +704,12 @@ export const CHAPTER_LEARNING: Record<string, ChapterLearning> = {
     outcomes: ["Choose an API style by caller and network", "Paginate and rate limit without surprises", "Make requests safe to retry and changes safe to ship", "Push events to clients and partners reliably and securely"],
     why: "An API is read by code you did not write and cannot update. Every shortcut shows up later as someone else's outage.",
     payoff: "In an interview you can design an API and defend each choice. At work you will review one and know which promises it makes.",
+  },
+  a11: {
+    story: "Pigeon becomes a service people depend on, and the team learns to run it: measure it, ship it carefully, and survive its worst day.",
+    outcomes: ["Set SLOs and alerts that mean something", "Release changes with a small blast radius", "Degrade gracefully instead of failing", "Plan recovery and multi-region with numbers"],
+    why: "Running a system is a different skill from building it. Each practice here converts a vague worry into a number you can act on.",
+    payoff: "In an interview you can describe how you would measure, release and recover a service. At work you will recognise which of these your team is missing.",
   },
 };
 

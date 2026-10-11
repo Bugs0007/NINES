@@ -504,6 +504,14 @@ const STATUS: Partial<Record<string, BuildStatus>> = {
   "rate-limiting": "built",
   "realtime-transport": "built",
   "webhooks": "built",
+  "sli-slo-error-budgets": "built",
+  "observability": "built",
+  "deploy-strategies": "built",
+  "feature-flags": "built",
+  "graceful-degradation": "built",
+  "rpo-rto": "built",
+  "multi-region": "built",
+  "boss-region-outage": "built",
 };
 
 function chapterTrack(chapterId: string): Track {
