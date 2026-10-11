@@ -156,4 +156,74 @@ export const pgqProdLab: LabModel = {
   scene: (n): SceneOut => (n === "lease" ? { set: { lease: 15 }, focus: ["lease"] } : n === "attempts" ? { set: { attempts: 5, backoff: true }, focus: ["attempts", "backoff"] } : n === "rows" ? { set: { rows: "partition" }, focus: ["rows"] } : undefined),
 };
 
-export const D1_MODELS: LabModel[] = [fanoutLab, pgqProdLab];
+// ------------------------------------------------------------------ capstone: legal search at national scale
+
+const PEAK_DOCS_S = 21;
+const DOC_S = 1.5;
+const QUERIES_MONTH = 15e6;
+
+export function capstoneRun(workers: number, bulkhead: boolean, lease: boolean, iso: string, hybrid: boolean, rerank: boolean, model: string, cache: boolean) {
+  const effective = workers * (bulkhead ? 1 : 0.4);
+  const cap = effective / DOC_S;
+  const freshMin = cap >= PEAK_DOCS_S ? 3 : 3 + ((PEAK_DOCS_S - cap) * 28800) / cap / 60;
+  const lost = lease ? 0 : 48;
+  const recall = 0.72 + (hybrid ? 0.1 : 0) + (rerank ? 0.07 : 0) + (hybrid && rerank ? 0.02 : 0);
+  const p99 = 60 + (hybrid ? 40 : 0) + (rerank ? 180 : 0);
+  const leak = iso === "filter" ? 0.002 : iso === "namespace" ? 0.00005 : 0.00001;
+  const isoMult = iso === "filter" ? 1 : iso === "namespace" ? 1.05 : 2.4;
+  const perAnswer = model === "large" ? 0.009 : model === "small" ? 0.001 : 0.2 * 0.009 + 0.8 * 0.001;
+  const quality = model === "large" ? 0.93 : model === "small" ? 0.78 : 0.91;
+  const answers = QUERIES_MONTH * (cache ? 0.65 : 1) * perAnswer;
+  const cost = workers * 50 + 1800 * isoMult + (rerank ? 2500 : 0) + answers;
+  return { freshMin, lost, recall, p99, leak, cost, quality };
+}
+
+export const capstoneLab: LabModel = {
+  id: "capstone-legal-lab",
+  metrics: ["freshnessMinutes", "lostDocsPerDay", "recallAt10", "p99Ms", "leakRisk", "monthlyCost", "answerQuality"],
+  observes: ["stale-index", "crossed-firms"],
+  scenes: ["ingest", "isolate", "serve"],
+  runLabel: "Launch the service",
+  honest: [
+    "A national legal search: 600,000 new judgments a day from 700 court sites (21 a second at the peak), 15 million questions a month from law firms, each firm's private documents kept apart. Ingesting a document (fetch, parse, chunk, embed) takes 1.5 s of one worker. 5% of court sites are slow; without a bulkhead they hold 60% of the workers.",
+    "Recall, latency and leak figures are the round numbers from the legal-RAG case (hybrid search +10 points, reranking +7, 180 ms for the reranker). Isolation: a shared index with a tenant filter leaks about once in 500 queries when a filter is missed; namespaces about once in 20,000; an index per firm about once in 100,000 and 2.4 times the index cost. Answer cost uses $0.009 for the large model and $0.001 for the small one, tiering 20% to the large one, a cache answering 35% of questions.",
+    "These are round figures to show how the earlier chapters combine, not a quote.",
+  ],
+  init: () => ({ workers: 8, bulkhead: false, lease: false, iso: "filter", hybrid: false, rerank: false, model: "large", cache: false }),
+  controls: () => [
+    { kind: "slider", id: "workers", label: "Ingest workers", min: 4, max: 128, step: 4, log: true, fmt: "int" },
+    { kind: "toggle", id: "bulkhead", label: "Bulkhead slow court sites" },
+    { kind: "toggle", id: "lease", label: "Queue lease, attempt cap and dead letters" },
+    { kind: "choice", id: "iso", label: "Firm isolation", options: [{ id: "filter", label: "Shared index with a tenant filter" }, { id: "namespace", label: "One namespace per firm" }, { id: "index", label: "A separate index per firm" }] },
+    { kind: "toggle", id: "hybrid", label: "Hybrid search (keyword + vector)" },
+    { kind: "toggle", id: "rerank", label: "Rerank the top results" },
+    { kind: "choice", id: "model", label: "Answer model", options: [{ id: "large", label: "Large for every question" }, { id: "small", label: "Small for every question" }, { id: "tiered", label: "Small first, large when unsure" }] },
+    { kind: "toggle", id: "cache", label: "Cache repeated questions" },
+  ],
+  evaluate: (v) => {
+    const r = capstoneRun(Math.round(num(v, "workers")), bool(v, "bulkhead"), bool(v, "lease"), str(v, "iso"), bool(v, "hybrid"), bool(v, "rerank"), str(v, "model"), bool(v, "cache"));
+    return {
+      metrics: { freshnessMinutes: r.freshMin, lostDocsPerDay: r.lost, recallAt10: r.recall, p99Ms: r.p99, leakRisk: r.leak, monthlyCost: r.cost, answerQuality: r.quality },
+      readouts: [
+        { label: "New judgments searchable within", value: r.freshMin, fmt: "int", sub: "minutes", tone: tone(r.freshMin, 15, 60) },
+        { label: "Documents lost a day", value: r.lost, fmt: "int", tone: tone(r.lost, 0, 10) },
+        { label: "Recall at 10", value: r.recall, fmt: "pct", tone: toneLow(r.recall, 0.88, 0.8) },
+        { label: "Search p99", value: r.p99, fmt: "ms", tone: tone(r.p99, 300, 400) },
+        { label: "Chance a query crosses firms", value: r.leak, fmt: "pct", tone: tone(r.leak, 0.0001, 0.001) },
+        { label: "Cost a month", value: r.cost, fmt: "usd", tone: tone(r.cost, 40000, 70000) },
+        { label: "Answer quality", value: r.quality, fmt: "pct", tone: toneLow(r.quality, 0.9, 0.8) },
+      ],
+      view: { kind: "bars", fmt: "usd", max: 150000, bars: [{ label: "Monthly cost", value: r.cost, tone: tone(r.cost, 40000, 70000) }] },
+      notes: [r.freshMin > 60 ? "New judgments wait hours: the ingest side cannot keep up at the peak." : r.leak > 0.001 ? "One missed filter shows a firm's documents to another." : r.cost > 70000 ? "The answers dominate the bill." : "Each earlier chapter is a setting here."],
+    };
+  },
+  events: (v, out) => {
+    const ev: string[] = [];
+    if (out.metrics.freshnessMinutes! > 60) ev.push("stale-index");
+    if (out.metrics.leakRisk! > 0.001) ev.push("crossed-firms");
+    return ev;
+  },
+  scene: (n): SceneOut => (n === "ingest" ? { set: { workers: 32, bulkhead: true, lease: true }, focus: ["workers", "bulkhead", "lease"] } : n === "isolate" ? { set: { iso: "namespace" }, focus: ["iso"] } : n === "serve" ? { set: { hybrid: true, rerank: true, model: "tiered", cache: true }, focus: ["hybrid", "rerank", "model", "cache"] } : undefined),
+};
+
+export const D1_MODELS: LabModel[] = [fanoutLab, pgqProdLab, capstoneLab];

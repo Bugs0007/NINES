@@ -1,0 +1,14 @@
+{
+ "packs": [
+  {
+   "id": "capstone-legal-search",
+   "import": "capstoneLegalSearch",
+   "boss": true,
+   "learn": {
+    "canDo": "Design a national-scale search service end to end: resilient ingest, firm isolation, hybrid retrieval and a controlled answer bill.",
+    "why": "Real systems are all the earlier chapters at once, with a contract and a budget. Choosing which idea applies, without being told, is the skill.",
+    "keyIdea": "Every setting is a lesson you already paid for."
+   }
+  }
+ ]
+}

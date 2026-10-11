@@ -1181,6 +1181,11 @@ export const CONCEPT_LEARNING: Record<string, ConceptLearning> = {
     why: "A queue that claims correctly can still lose jobs, loop on bad ones and bloat. These are the failures that page you in the second month.",
     keyIdea: "Every claim needs an expiry, and every retry a limit.",
   },
+  "capstone-legal-search": {
+    canDo: "Design a national-scale search service end to end: resilient ingest, firm isolation, hybrid retrieval and a controlled answer bill.",
+    why: "Real systems are all the earlier chapters at once, with a contract and a budget. Choosing which idea applies, without being told, is the skill.",
+    keyIdea: "Every setting is a lesson you already paid for.",
+  },
 };
 
 export interface ChapterLearning {
